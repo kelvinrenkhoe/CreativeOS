@@ -1,0 +1,10 @@
+
+# Secrets
+.env
+*.key
+openai_api_key.txt
+
+# Python
+__pycache__/
+*.pyc
+.venv/
