@@ -1,0 +1,2 @@
+[console_scripts]
+creativeos = cli.main:app

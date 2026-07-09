@@ -1,0 +1,248 @@
+Metadata-Version: 2.4
+Name: creativeos
+Version: 0.1.0
+Summary: Private creator productivity toolkit for Kelvin Rankie's music workflow.
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: typer
+Requires-Dist: rich
+Requires-Dist: PyYAML
+Dynamic: license-file
+
+# 🎨 CreativeOS
+
+> **The Open Source Operating System for Creators**
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.13+-blue.svg)]()
+[![Status](https://img.shields.io/badge/status-Planning-orange.svg)]()
+
+---
+
+## What is CreativeOS?
+
+CreativeOS is an open-source framework that helps creators manage their entire creative workflow—from idea to audience.
+
+Instead of juggling dozens of disconnected tools, CreativeOS provides a structured workflow for planning, creating, organizing, promoting, and tracking creative projects.
+
+Whether you're a musician, author, podcaster, YouTuber, or content creator, CreativeOS provides a consistent, repeatable process that saves time and keeps your work organized.
+
+---
+
+## The Problem
+
+Independent creators often rely on many disconnected tools:
+
+- ChatGPT
+- Canva
+- CapCut
+- Spotify for Artists
+- Google Drive
+- Notion
+- Social Media Platforms
+- Analytics Dashboards
+
+Each tool solves one part of the workflow, but none connects the entire creative lifecycle.
+
+---
+
+## The Solution
+
+CreativeOS becomes the orchestration layer.
+
+```text
+Idea
+ │
+ ▼
+Planning
+ │
+ ▼
+Writing
+ │
+ ▼
+AI Generation
+ │
+ ▼
+Editing
+ │
+ ▼
+Publishing
+ │
+ ▼
+Promotion
+ │
+ ▼
+Analytics
+ │
+ ▼
+Archive
+```
+
+One framework.
+
+One workflow.
+
+One repository.
+
+---
+
+# Philosophy
+
+Creators should spend more time creating and less time managing.
+
+CreativeOS automates repetitive tasks while leaving creative decisions in the hands of the creator.
+
+---
+
+# Features (Planned)
+
+- Project Workspaces
+- Song Management
+- Book Projects
+- AI Prompt Management
+- AI Image Workflows
+- AI Video Workflows
+- Content Calendar
+- Campaign Management
+- Social Media Planning
+- Spotify Promotion
+- Analytics Tracking
+- Plugin Architecture
+- Creator Templates
+- CLI Interface
+
+---
+
+# Example Commands
+
+```bash
+creativeos init
+
+creativeos doctor
+
+creativeos status
+
+creativeos new-song "No Lose Guard"
+
+creativeos weekly
+
+creativeos generate-prompts
+
+creativeos generate-captions
+
+creativeos analytics
+```
+
+---
+
+# Repository Structure
+
+```text
+CreativeOS
+
+cli/
+core/
+plugins/
+integrations/
+templates/
+docs/
+examples/
+tests/
+scripts/
+```
+
+---
+
+# Project Status
+
+Current Phase
+
+> Sprint 0 — Product Discovery
+
+Current Focus
+
+- Product Requirements
+- Architecture
+- Documentation
+- CLI Design
+
+No production code has been written yet.
+
+The project is currently being designed before implementation.
+
+---
+
+# Design Principles
+
+- Creator First
+- Documentation First
+- Open Source Core
+- Plugin Architecture
+- AI Assisted
+- Platform Agnostic
+- Automation Where It Matters
+
+---
+
+# Who is CreativeOS for?
+
+- Musicians
+- Authors
+- Podcasters
+- YouTubers
+- Public Speakers
+- Educators
+- Independent Creators
+
+---
+
+# Roadmap
+
+Version 0.1
+
+- Product Design
+- Documentation
+- CLI Specification
+
+Version 0.2
+
+- Project Initialization
+
+Version 0.3
+
+- Song Workspaces
+
+Version 0.4
+
+- Prompt Generation
+
+Version 1.0
+
+- Public Release
+
+---
+
+# Contributing
+
+CreativeOS is an open-source project.
+
+Contributions, ideas, documentation improvements, templates, and integrations are welcome.
+
+---
+
+# Inspiration
+
+CreativeOS is inspired by the discipline of software engineering and the realities of independent creators.
+
+The project applies proven engineering practices—automation, version control, reusable templates, and structured workflows—to the creative process.
+
+---
+
+# License
+
+MIT License
+
+---
+
+> **Build Less Chaos. Create More.**
