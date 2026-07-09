@@ -1,0 +1,11 @@
+folders:
+  - audio
+  - lyrics
+  - covers
+  - ai-images
+  - ai-videos
+  - capcut
+  - exports
+
+files:
+  - README.md
