@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "creativeos"
+version = "0.1.0"
+description = "Private creator productivity toolkit for Kelvin Rankie's music workflow."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "typer",
+    "rich",
+    "PyYAML",
+]
+
+[project.scripts]
+creativeos = "cli.main:app"
+
+[tool.setuptools]
+packages = [
+    "cli",
+    "core",
+    "plugins",
+    "integrations",
+    "integrations.openai",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
