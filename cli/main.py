@@ -7,6 +7,8 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from cli.index import app as index_app
+from cli.repository import search_command, stats_command
 from cli.song import app as song_app
 from core.config import ConfigurationError
 from core.project import Project
@@ -21,6 +23,9 @@ app = typer.Typer(
 )
 
 app.add_typer(song_app, name="song")
+app.add_typer(index_app, name="index")
+app.command("search")(search_command)
+app.command("stats")(stats_command)
 
 console = Console()
 
