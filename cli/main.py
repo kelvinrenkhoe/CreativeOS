@@ -1,7 +1,7 @@
 """CreativeOS command-line interface."""
 
-from importlib.metadata import PackageNotFoundError, version
 import platform
+from importlib.metadata import PackageNotFoundError, version
 
 import typer
 from rich.console import Console
