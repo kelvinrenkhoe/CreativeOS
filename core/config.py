@@ -1,15 +1,12 @@
-"""
-Configuration loading for CreativeOS.
-
-This module discovers a CreativeOS workspace and loads its project.yaml file.
-"""
+"""Configuration discovery and loading for CreativeOS workspaces."""
 
 from pathlib import Path
-from typing import Any
 
 import yaml
 
-CONFIG_RELATIVE_PATH = Path("creativeos-config/project.yaml")
+from models.config import CreativeOSConfig
+
+CONFIG_FILENAME = "creativeos.yaml"
 
 
 class ConfigurationError(Exception):
@@ -17,58 +14,38 @@ class ConfigurationError(Exception):
 
 
 def find_workspace(start_path: Path | None = None) -> Path:
-    """
-    Find the CreativeOS workspace by searching upwards for project.yaml.
-
-    Args:
-        start_path: Directory to start searching from. Defaults to current directory.
-
-    Returns:
-        Path: Workspace root directory.
-
-    Raises:
-        ConfigurationError: If no CreativeOS workspace is found.
-    """
+    """Find the nearest CreativeOS workspace by searching parent directories."""
     current_path = (start_path or Path.cwd()).resolve()
-
     if current_path.is_file():
         current_path = current_path.parent
 
-    for path in [current_path, *current_path.parents]:
-        config_path = path / CONFIG_RELATIVE_PATH
-        if config_path.exists():
+    for path in (current_path, *current_path.parents):
+        if (path / CONFIG_FILENAME).is_file():
             return path
 
     raise ConfigurationError(
-        "CreativeOS workspace not found. "
-        "Expected creativeos-config/project.yaml in this directory or a parent directory."
+        f"CreativeOS workspace not found. Expected {CONFIG_FILENAME} in this "
+        "directory or a parent directory."
     )
 
 
-def load_config(start_path: Path | None = None) -> dict[str, Any]:
-    """
-    Load CreativeOS project configuration from project.yaml.
-
-    Args:
-        start_path: Directory to start searching from. Defaults to current directory.
-
-    Returns:
-        dict[str, Any]: Parsed YAML configuration.
-
-    Raises:
-        ConfigurationError: If config file is missing, empty, or invalid.
-    """
+def load_config(start_path: Path | None = None) -> CreativeOSConfig:
+    """Load and validate the nearest CreativeOS workspace configuration."""
     workspace_root = find_workspace(start_path)
-    config_path = workspace_root / CONFIG_RELATIVE_PATH
+    config_path = workspace_root / CONFIG_FILENAME
 
     try:
         with config_path.open("r", encoding="utf-8") as file:
-            config = yaml.safe_load(file)
-
+            raw_config = yaml.safe_load(file)
+    except OSError as exc:
+        raise ConfigurationError(f"Unable to read {config_path}: {exc}") from exc
     except yaml.YAMLError as exc:
         raise ConfigurationError(f"Invalid YAML configuration: {exc}") from exc
 
-    if not isinstance(config, dict):
+    if not isinstance(raw_config, dict):
         raise ConfigurationError("Configuration file is empty or invalid.")
 
-    return config
+    try:
+        return CreativeOSConfig.from_dict(raw_config)
+    except (TypeError, ValueError) as exc:
+        raise ConfigurationError(f"Invalid CreativeOS configuration: {exc}") from exc
