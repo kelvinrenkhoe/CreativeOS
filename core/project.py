@@ -4,7 +4,8 @@ from pathlib import Path
 
 from core.config import find_workspace, load_config
 from models.config import CreativeOSConfig
-from models.content import Asset, Book, Campaign, Song
+from models.content import Asset, Book, Campaign, RepositoryEntity, Song
+from models.index import RepositoryIndex, RepositoryStats
 from services.repository import Repository
 
 
@@ -60,6 +61,23 @@ class Project:
 
     def asset(self, name: str) -> Asset:
         return self._repository.asset(name)
+
+    def search(
+        self,
+        query: str,
+        *,
+        entity_type: str | None = None,
+    ) -> tuple[RepositoryEntity, ...]:
+        """Search indexed repository content."""
+        return self._repository.search(query, entity_type=entity_type)
+
+    def stats(self) -> RepositoryStats:
+        """Return indexed repository statistics."""
+        return self._repository.stats()
+
+    def refresh(self) -> RepositoryIndex:
+        """Rebuild and persist the repository index."""
+        return self._repository.refresh()
 
     def repository_path(self, key: str) -> Path:
         """Resolve a configured repository directory by name."""
