@@ -104,9 +104,7 @@ def test_repository_returns_index_statistics(tmp_path: Path) -> None:
     create_workspace(project)
     repository = Repository(project)
 
-    assert repository.stats() == RepositoryStats(
-        songs=1, campaigns=1, books=1, assets=1
-    )
+    assert repository.stats() == RepositoryStats(songs=1, campaigns=1, books=1, assets=1)
 
 
 def test_repository_refreshes_index_after_filesystem_changes(tmp_path: Path) -> None:

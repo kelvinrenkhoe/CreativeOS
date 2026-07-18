@@ -94,9 +94,7 @@ class IndexService:
         try:
             payload = json.loads(self.index_path.read_text(encoding="utf-8"))
         except (JSONDecodeError, UnicodeDecodeError) as error:
-            raise IndexCorruptedError(
-                f"Repository index is corrupt: {self.index_path}"
-            ) from error
+            raise IndexCorruptedError(f"Repository index is corrupt: {self.index_path}") from error
 
         try:
             index = self._from_dict(payload)
@@ -191,9 +189,7 @@ class IndexService:
     @staticmethod
     def _validate_index(index: RepositoryIndex) -> None:
         if index.version != INDEX_VERSION:
-            raise IndexVersionError(
-                f"Unsupported repository index version: {index.version}"
-            )
+            raise IndexVersionError(f"Unsupported repository index version: {index.version}")
         if index.generated_at.tzinfo is None:
             raise IndexValidationError("Repository index timestamp must be timezone-aware.")
 
@@ -206,9 +202,7 @@ class IndexService:
                     f"Unsupported repository entity type: {entry.entity_type}"
                 )
             if entry.path.is_absolute() or ".." in entry.path.parts:
-                raise IndexValidationError(
-                    f"Index path must be repository-relative: {entry.path}"
-                )
+                raise IndexValidationError(f"Index path must be repository-relative: {entry.path}")
             key = (entry.entity_type, entry.slug)
             if key in seen:
                 raise IndexValidationError(
