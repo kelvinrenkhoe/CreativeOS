@@ -26,8 +26,7 @@ def test_doctor_detects_required_project_structure(tmp_path: Path) -> None:
     project_checks = [
         check
         for check in report.checks
-        if check.category in {"Project", "Structure"}
-        and check.name != "Git repository"
+        if check.category in {"Project", "Structure"} and check.name != "Git repository"
     ]
 
     assert project_checks
@@ -40,9 +39,7 @@ def test_doctor_reports_missing_pyproject(tmp_path: Path) -> None:
 
     report = DoctorService(root=tmp_path).run()
 
-    pyproject_check = next(
-        check for check in report.checks if check.name == "pyproject.toml"
-    )
+    pyproject_check = next(check for check in report.checks if check.name == "pyproject.toml")
 
     assert pyproject_check.passed is False
 
@@ -53,8 +50,6 @@ def test_doctor_reports_missing_directory(tmp_path: Path) -> None:
 
     report = DoctorService(root=tmp_path).run()
 
-    scaffold_check = next(
-        check for check in report.checks if check.name == "scaffolds/"
-    )
+    scaffold_check = next(check for check in report.checks if check.name == "scaffolds/")
 
     assert scaffold_check.passed is False
