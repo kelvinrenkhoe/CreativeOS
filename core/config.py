@@ -9,7 +9,6 @@ from typing import Any
 
 import yaml
 
-
 CONFIG_RELATIVE_PATH = Path("creativeos-config/project.yaml")
 
 
