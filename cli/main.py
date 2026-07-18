@@ -15,7 +15,6 @@ from renderers.status import StatusRenderer
 from services.doctor import DoctorService
 from services.workspace_summary import WorkspaceSummaryService
 
-
 app = typer.Typer(
     help="CreativeOS - Productivity toolkit for creators.",
     no_args_is_help=True,
