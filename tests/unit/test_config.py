@@ -4,7 +4,6 @@ import pytest
 
 from core.config import ConfigurationError, find_workspace, load_config
 
-
 VALID_CONFIG = """
 version: 1
 workspace:
