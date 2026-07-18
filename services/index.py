@@ -94,12 +94,16 @@ class IndexService:
         try:
             payload = json.loads(self.index_path.read_text(encoding="utf-8"))
         except (JSONDecodeError, UnicodeDecodeError) as error:
-            raise IndexCorruptedError(f"Repository index is corrupt: {self.index_path}") from error
+            raise IndexCorruptedError(
+                f"Repository index is corrupt: {self.index_path}"
+            ) from error
 
         try:
             index = self._from_dict(payload)
         except (KeyError, TypeError, ValueError) as error:
-            raise IndexCorruptedError(f"Repository index has an invalid structure: {self.index_path}") from error
+            raise IndexCorruptedError(
+                f"Repository index has an invalid structure: {self.index_path}"
+            ) from error
 
         self._validate_index(index)
         return index
