@@ -75,7 +75,8 @@ def test_repository_rejects_duplicate_slugs(tmp_path: Path) -> None:
     (project.assets_path / "cover.jpg").write_text("two", encoding="utf-8")
 
     with pytest.raises(
-        DuplicateEntityError, match="Duplicate repository entity slug: cover"
+        DuplicateEntityError,
+        match="Duplicate repository entity slug: cover",
     ):
         Repository(project).assets()
 
