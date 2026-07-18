@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.table import Table
 
 from core.project import Project
-from services.repository import RepositoryError
+from services.index import IndexError
 
 console = Console()
 
@@ -22,7 +22,7 @@ def search_command(
     project = Project.discover()
     try:
         results = project.search(query, entity_type=entity_type)
-    except RepositoryError as error:
+    except (IndexError, ValueError) as error:
         console.print(f"[bold red]Search failed:[/bold red] {error}")
         raise typer.Exit(code=1) from error
 
