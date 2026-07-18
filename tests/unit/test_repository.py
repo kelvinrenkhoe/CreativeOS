@@ -4,7 +4,12 @@ import pytest
 
 from models.content import Asset, Book, Campaign, Song
 from models.index import RepositoryStats
-from services.repository import DuplicateEntityError, EntityNotFoundError, Repository, slugify
+from services.repository import (
+    DuplicateEntityError,
+    EntityNotFoundError,
+    Repository,
+    slugify,
+)
 
 
 class StubProject:
@@ -44,7 +49,9 @@ def test_repository_discovers_typed_entities(tmp_path: Path) -> None:
     assert (tmp_path / ".creativeos" / "index.json").is_file()
 
 
-def test_repository_returns_empty_collections_for_missing_directories(tmp_path: Path) -> None:
+def test_repository_returns_empty_collections_for_missing_directories(
+    tmp_path: Path,
+) -> None:
     repository = Repository(StubProject(tmp_path))
 
     assert repository.songs() == ()
@@ -67,7 +74,9 @@ def test_repository_rejects_duplicate_slugs(tmp_path: Path) -> None:
     (project.assets_path / "cover.png").write_text("one", encoding="utf-8")
     (project.assets_path / "cover.jpg").write_text("two", encoding="utf-8")
 
-    with pytest.raises(DuplicateEntityError, match="Duplicate repository entity slug: cover"):
+    with pytest.raises(
+        DuplicateEntityError, match="Duplicate repository entity slug: cover"
+    ):
         Repository(project).assets()
 
 
@@ -94,7 +103,9 @@ def test_repository_returns_index_statistics(tmp_path: Path) -> None:
     create_workspace(project)
     repository = Repository(project)
 
-    assert repository.stats() == RepositoryStats(songs=1, campaigns=1, books=1, assets=1)
+    assert repository.stats() == RepositoryStats(
+        songs=1, campaigns=1, books=1, assets=1
+    )
 
 
 def test_repository_refreshes_index_after_filesystem_changes(tmp_path: Path) -> None:
