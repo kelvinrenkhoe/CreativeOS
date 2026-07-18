@@ -42,7 +42,7 @@ class IndexService:
 
     def __init__(self, project: IndexProject, repository: Repository | None = None) -> None:
         self.project = project
-        self.repository = repository or Repository(project)
+        self.repository = repository or Repository(project, use_index=False)
 
     @property
     def index_path(self) -> Path:
