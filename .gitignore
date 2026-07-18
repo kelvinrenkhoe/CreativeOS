@@ -1,10 +1,42 @@
-
+# =============================================================================
 # Secrets
+# =============================================================================
 .env
+.env.*
 *.key
 openai_api_key.txt
 
+# =============================================================================
 # Python
+# =============================================================================
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Virtual environments
 .venv/
+venv/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Type checking
+.mypy_cache/
+.pyre/
+.ruff_cache/
+
+# IDEs
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
