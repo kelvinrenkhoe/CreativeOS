@@ -40,7 +40,12 @@ def test_build_creates_deterministic_typed_index(tmp_path: Path) -> None:
 
     assert index.version == INDEX_VERSION
     assert index.generated_at.tzinfo is UTC
-    assert index.stats == RepositoryStats(songs=1, campaigns=1, books=1, assets=1)
+    assert index.stats == RepositoryStats(
+        songs=1,
+        campaigns=1,
+        books=1,
+        assets=1,
+    )
     assert [(entry.entity_type, entry.slug) for entry in index.entries] == [
         ("song", "carry-your-name"),
         ("campaign", "now-them-go-hear-me"),
@@ -103,7 +108,10 @@ def test_load_rejects_unsupported_version(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    with pytest.raises(IndexVersionError, match="Unsupported repository index version"):
+    with pytest.raises(
+        IndexVersionError,
+        match="Unsupported repository index version",
+    ):
         service.load()
 
 
@@ -122,7 +130,10 @@ def test_save_rejects_statistics_that_do_not_match_entries(tmp_path: Path) -> No
         ),
     )
 
-    with pytest.raises(IndexValidationError, match="statistics do not match entries"):
+    with pytest.raises(
+        IndexValidationError,
+        match="statistics do not match entries",
+    ):
         IndexService(StubProject(tmp_path)).save(index)
 
 
