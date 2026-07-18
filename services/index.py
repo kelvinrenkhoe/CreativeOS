@@ -40,11 +40,7 @@ class IndexProject(Protocol):
 class IndexService:
     """Build, persist, load, and validate a repository index."""
 
-    def __init__(
-        self,
-        project: IndexProject,
-        repository: Repository | None = None,
-    ) -> None:
+    def __init__(self, project: IndexProject, repository: Repository | None = None) -> None:
         self.project = project
         self.repository = repository or Repository(project, use_index=False)
 
@@ -169,10 +165,7 @@ class IndexService:
 
         stats_payload = payload["stats"]
         entries_payload = payload["entries"]
-        if not isinstance(stats_payload, dict) or not isinstance(
-            entries_payload,
-            list,
-        ):
+        if not isinstance(stats_payload, dict) or not isinstance(entries_payload, list):
             raise TypeError("Index statistics and entries have invalid types.")
 
         return RepositoryIndex(
@@ -202,9 +195,7 @@ class IndexService:
                 f"Unsupported repository index version: {index.version}"
             )
         if index.generated_at.tzinfo is None:
-            raise IndexValidationError(
-                "Repository index timestamp must be timezone-aware."
-            )
+            raise IndexValidationError("Repository index timestamp must be timezone-aware.")
 
         allowed_types = {"song", "campaign", "book", "asset"}
         seen: set[tuple[str, str]] = set()
@@ -233,6 +224,4 @@ class IndexService:
             assets=counts["asset"],
         )
         if index.stats != expected:
-            raise IndexValidationError(
-                "Repository index statistics do not match entries."
-            )
+            raise IndexValidationError("Repository index statistics do not match entries.")
