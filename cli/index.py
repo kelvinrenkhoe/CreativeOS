@@ -7,13 +7,16 @@ from rich.table import Table
 from core.project import Project
 from services.index import IndexError, IndexService
 
-app = typer.Typer(help="Build and inspect the repository index.", no_args_is_help=True)
+app = typer.Typer(
+    help="Build and inspect the repository index.",
+    no_args_is_help=True,
+)
 console = Console()
 
 
 def _service() -> tuple[Project, IndexService]:
     project = Project.discover()
-    return project, IndexService(project, project.repository())
+    return project, IndexService(project)
 
 
 def _print_stats(title: str, project: Project, service: IndexService) -> None:
