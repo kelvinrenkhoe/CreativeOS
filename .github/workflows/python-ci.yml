@@ -30,19 +30,11 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]"
 
-      - name: Generate Ruff fixes
-        run: |
-          ruff check . --fix
-          ruff format .
-          git diff > ruff-fixes.diff
-          test ! -s ruff-fixes.diff
+      - name: Lint
+        run: ruff check .
 
-      - name: Upload Ruff fixes
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ruff-fixes-pr4
-          path: ruff-fixes.diff
+      - name: Check formatting
+        run: ruff format --check .
 
       - name: Run tests
         run: pytest -q
