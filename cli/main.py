@@ -1,14 +1,17 @@
 """CreativeOS command-line interface."""
 
+from importlib.metadata import PackageNotFoundError, version
+import platform
+
 import typer
 from rich.console import Console
+from rich.table import Table
 
 from cli.song import app as song_app
 from core.config import ConfigurationError
 from core.project import Project
 from renderers.status import StatusRenderer
 from services.workspace_summary import WorkspaceSummaryService
-
 
 app = typer.Typer(
     help="CreativeOS - Productivity toolkit for creators.",
@@ -25,9 +28,33 @@ def main() -> None:
     """CreativeOS command-line interface."""
 
 
+@app.command("version")
+def version_command() -> None:
+    """Display CreativeOS version information."""
+
+    try:
+        creativeos_version = version("creativeos")
+    except PackageNotFoundError:
+        creativeos_version = "development"
+
+    table = Table(
+        title="CreativeOS Version",
+        show_header=False,
+        box=None,
+        pad_edge=False,
+    )
+
+    table.add_row("CreativeOS", creativeos_version)
+    table.add_row("Python", platform.python_version())
+    table.add_row("Platform", platform.platform())
+
+    console.print(table)
+
+
 @app.command()
 def status() -> None:
     """Display the current CreativeOS workspace status."""
+
     try:
         project = Project()
         summary = WorkspaceSummaryService(project).load()
