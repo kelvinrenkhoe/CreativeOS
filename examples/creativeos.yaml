@@ -1,0 +1,21 @@
+version: 1
+
+workspace:
+  name: Kelvin Rankie Headquarters
+
+artist:
+  name: Kelvin Rankie
+  genre: Afrobeats
+  country: Nigeria
+
+repository:
+  songs: songs
+  campaigns: campaigns
+  templates: templates
+  assets: assets
+  knowledge: knowledge
+  media: media
+
+ai:
+  provider: openai
+  default_model: gpt-5.5
