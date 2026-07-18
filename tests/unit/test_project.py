@@ -4,7 +4,6 @@ import pytest
 
 from core.project import Project
 
-
 CONFIG = """
 version: 1
 workspace:
