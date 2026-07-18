@@ -4,6 +4,8 @@ from pathlib import Path
 
 from core.config import find_workspace, load_config
 from models.config import CreativeOSConfig
+from models.content import Asset, Book, Campaign, Song
+from services.repository import Repository
 
 
 class Project:
@@ -12,6 +14,7 @@ class Project:
     def __init__(self, root: Path | None = None) -> None:
         self.root = find_workspace(root)
         self.config: CreativeOSConfig = load_config(self.root)
+        self._repository = Repository(self)
 
     @classmethod
     def discover(cls, start_path: Path | None = None) -> "Project":
@@ -30,6 +33,34 @@ class Project:
     def genre(self) -> str:
         return self.config.artist.genre
 
+    def repository(self) -> Repository:
+        """Return the repository service for this workspace."""
+        return self._repository
+
+    def songs(self) -> tuple[Song, ...]:
+        return self._repository.songs()
+
+    def song(self, name: str) -> Song:
+        return self._repository.song(name)
+
+    def campaigns(self) -> tuple[Campaign, ...]:
+        return self._repository.campaigns()
+
+    def campaign(self, name: str) -> Campaign:
+        return self._repository.campaign(name)
+
+    def books(self) -> tuple[Book, ...]:
+        return self._repository.books()
+
+    def book(self, name: str) -> Book:
+        return self._repository.book(name)
+
+    def assets(self) -> tuple[Asset, ...]:
+        return self._repository.assets()
+
+    def asset(self, name: str) -> Asset:
+        return self._repository.asset(name)
+
     def repository_path(self, key: str) -> Path:
         """Resolve a configured repository directory by name."""
         return self.config.repository_path(self.root, key)
@@ -41,6 +72,10 @@ class Project:
     @property
     def campaigns_path(self) -> Path:
         return self.repository_path("campaigns")
+
+    @property
+    def books_path(self) -> Path:
+        return self.repository_path("books")
 
     @property
     def templates_path(self) -> Path:
