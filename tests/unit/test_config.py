@@ -2,70 +2,84 @@ from pathlib import Path
 
 import pytest
 
-from core.config import (
-    ConfigurationError,
-    find_workspace,
-    load_config,
-)
+from core.config import ConfigurationError, find_workspace, load_config
 
-
-def test_find_workspace(tmp_path: Path):
-    """
-    CreativeOS should discover the workspace.
-    """
-
-    workspace = tmp_path / "workspace"
-
-    config = workspace / "creativeos-config"
-
-    config.mkdir(parents=True)
-
-    (config / "project.yaml").write_text(
-        """
-project:
-  name: Test Project
+VALID_CONFIG = """
+version: 1
+workspace:
+  name: Test Workspace
+artist:
+  name: Kelvin
+  genre: Afrobeats
+repository:
+  songs: music/songs
+  campaigns: marketing/campaigns
 """
-    )
-
-    found = find_workspace(workspace)
-
-    assert found == workspace
 
 
-def test_workspace_not_found(tmp_path: Path):
-    """
-    Missing workspace should raise ConfigurationError.
-    """
+def write_config(workspace: Path, content: str = VALID_CONFIG) -> Path:
+    workspace.mkdir(parents=True, exist_ok=True)
+    config_path = workspace / "creativeos.yaml"
+    config_path.write_text(content, encoding="utf-8")
+    return config_path
 
-    with pytest.raises(ConfigurationError):
+
+def test_find_workspace_from_root(tmp_path: Path) -> None:
+    workspace = tmp_path / "workspace"
+    write_config(workspace)
+
+    assert find_workspace(workspace) == workspace.resolve()
+
+
+def test_find_workspace_from_nested_directory(tmp_path: Path) -> None:
+    workspace = tmp_path / "workspace"
+    nested = workspace / "songs" / "demo" / "lyrics"
+    nested.mkdir(parents=True)
+    write_config(workspace)
+
+    assert find_workspace(nested) == workspace.resolve()
+
+
+def test_workspace_not_found(tmp_path: Path) -> None:
+    with pytest.raises(ConfigurationError, match="creativeos.yaml"):
         find_workspace(tmp_path)
 
 
-def test_load_config(tmp_path: Path):
-    """
-    Configuration should load correctly.
-    """
-
+def test_load_config_returns_typed_model(tmp_path: Path) -> None:
     workspace = tmp_path / "workspace"
+    write_config(workspace)
 
-    config = workspace / "creativeos-config"
+    config = load_config(workspace)
 
-    config.mkdir(parents=True)
+    assert config.version == 1
+    assert config.workspace.name == "Test Workspace"
+    assert config.artist.name == "Kelvin"
+    assert config.repository.songs == "music/songs"
+    assert config.repository.assets == "assets"
 
-    (config / "project.yaml").write_text(
-        """
-project:
-  name: Test Project
-artist:
-  name: Kelvin
-songs:
-  current: Test Song
-  upcoming: Next Song
-campaigns:
-  active: []
-"""
+
+def test_load_config_rejects_missing_required_fields(tmp_path: Path) -> None:
+    workspace = tmp_path / "workspace"
+    write_config(workspace, "version: 1\nworkspace: {}\nartist: {}\n")
+
+    with pytest.raises(ConfigurationError, match="workspace.name is required"):
+        load_config(workspace)
+
+
+def test_load_config_rejects_unsupported_version(tmp_path: Path) -> None:
+    workspace = tmp_path / "workspace"
+    write_config(
+        workspace,
+        "version: 2\nworkspace:\n  name: Test\nartist:\n  name: Kelvin\n",
     )
 
-    loaded = load_config(workspace)
+    with pytest.raises(ConfigurationError, match="Expected version: 1"):
+        load_config(workspace)
 
-    assert loaded["project"]["name"] == "Test Project"
+
+def test_load_config_rejects_invalid_yaml(tmp_path: Path) -> None:
+    workspace = tmp_path / "workspace"
+    write_config(workspace, "version: [1\n")
+
+    with pytest.raises(ConfigurationError, match="Invalid YAML"):
+        load_config(workspace)
