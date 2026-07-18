@@ -35,7 +35,11 @@ def search_command(
     table.add_column("Name")
     table.add_column("Path")
     for entity in results:
-        table.add_row(entity.__class__.__name__.lower(), entity.name, str(entity.path))
+        table.add_row(
+            entity.__class__.__name__.lower(),
+            entity.name,
+            str(entity.path),
+        )
     console.print(table)
 
 
@@ -44,7 +48,12 @@ def stats_command() -> None:
     project = Project.discover()
     stats = project.stats()
 
-    table = Table(title="CreativeOS Repository", show_header=False, box=None, pad_edge=False)
+    table = Table(
+        title="CreativeOS Repository",
+        show_header=False,
+        box=None,
+        pad_edge=False,
+    )
     table.add_row("Workspace", project.name)
     table.add_row("Songs", str(stats.songs))
     table.add_row("Campaigns", str(stats.campaigns))
