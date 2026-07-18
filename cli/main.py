@@ -1,7 +1,7 @@
 """CreativeOS command-line interface."""
 
-from importlib.metadata import PackageNotFoundError, version
 import platform
+from importlib.metadata import PackageNotFoundError, version
 
 import typer
 from rich.console import Console
@@ -14,7 +14,6 @@ from renderers.doctor import DoctorRenderer
 from renderers.status import StatusRenderer
 from services.doctor import DoctorService
 from services.workspace_summary import WorkspaceSummaryService
-
 
 app = typer.Typer(
     help="CreativeOS - Productivity toolkit for creators.",

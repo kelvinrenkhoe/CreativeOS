@@ -1,8 +1,9 @@
 """Workspace summary service for CreativeOS."""
 
+from models.workspace_summary import WorkspaceSummary
+
 from core.config import find_workspace
 from core.project import Project
-from models.workspace_summary import WorkspaceSummary
 
 
 class WorkspaceSummaryService:

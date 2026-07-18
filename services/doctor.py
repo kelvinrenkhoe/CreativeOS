@@ -1,13 +1,12 @@
 """Health checks for a CreativeOS installation and project."""
 
-from importlib.metadata import PackageNotFoundError, version
-from pathlib import Path
 import shutil
 import subprocess
 import sys
+from importlib.metadata import PackageNotFoundError, version
+from pathlib import Path
 
 from models.doctor import DoctorCheck, DoctorReport
-
 
 MINIMUM_PYTHON_VERSION = (3, 13)
 
