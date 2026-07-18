@@ -27,6 +27,7 @@ class RepositoryConfig:
 
     songs: str = "songs"
     campaigns: str = "campaigns"
+    books: str = "books"
     templates: str = "templates"
     assets: str = "assets"
     knowledge: str = "knowledge"
