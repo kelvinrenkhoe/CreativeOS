@@ -7,6 +7,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from cli.campaign import app as campaign_app
 from cli.index import app as index_app
 from cli.repository import search_command, stats_command
 from cli.song import app as song_app
@@ -23,6 +24,7 @@ app = typer.Typer(
 )
 
 app.add_typer(song_app, name="song")
+app.add_typer(campaign_app, name="campaign")
 app.add_typer(index_app, name="index")
 app.command("search")(search_command)
 app.command("stats")(stats_command)
