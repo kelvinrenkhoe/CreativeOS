@@ -7,7 +7,7 @@ import yaml
 
 from ai.provider import AIProvider
 from core.project import Project
-from services.campaign import slugify
+from services.campaign import DEFAULT_FILES, slugify
 
 
 @dataclass(frozen=True, slots=True)
@@ -46,16 +46,20 @@ class CampaignGeneratorService:
             raise FileNotFoundError(f"Campaign not found: {campaign_path.name}")
 
         manifest = self._load_manifest(manifest_path)
+        destinations = tuple(campaign_path / asset.relative_path for asset in CAMPAIGN_ASSETS)
+        conflicts = [
+            asset.relative_path
+            for asset, destination in zip(CAMPAIGN_ASSETS, destinations, strict=True)
+            if self._contains_user_content(destination, asset.relative_path) and not force
+        ]
+        if conflicts:
+            raise FileExistsError(
+                "Campaign assets already contain content: "
+                f"{', '.join(conflicts)}. Use --force to replace them."
+            )
+
         written: list[Path] = []
-
-        for asset in CAMPAIGN_ASSETS:
-            destination = campaign_path / asset.relative_path
-            if destination.exists() and destination.read_text(encoding="utf-8").strip() and not force:
-                raise FileExistsError(
-                    f"Campaign asset already contains content: {asset.relative_path}. "
-                    "Use --force to replace it."
-                )
-
+        for asset, destination in zip(CAMPAIGN_ASSETS, destinations, strict=True):
             destination.parent.mkdir(parents=True, exist_ok=True)
             response = self.provider.generate(
                 self._build_prompt(manifest, asset),
@@ -68,6 +72,14 @@ class CampaignGeneratorService:
             written.append(destination)
 
         return tuple(written)
+
+    @staticmethod
+    def _contains_user_content(path: Path, relative_path: str) -> bool:
+        if not path.exists():
+            return False
+        content = path.read_text(encoding="utf-8")
+        placeholder = DEFAULT_FILES.get(relative_path, "")
+        return bool(content.strip()) and content != placeholder
 
     @staticmethod
     def _load_manifest(path: Path) -> dict[str, object]:
