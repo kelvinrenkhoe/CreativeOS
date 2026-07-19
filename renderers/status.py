@@ -1,7 +1,8 @@
 """Status renderer for CreativeOS."""
 
-from models.workspace_summary import WorkspaceSummary
 from rich.panel import Panel
+
+from models.workspace_summary import WorkspaceSummary
 
 
 class StatusRenderer:
