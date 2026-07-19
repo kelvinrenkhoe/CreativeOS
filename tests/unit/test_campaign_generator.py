@@ -6,6 +6,7 @@ from ai.mock import MockProvider
 from core.project import Project
 from services.campaign import CampaignService
 from services.campaign_generator import CAMPAIGN_ASSETS, CampaignGeneratorService
+from services.prompt_template import PromptTemplateService
 
 CONFIG = """
 version: 1
@@ -34,10 +35,22 @@ class RecordingProvider(MockProvider):
         self.prompts: list[str] = []
         self.system_prompts: list[str | None] = []
 
-    def generate(self, prompt: str, *, system_prompt: str | None = None) -> str:
+    def generate(
+        self,
+        prompt: str,
+        *,
+        system_prompt: str | None = None,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+    ) -> str:
         self.prompts.append(prompt)
         self.system_prompts.append(system_prompt)
-        return super().generate(prompt, system_prompt=system_prompt)
+        return super().generate(
+            prompt,
+            system_prompt=system_prompt,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
 
 
 def create_project(root: Path) -> Project:
@@ -106,3 +119,62 @@ def test_missing_campaign_is_rejected(tmp_path: Path) -> None:
 
     with pytest.raises(FileNotFoundError, match="missing-campaign"):
         CampaignGeneratorService(project, MockProvider()).generate("Missing Campaign")
+
+
+def test_generator_uses_injected_prompt_templates(tmp_path: Path) -> None:
+    project = create_project(tmp_path)
+    CampaignService(project).create("Now Them Go Hear Me")
+
+    template_dir = tmp_path / "prompts"
+    template_dir.mkdir()
+
+    for asset in CAMPAIGN_ASSETS:
+        (template_dir / f"{asset.template_name}.md").write_text(
+            "CUSTOM TEMPLATE\n"
+            "Campaign: {{ campaign }}\n"
+            "Artist: {{ artist }}\n"
+            "Purpose: {{ purpose }}\n",
+            encoding="utf-8",
+        )
+
+    provider = RecordingProvider()
+    templates = PromptTemplateService(template_dir)
+
+    CampaignGeneratorService(
+        project,
+        provider,
+        templates,
+    ).generate("Now Them Go Hear Me")
+
+    assert len(provider.prompts) == len(CAMPAIGN_ASSETS)
+    assert all("CUSTOM TEMPLATE" in prompt for prompt in provider.prompts)
+    assert all("Campaign: Now Them Go Hear Me" in prompt for prompt in provider.prompts)
+    assert all("Artist: Kelvin Rankie" in prompt for prompt in provider.prompts)
+
+
+def test_generator_renders_all_template_placeholders(tmp_path: Path) -> None:
+    project = create_project(tmp_path)
+    CampaignService(project).create("Carry Your Name")
+
+    template_dir = tmp_path / "prompts"
+    template_dir.mkdir()
+
+    for asset in CAMPAIGN_ASSETS:
+        (template_dir / f"{asset.template_name}.md").write_text(
+            "{{ campaign }} | {{ artist }} | {{ genre }} | {{ purpose }}",
+            encoding="utf-8",
+        )
+
+    provider = RecordingProvider()
+
+    CampaignGeneratorService(
+        project,
+        provider,
+        PromptTemplateService(template_dir),
+    ).generate("Carry Your Name")
+
+    assert provider.prompts
+    assert all("Carry Your Name" in prompt for prompt in provider.prompts)
+    assert all("Kelvin Rankie" in prompt for prompt in provider.prompts)
+    assert all("Afrobeats" in prompt for prompt in provider.prompts)
+    assert all("{{" not in prompt and "}}" not in prompt for prompt in provider.prompts)
