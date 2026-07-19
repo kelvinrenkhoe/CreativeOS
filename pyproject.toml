@@ -12,6 +12,7 @@ dependencies = [
     "typer>=0.12,<1.0",
     "rich>=13.7,<15.0",
     "PyYAML>=6.0,<7.0",
+    "openai>=1.99.0,<2.0",
 ]
 
 [project.optional-dependencies]
