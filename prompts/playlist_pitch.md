@@ -11,6 +11,11 @@ Audience: {{ audience }}
 Tone: {{ tone }}
 Objective: {{ objective }}
 
+
+## Artist and Song Knowledge
+
+{{ knowledge }}
+
 Requirements:
 - Write a concise professional pitch for a playlist curator.
 - Describe the song's mood, audience, and campaign objective.

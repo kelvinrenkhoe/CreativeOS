@@ -10,6 +10,11 @@ Hashtags: {{ hashtags }}
 Tone: {{ tone }}
 Objective: {{ objective }}
 
+
+## Artist and Song Knowledge
+
+{{ knowledge }}
+
 Requirements:
 - Keep the post concise and suitable for X.
 - Prioritise the strongest campaign message and call to action.

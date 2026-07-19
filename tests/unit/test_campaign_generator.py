@@ -53,6 +53,16 @@ class RecordingProvider(MockProvider):
         )
 
 
+class RecordingKnowledgeService:
+    def __init__(self, context: str) -> None:
+        self.context = context
+        self.song_slugs: list[str | None] = []
+
+    def build_context(self, song_slug: str | None = None) -> str:
+        self.song_slugs.append(song_slug)
+        return self.context
+
+
 def create_project(root: Path) -> Project:
     (root / "creativeos.yaml").write_text(CONFIG, encoding="utf-8")
     return Project(root)
@@ -178,3 +188,97 @@ def test_generator_renders_all_template_placeholders(tmp_path: Path) -> None:
     assert all("Kelvin Rankie" in prompt for prompt in provider.prompts)
     assert all("Afrobeats" in prompt for prompt in provider.prompts)
     assert all("{{" not in prompt and "}}" not in prompt for prompt in provider.prompts)
+
+
+def test_generator_includes_injected_knowledge_in_prompts(
+    tmp_path: Path,
+) -> None:
+    project = create_project(tmp_path)
+    CampaignService(project).create("Carry Your Name")
+
+    template_dir = tmp_path / "prompts"
+    template_dir.mkdir()
+
+    for asset in CAMPAIGN_ASSETS:
+        (template_dir / f"{asset.template_name}.md").write_text(
+            "Campaign: {{ campaign }}\nKnowledge:\n{{ knowledge }}\n",
+            encoding="utf-8",
+        )
+
+    provider = RecordingProvider()
+    knowledge = RecordingKnowledgeService(
+        "# Artist Knowledge\nKelvin Rankie is a Nigerian-born, UK-based Afrobeats artist."
+    )
+
+    CampaignGeneratorService(
+        project,
+        provider,
+        templates=PromptTemplateService(template_dir),
+        knowledge=knowledge,
+    ).generate("Carry Your Name")
+
+    assert provider.prompts
+    assert all("# Artist Knowledge" in prompt for prompt in provider.prompts)
+    assert all("UK-based Afrobeats artist" in prompt for prompt in provider.prompts)
+    assert knowledge.song_slugs
+    assert all(song_slug == "carry-your-name" for song_slug in knowledge.song_slugs)
+
+
+def test_generator_uses_fallback_when_knowledge_is_empty(
+    tmp_path: Path,
+) -> None:
+    project = create_project(tmp_path)
+    CampaignService(project).create("Na You")
+
+    template_dir = tmp_path / "prompts"
+    template_dir.mkdir()
+
+    for asset in CAMPAIGN_ASSETS:
+        (template_dir / f"{asset.template_name}.md").write_text(
+            "{{ campaign }}\n{{ knowledge }}",
+            encoding="utf-8",
+        )
+
+    provider = RecordingProvider()
+    knowledge = RecordingKnowledgeService("")
+
+    CampaignGeneratorService(
+        project,
+        provider,
+        templates=PromptTemplateService(template_dir),
+        knowledge=knowledge,
+    ).generate("Na You")
+
+    assert provider.prompts
+    assert all(
+        "No additional artist or song knowledge was supplied." in prompt
+        for prompt in provider.prompts
+    )
+
+
+def test_generator_loads_artist_and_song_knowledge_from_project(
+    tmp_path: Path,
+) -> None:
+    project = create_project(tmp_path)
+    CampaignService(project).create("No Break")
+
+    knowledge_dir = tmp_path / "knowledge"
+    songs_dir = knowledge_dir / "songs"
+    songs_dir.mkdir(parents=True)
+
+    (knowledge_dir / "artist.md").write_text(
+        "# Artist\nKelvin Rankie",
+        encoding="utf-8",
+    )
+    (songs_dir / "no-break.md").write_text(
+        "# No Break\nA motivational song about perseverance.",
+        encoding="utf-8",
+    )
+
+    provider = RecordingProvider()
+
+    CampaignGeneratorService(project, provider).generate("No Break")
+
+    assert provider.prompts
+    assert all("Kelvin Rankie" in prompt for prompt in provider.prompts)
+    assert all("A motivational song about perseverance." in prompt for prompt in provider.prompts)
