@@ -18,6 +18,10 @@ Objective: {{ objective }}
 
 {{ knowledge }}
 
+Campaign memory:
+
+{{ memory }}
+
 Requirements:
 - Write an engaging Facebook post with a natural storytelling style.
 - Keep all claims grounded in the supplied details.

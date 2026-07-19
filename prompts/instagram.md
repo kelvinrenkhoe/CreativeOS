@@ -18,6 +18,10 @@ Objective: {{ objective }}
 
 {{ knowledge }}
 
+Campaign memory:
+
+{{ memory }}
+
 Requirements:
 - Keep facts grounded in the supplied campaign details.
 - Do not invent achievements, endorsements, radio plays, or streaming figures.

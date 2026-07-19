@@ -16,6 +16,10 @@ Objective: {{ objective }}
 
 {{ knowledge }}
 
+Campaign memory:
+
+{{ memory }}
+
 Requirements:
 - Write a concise professional pitch for a playlist curator.
 - Describe the song's mood, audience, and campaign objective.
