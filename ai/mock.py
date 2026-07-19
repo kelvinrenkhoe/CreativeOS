@@ -20,8 +20,16 @@ class MockProvider(AIProvider):
         """Return the configured mock model."""
         return self._model
 
-    def generate(self, prompt: str, *, system_prompt: str | None = None) -> str:
+    def generate(
+        self,
+        prompt: str,
+        *,
+        system_prompt: str | None = None,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+    ) -> str:
         """Return the configured deterministic response."""
         if not prompt.strip():
             raise ValueError("Prompt must not be empty.")
+
         return self._response
