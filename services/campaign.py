@@ -1,8 +1,8 @@
 """Campaign workspace scaffolding service."""
 
+import re
 from dataclasses import asdict
 from pathlib import Path
-import re
 
 import yaml
 
@@ -48,6 +48,11 @@ def slugify(value: str) -> str:
     return slug
 
 
+def hashtag(value: str) -> str:
+    """Convert a value into a simple hashtag token."""
+    return re.sub(r"[^A-Za-z0-9]", "", value)
+
+
 class CampaignService:
     """Creates campaign workspaces inside a CreativeOS project."""
 
@@ -64,10 +69,11 @@ class CampaignService:
         for directory in CAMPAIGN_DIRECTORIES:
             (campaign_path / directory).mkdir(parents=True, exist_ok=True)
 
+        campaign_artist = artist.strip() if artist else self.project.artist
         manifest = CampaignManifest(
             name=name.strip(),
-            artist=artist.strip() if artist else self.project.artist,
-            hashtags=["Afrobeats", "KelvinRankie"],
+            artist=campaign_artist,
+            hashtags=[hashtag(self.project.genre), hashtag(campaign_artist)],
         )
         self._write_manifest(campaign_path, manifest)
         self._write_readme(campaign_path, manifest)
