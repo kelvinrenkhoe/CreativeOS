@@ -11,6 +11,11 @@ Audience: {{ audience }}
 Tone: {{ tone }}
 Objective: {{ objective }}
 
+
+## Artist and Song Knowledge
+
+{{ knowledge }}
+
 Requirements:
 - Write a professional music press release.
 - Include a headline, opening summary, campaign details, and listening information.

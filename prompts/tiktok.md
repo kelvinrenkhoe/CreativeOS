@@ -11,6 +11,11 @@ Audience: {{ audience }}
 Tone: {{ tone }}
 Objective: {{ objective }}
 
+
+## Artist and Song Knowledge
+
+{{ knowledge }}
+
 Requirements:
 - Keep the caption concise, energetic, and suitable for TikTok.
 - Include a strong opening line and clear call to action.

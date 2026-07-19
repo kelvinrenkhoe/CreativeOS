@@ -11,6 +11,11 @@ Audience: {{ audience }}
 Tone: {{ tone }}
 Objective: {{ objective }}
 
+
+## Artist and Song Knowledge
+
+{{ knowledge }}
+
 Requirements:
 - Write a professional pitch suitable for a radio presenter or DJ.
 - Explain why the song may suit their audience.

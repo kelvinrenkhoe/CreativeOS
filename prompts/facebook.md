@@ -13,6 +13,11 @@ Audience: {{ audience }}
 Tone: {{ tone }}
 Objective: {{ objective }}
 
+
+## Artist and Song Knowledge
+
+{{ knowledge }}
+
 Requirements:
 - Write an engaging Facebook post with a natural storytelling style.
 - Keep all claims grounded in the supplied details.

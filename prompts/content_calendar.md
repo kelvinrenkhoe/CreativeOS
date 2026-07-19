@@ -13,6 +13,11 @@ Audience: {{ audience }}
 Tone: {{ tone }}
 Objective: {{ objective }}
 
+
+## Artist and Song Knowledge
+
+{{ knowledge }}
+
 Requirements:
 - Produce a practical four-week content calendar.
 - Include the week, platform, content idea, format, and call to action.
