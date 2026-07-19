@@ -8,6 +8,8 @@ import yaml
 from ai.provider import AIProvider
 from core.project import Project
 from services.campaign import DEFAULT_FILES, slugify
+from services.campaign_memory import CampaignMemory
+from services.campaign_memory_service import CampaignMemoryService
 from services.knowledge import KnowledgeService
 from services.prompt_template import PromptTemplateService
 
@@ -104,11 +106,13 @@ class CampaignGeneratorService:
             )
 
         written: list[Path] = []
+        memory = CampaignMemory()
+        memory_service = CampaignMemoryService(campaign_path / "memory.md")
 
         for asset, destination in zip(CAMPAIGN_ASSETS, destinations, strict=True):
             destination.parent.mkdir(parents=True, exist_ok=True)
 
-            prompt = self._build_prompt(manifest, asset)
+            prompt = self._build_prompt(manifest, asset, memory)
             response = self.provider.generate(
                 prompt,
                 system_prompt=(
@@ -117,7 +121,16 @@ class CampaignGeneratorService:
                 ),
             )
 
-            destination.write_text(response.strip() + "\n", encoding="utf-8")
+            content = response.strip()
+            destination.write_text(content + "\n", encoding="utf-8")
+
+            memory.add(
+                relative_path=asset.relative_path,
+                purpose=asset.purpose,
+                content=content,
+            )
+            memory_service.save(memory)
+
             written.append(destination)
 
         return tuple(written)
@@ -150,6 +163,7 @@ class CampaignGeneratorService:
         self,
         manifest: dict[str, object],
         asset: CampaignAsset,
+        memory: CampaignMemory,
     ) -> str:
         """Render the prompt template for a campaign asset."""
         campaign_name = str(manifest["name"])
@@ -176,6 +190,7 @@ class CampaignGeneratorService:
             "knowledge": (
                 knowledge_context or "No additional artist or song knowledge was supplied."
             ),
+            "memory": memory.render(),
         }
 
         return self.templates.render(asset.template_name, context)
