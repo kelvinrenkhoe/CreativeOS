@@ -77,3 +77,44 @@ def test_missing_song_document_raises_file_not_found(tmp_path: Path) -> None:
 
     with pytest.raises(FileNotFoundError, match="Knowledge document not found"):
         service.load_song("missing-song")
+
+
+def test_build_context_combines_documents(tmp_path: Path) -> None:
+    knowledge = tmp_path / "knowledge"
+    songs = knowledge / "songs"
+    songs.mkdir(parents=True)
+
+    (knowledge / "artist.md").write_text(
+        "# Artist\nKelvin Rankie",
+        encoding="utf-8",
+    )
+
+    (knowledge / "brand.md").write_text(
+        "# Brand\nAuthentic",
+        encoding="utf-8",
+    )
+
+    (songs / "carry-your-name.md").write_text(
+        "Tribute song",
+        encoding="utf-8",
+    )
+
+    service = KnowledgeService(knowledge)
+
+    context = service.build_context("carry-your-name")
+
+    assert "# Artist" in context
+    assert "# Brand" in context
+    assert "Tribute song" in context
+    assert "# Song Knowledge" in context
+
+
+def test_build_context_without_documents_returns_empty_string(
+    tmp_path: Path,
+) -> None:
+    knowledge = tmp_path / "knowledge"
+    knowledge.mkdir()
+
+    service = KnowledgeService(knowledge)
+
+    assert service.build_context() == ""
