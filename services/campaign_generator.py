@@ -101,12 +101,12 @@ class CampaignGeneratorService:
 
         return f"""Create a {asset.purpose} for this music campaign.
 
-Campaign: {manifest['name']}
-Artist: {manifest['artist']}
-Genre: {self.project.genre or 'Not specified'}
-Release date: {manifest.get('release_date') or 'Not specified'}
-Spotify: {manifest.get('spotify') or 'Not specified'}
-Smart link: {manifest.get('smart_link') or 'Not specified'}
+Campaign: {manifest["name"]}
+Artist: {manifest["artist"]}
+Genre: {self.project.genre or "Not specified"}
+Release date: {manifest.get("release_date") or "Not specified"}
+Spotify: {manifest.get("spotify") or "Not specified"}
+Smart link: {manifest.get("smart_link") or "Not specified"}
 Hashtags: {hashtags}
 Platforms: {platforms}
 Goals: {goals}

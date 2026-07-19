@@ -54,7 +54,9 @@ def test_generate_writes_all_campaign_assets(tmp_path: Path) -> None:
 
     assert len(paths) == len(CAMPAIGN_ASSETS)
     assert len(provider.prompts) == len(CAMPAIGN_ASSETS)
-    assert all(path.read_text(encoding="utf-8") == "# Generated campaign content\n" for path in paths)
+    assert all(
+        path.read_text(encoding="utf-8") == "# Generated campaign content\n" for path in paths
+    )
 
 
 def test_prompt_contains_grounded_campaign_context(tmp_path: Path) -> None:

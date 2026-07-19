@@ -46,8 +46,7 @@ def generate_campaign(
         raise typer.Exit(code=1) from exc
 
     console.print(
-        f"[bold green]Generated {len(paths)} campaign assets[/bold green] "
-        f"using {provider.name}."
+        f"[bold green]Generated {len(paths)} campaign assets[/bold green] using {provider.name}."
     )
     for path in paths:
         console.print(f"- {path.relative_to(project.root)}")
