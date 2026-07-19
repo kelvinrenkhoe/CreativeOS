@@ -8,6 +8,7 @@ import yaml
 from ai.provider import AIProvider
 from core.project import Project
 from services.campaign import DEFAULT_FILES, slugify
+from services.knowledge import KnowledgeService
 from services.prompt_template import PromptTemplateService
 
 
@@ -72,10 +73,12 @@ class CampaignGeneratorService:
         project: Project,
         provider: AIProvider,
         templates: PromptTemplateService | None = None,
+        knowledge: KnowledgeService | None = None,
     ) -> None:
         self.project = project
         self.provider = provider
         self.templates = templates or PromptTemplateService()
+        self.knowledge = knowledge or KnowledgeService(self.project.root / "knowledge")
 
     def generate(self, name: str, *, force: bool = False) -> tuple[Path, ...]:
         """Generate campaign files and return the paths that were written."""
@@ -150,7 +153,9 @@ class CampaignGeneratorService:
     ) -> str:
         """Render the prompt template for a campaign asset."""
         campaign_name = str(manifest["name"])
+        song_slug = slugify(campaign_name)
         goals = manifest.get("goals") or {}
+        knowledge_context = self.knowledge.build_context(song_slug)
 
         context: dict[str, object] = {
             "purpose": asset.purpose,
@@ -168,6 +173,9 @@ class CampaignGeneratorService:
             "audience": manifest.get("audience") or "Not specified",
             "tone": manifest.get("tone") or "Confident and authentic",
             "objective": manifest.get("objective") or goals or "Promote the music release",
+            "knowledge": (
+                knowledge_context or "No additional artist or song knowledge was supplied."
+            ),
         }
 
         return self.templates.render(asset.template_name, context)
