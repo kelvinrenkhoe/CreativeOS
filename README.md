@@ -271,6 +271,93 @@ This design keeps the prompt engine simple while allowing more advanced template
 
 ---
 
+
+# Artist Knowledge Base
+
+CreativeOS separates reusable artist knowledge from individual campaign data.
+
+Instead of repeating biographies, achievements, brand messaging, audience
+information, quotes, and song details in every campaign manifest, CreativeOS
+loads this information from Markdown documents in the `knowledge/` directory.
+
+```text
+knowledge/
+├── artist.md
+├── biography.md
+├── brand.md
+├── achievements.md
+├── audiences.md
+├── media-kit.md
+├── quotes.md
+└── songs/
+    ├── carry-your-name.md
+    ├── no-break.md
+    └── ...
+```
+
+## How it works
+
+```text
+campaign.yaml
+        │
+        ├──────────────┐
+        ▼              │
+KnowledgeService       │
+        │              │
+        ▼              │
+Aggregated Context ◄───┘
+        │
+        ▼
+PromptTemplateService
+        │
+        ▼
+Rendered Prompt
+        │
+        ▼
+AI Provider
+```
+
+`KnowledgeService` loads the available top-level documents and can also include
+song-specific knowledge based on the campaign name.
+
+For example, a campaign named `No Break` automatically checks for:
+
+```text
+knowledge/songs/no-break.md
+```
+
+The aggregated context is supplied to prompt templates through:
+
+```text
+{{ knowledge }}
+```
+
+When no additional knowledge is available, campaign generation continues using
+a safe fallback message.
+
+## Benefits
+
+- Maintains one source of truth for artist information
+- Produces more consistent and brand-aware AI content
+- Automatically includes campaign-specific song knowledge
+- Avoids duplicating information across campaign manifests
+- Supports dependency injection for testing and future integrations
+- Makes future features such as EPKs, media kits, press outreach, and blog
+  generation easier to build
+
+## Adding knowledge
+
+Update the existing Markdown documents with verified artist information.
+
+To add knowledge for another song, create a file using the slugified song title:
+
+```text
+knowledge/songs/song-title.md
+```
+
+Keep information factual and current because it may be reused across every
+AI-generated campaign asset.
+
 # AI Architecture
 
 CreativeOS uses a provider-based architecture.
