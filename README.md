@@ -2,25 +2,27 @@
 
 > **The Open Source Operating System for Creators**
 
+CreativeOS is an open-source platform that helps creators manage their entire creative workflow—from idea to audience—with AI-assisted automation, reusable templates, and structured project management.
+
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.13+-blue.svg)]()
-[![Status](https://img.shields.io/badge/status-Planning-orange.svg)]()
+[![Status](https://img.shields.io/badge/status-Active%20Development-green.svg)]()
 
 ---
 
-## What is CreativeOS?
+# What is CreativeOS?
 
-CreativeOS is an open-source framework that helps creators manage their entire creative workflow—from idea to audience.
+CreativeOS provides a structured, repeatable workflow for creators to plan, create, organize, promote, and maintain their creative work.
 
-Instead of juggling dozens of disconnected tools, CreativeOS provides a structured workflow for planning, creating, organizing, promoting, and tracking creative projects.
+Instead of juggling dozens of disconnected applications, CreativeOS acts as the orchestration layer that brings projects, AI, content generation, and marketing together in a single workspace.
 
-Whether you're a musician, author, podcaster, YouTuber, or content creator, CreativeOS provides a consistent, repeatable process that saves time and keeps your work organized.
+Whether you're a musician, author, podcaster, YouTuber, educator, or independent creator, CreativeOS helps you build a consistent creative system that scales.
 
 ---
 
-## The Problem
+# The Problem
 
-Independent creators often rely on many disconnected tools:
+Modern creators often rely on many disconnected tools:
 
 - ChatGPT
 - Canva
@@ -31,11 +33,20 @@ Independent creators often rely on many disconnected tools:
 - Social Media Platforms
 - Analytics Dashboards
 
-Each tool solves one part of the workflow, but none connects the entire creative lifecycle.
+Each tool solves one part of the creative process, but none manages the complete creative lifecycle.
+
+This often leads to:
+
+- duplicated work
+- inconsistent branding
+- forgotten marketing tasks
+- scattered project files
+- repetitive prompting
+- inefficient workflows
 
 ---
 
-## The Solution
+# The Solution
 
 CreativeOS becomes the orchestration layer.
 
@@ -67,11 +78,11 @@ Analytics
 Archive
 ```
 
-One framework.
-
 One workflow.
 
 One repository.
+
+One operating system for creators.
 
 ---
 
@@ -79,26 +90,37 @@ One repository.
 
 Creators should spend more time creating and less time managing.
 
-CreativeOS automates repetitive tasks while leaving creative decisions in the hands of the creator.
+CreativeOS automates repetitive work while keeping creative decisions in the hands of the creator.
+
+The project applies software engineering principles—including version control, reusable components, automation, testing, and documentation—to the creative process.
 
 ---
 
-# Features (Planned)
+# Features
 
-- Project Workspaces
-- Song Management
+## Available
+
+- ✅ Workspace Initialization
+- ✅ Campaign Management
+- ✅ AI Provider Framework
+- ✅ OpenAI Provider Integration
+- ✅ Prompt Template Engine
+- ✅ Markdown Prompt Library
+- ✅ Campaign Asset Generation
+- ✅ CLI Interface
+- ✅ Comprehensive Unit Test Suite
+
+## In Development
+
+- Artist Knowledge Base
+- Song Library Management
 - Book Projects
-- AI Prompt Management
 - AI Image Workflows
 - AI Video Workflows
-- Content Calendar
-- Campaign Management
-- Social Media Planning
-- Spotify Promotion
-- Analytics Tracking
+- Spotify Integration
+- Analytics Dashboard
 - Plugin Architecture
 - Creator Templates
-- CLI Interface
 
 ---
 
@@ -113,11 +135,13 @@ creativeos status
 
 creativeos new-song "No Lose Guard"
 
-creativeos weekly
+creativeos new-campaign "Now Them Go Hear Me"
 
-creativeos generate-prompts
+creativeos generate-campaign "Now Them Go Hear Me"
 
-creativeos generate-captions
+creativeos ai providers
+
+creativeos ai test
 
 creativeos analytics
 ```
@@ -127,37 +151,203 @@ creativeos analytics
 # Repository Structure
 
 ```text
-CreativeOS
+CreativeOS/
+│
+├── ai/
+│   ├── manager.py
+│   ├── mock.py
+│   ├── openai_provider.py
+│   ├── provider.py
+│   └── registry.py
+│
+├── cli/
+│
+├── core/
+│
+├── prompts/
+│   ├── instagram.md
+│   ├── facebook.md
+│   ├── tiktok.md
+│   ├── x.md
+│   ├── playlist_pitch.md
+│   ├── radio_pitch.md
+│   ├── press_release.md
+│   └── content_calendar.md
+│
+├── services/
+│   ├── campaign.py
+│   ├── campaign_generator.py
+│   └── prompt_template.py
+│
+├── tests/
+│
+├── docs/
+│
+├── scripts/
+│
+├── pyproject.toml
+│
+└── README.md
+```
 
-cli/
-core/
-plugins/
-integrations/
-templates/
-docs/
-examples/
-tests/
-scripts/
+---
+
+# Prompt Templates
+
+CreativeOS stores AI prompts as Markdown templates inside the **`prompts/`** directory.
+
+Instead of embedding prompts directly in Python code, each campaign asset has its own reusable Markdown template.
+
+## Prompt Architecture
+
+```text
+CampaignGeneratorService
+        │
+        ▼
+PromptTemplateService
+        │
+        ▼
+prompts/*.md
+        │
+        ▼
+Placeholder Rendering
+        │
+        ▼
+AI Provider
+        │
+        ▼
+Generated Campaign Assets
+```
+
+The prompt engine keeps prompt content separate from application logic, making prompts easy to review, update, and improve without modifying Python code.
+
+## Template Placeholders
+
+Templates use lightweight placeholder variables.
+
+Example:
+
+```text
+Campaign: {{ campaign }}
+Artist: {{ artist }}
+Genre: {{ genre }}
+Purpose: {{ purpose }}
+```
+
+During campaign generation these placeholders are automatically replaced with values from the campaign manifest before the prompt is sent to the configured AI provider.
+
+Supported placeholders include:
+
+| Placeholder | Description |
+|-------------|-------------|
+| `{{ campaign }}` | Campaign or release name |
+| `{{ artist }}` | Artist name |
+| `{{ genre }}` | Artist genre |
+| `{{ purpose }}` | Purpose of the generated asset |
+| `{{ release_date }}` | Release date |
+| `{{ spotify }}` | Spotify link |
+| `{{ smart_link }}` | Smart link |
+| `{{ hashtags }}` | Campaign hashtags |
+| `{{ platforms }}` | Target platforms |
+| `{{ goals }}` | Campaign goals |
+| `{{ audience }}` | Target audience |
+| `{{ tone }}` | Desired writing tone |
+| `{{ objective }}` | Marketing objective |
+
+## Adding a New Campaign Asset
+
+Adding a new AI-generated content type is straightforward:
+
+1. Create a new Markdown template inside the `prompts/` directory.
+2. Register a matching `CampaignAsset` in `services/campaign_generator.py`.
+3. Run the test suite.
+
+```bash
+ruff check .
+pytest
+```
+
+This design keeps the prompt engine simple while allowing more advanced template engines to be introduced in the future without changing the public API.
+
+---
+
+# AI Architecture
+
+CreativeOS uses a provider-based architecture.
+
+```text
+Campaign Generator
+        │
+        ▼
+Prompt Template Engine
+        │
+        ▼
+AI Provider Interface
+        │
+        ├──────── Mock Provider
+        │
+        └──────── OpenAI Provider
+```
+
+This abstraction allows multiple AI providers to be supported while keeping the rest of the application unchanged.
+
+---
+
+# Testing
+
+CreativeOS follows a test-first approach wherever practical.
+
+The project currently includes comprehensive unit and integration tests covering:
+
+- Campaign management
+- Prompt template rendering
+- AI provider framework
+- Campaign generation
+- CLI behaviour
+- Template integration
+
+Run the complete test suite:
+
+```bash
+pytest
+```
+
+Run linting:
+
+```bash
+ruff check .
+```
+
+Format the project:
+
+```bash
+ruff format .
 ```
 
 ---
 
 # Project Status
 
-Current Phase
+**Current Phase**
 
-> Sprint 0 — Product Discovery
+> Sprint 2 — Core AI Platform
 
-Current Focus
+## Completed
 
-- Product Requirements
-- Architecture
-- Documentation
-- CLI Design
+- Workspace initialization
+- Campaign management
+- AI provider abstraction
+- OpenAI provider integration
+- Prompt template engine
+- AI campaign generation
+- Unit and integration testing
 
-No production code has been written yet.
+## Current Focus
 
-The project is currently being designed before implementation.
+- Artist Knowledge Base
+- Context-aware prompt generation
+- Plugin architecture
+- AI workflow expansion
 
 ---
 
@@ -166,7 +356,8 @@ The project is currently being designed before implementation.
 - Creator First
 - Documentation First
 - Open Source Core
-- Plugin Architecture
+- Test Driven Development
+- Separation of Concerns
 - AI Assisted
 - Platform Agnostic
 - Automation Where It Matters
@@ -175,39 +366,50 @@ The project is currently being designed before implementation.
 
 # Who is CreativeOS for?
 
+CreativeOS is designed for:
+
 - Musicians
 - Authors
 - Podcasters
 - YouTubers
-- Public Speakers
 - Educators
 - Independent Creators
+- Creative Teams
 
 ---
 
 # Roadmap
 
-Version 0.1
+## Version 0.2 ✅
 
-- Product Design
-- Documentation
-- CLI Specification
+- Workspace Initialization
 
-Version 0.2
+## Version 0.3 ✅
 
-- Project Initialization
+- Campaign Management
 
-Version 0.3
+## Version 0.4 ✅
 
-- Song Workspaces
+- AI Provider Framework
 
-Version 0.4
+## Version 0.5 ✅
 
-- Prompt Generation
+- Prompt Template Engine
 
-Version 1.0
+## Version 0.6 (Current)
 
-- Public Release
+- Artist Knowledge Base
+- Context Engine
+- Prompt Optimization
+- Expanded AI Workflows
+
+## Version 1.0
+
+- Stable Public Release
+- Plugin Ecosystem
+- Creator Marketplace
+- Community Templates
+- Multi-provider AI Support
 
 ---
 
@@ -215,7 +417,23 @@ Version 1.0
 
 CreativeOS is an open-source project.
 
-Contributions, ideas, documentation improvements, templates, and integrations are welcome.
+Contributions of every kind are welcome, including:
+
+- Code
+- Documentation
+- Prompt templates
+- Bug reports
+- Feature requests
+- Integrations
+- Testing
+- Examples
+
+Please ensure all tests pass before submitting a pull request.
+
+```bash
+ruff check .
+pytest
+```
 
 ---
 
@@ -223,13 +441,15 @@ Contributions, ideas, documentation improvements, templates, and integrations ar
 
 CreativeOS is inspired by the discipline of software engineering and the realities of independent creators.
 
-The project applies proven engineering practices—automation, version control, reusable templates, and structured workflows—to the creative process.
+The project brings together proven engineering practices—automation, reusable templates, version control, testing, structured workflows, and AI—to help creators spend less time managing work and more time creating it.
 
 ---
 
 # License
 
 MIT License
+
+See the `LICENSE` file for details.
 
 ---
 
