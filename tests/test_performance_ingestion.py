@@ -57,9 +57,7 @@ def test_rejects_invalid_metric_values(value: float) -> None:
 
 def test_requires_timezone_aware_iso_timestamp() -> None:
     with pytest.raises(ValueError, match="timezone"):
-        PerformanceIngestionService().ingest(
-            [record(observed_at="2026-07-26T08:30:00")]
-        )
+        PerformanceIngestionService().ingest([record(observed_at="2026-07-26T08:30:00")])
 
 
 def test_rejects_duplicate_observations_after_normalization() -> None:
