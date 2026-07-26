@@ -94,7 +94,8 @@ class VideoPrompt:
                 ]
             )
             lines.extend(
-                f"{shot.number}. **{shot.duration_seconds}s:** {shot.render()}" for shot in scene.shots
+                f"{shot.number}. **{shot.duration_seconds}s:** {shot.render()}"
+                for shot in scene.shots
             )
         return "\n".join(lines)
 
@@ -117,8 +118,7 @@ class VideoPromptService:
             audience=treatment.audience,
             platforms=treatment.platforms,
             scenes=tuple(
-                self._scene(scene, seconds_per_shot=seconds_per_shot)
-                for scene in treatment.scenes
+                self._scene(scene, seconds_per_shot=seconds_per_shot) for scene in treatment.scenes
             ),
         )
 
