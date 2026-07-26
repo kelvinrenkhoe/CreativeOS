@@ -13,10 +13,12 @@ from story.models import (
     UniverseEntity,
     WorkKind,
 )
+from story.service import DEFAULT_UNIVERSE_FILENAME, UniverseLoadError, UniverseService
 
 __all__ = [
     "Character",
     "CreativeWork",
+    "DEFAULT_UNIVERSE_FILENAME",
     "Location",
     "Relationship",
     "StoryArc",
@@ -25,5 +27,7 @@ __all__ = [
     "Theme",
     "Universe",
     "UniverseEntity",
+    "UniverseLoadError",
+    "UniverseService",
     "WorkKind",
 ]
