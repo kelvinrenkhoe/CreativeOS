@@ -33,7 +33,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 
 ## Phase 4 — Analytics and Learning
 
-- [ ] Performance ingestion
+- [x] Performance ingestion
 - [ ] Campaign measurement
 - [ ] Content and visual fatigue signals
 - [ ] Recommendation feedback loop
@@ -53,6 +53,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 | #23 | Cinematic Planner | Treatments, scenes, shots, and provider-neutral direction |
 | #24 | Video Prompt Model | Provider-agnostic prompts derived from cinematic treatments |
 | #25 | Image and Poster Planner | Continuity-aware concepts and reusable image formats |\n| #26 | Publishing Adapters | Approval-gated, provider-neutral platform handoff |
+| #27 | Performance Ingestion | Normalized, provider-neutral performance observations |
 
 ## Design principles
 
