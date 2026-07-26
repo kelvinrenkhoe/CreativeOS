@@ -144,10 +144,6 @@ class Universe:
         known_ids = set(entity_ids)
         for relationship in self.relationships:
             if relationship.source_id not in known_ids:
-                raise ValueError(
-                    f"relationship source does not exist: {relationship.source_id}"
-                )
+                raise ValueError(f"relationship source does not exist: {relationship.source_id}")
             if relationship.target_id not in known_ids:
-                raise ValueError(
-                    f"relationship target does not exist: {relationship.target_id}"
-                )
+                raise ValueError(f"relationship target does not exist: {relationship.target_id}")
