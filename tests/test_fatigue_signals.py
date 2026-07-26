@@ -77,17 +77,14 @@ def test_detects_content_and_visual_repetition() -> None:
         measurement("current", 100),
         measurement("baseline", 100),
         creative=[
-            CreativeFatigueInput(
-                "caption-2", "content", novelty(0.75, repetitive=True)
-            ),
+            CreativeFatigueInput("caption-2", "content", novelty(0.75, repetitive=True)),
             CreativeFatigueInput("poster-2", "visual", novelty(0.92, repetitive=True)),
             CreativeFatigueInput("reel-2", "visual", novelty(0.3, repetitive=False)),
         ],
     )
 
     assert tuple(
-        (signal.kind, signal.severity, signal.asset_id, signal.score)
-        for signal in result.signals
+        (signal.kind, signal.severity, signal.asset_id, signal.score) for signal in result.signals
     ) == (
         ("content-repetition", "moderate", "caption-2", 0.75),
         ("visual-repetition", "high", "poster-2", 0.92),
@@ -129,9 +126,7 @@ def test_rejects_invalid_medium(medium: str) -> None:
         FatigueSignalService().assess(
             measurement("current", 100),
             measurement("baseline", 100),
-            creative=[
-                CreativeFatigueInput("asset", medium, novelty(0.8, repetitive=True))
-            ],
+            creative=[CreativeFatigueInput("asset", medium, novelty(0.8, repetitive=True))],
         )
 
 
