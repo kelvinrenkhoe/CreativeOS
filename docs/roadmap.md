@@ -25,7 +25,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 ## Phase 3 — AI Creative Director
 
 - [x] Objective-driven campaign planner
-- [ ] Daily `creativeos next` recommendations
+- [x] Daily `creativeos next` recommendations
 - [ ] Cinematic treatment and storyboard planner
 - [ ] Provider-agnostic video prompt model
 - [ ] Image and poster planner
@@ -48,7 +48,9 @@ must keep `main` deployable and include focused tests for new behaviour.
 | #18 | Story Context | Knowledge-enriched reusable story context |
 | #19 | Narrative Timeline | Sequenced, phase-aware campaign planning |
 | #20 | Asset Intelligence | Novelty scoring and repetition controls |
-| #21 | Campaign Planner | Objective, audience, tone, platform, and phase direction |\n| #22 | Daily Recommendations | Phase-aware `creativeos next` recommendations |\n| #23 | Cinematic Planner | Treatments, scenes, shots, and provider-neutral prompts |
+| #21 | Campaign Planner | Objective, audience, tone, platform, and phase direction |
+| #22 | Daily Recommendations | Phase-aware `creativeos next` recommendations |
+| #23 | Cinematic Planner | Treatments, scenes, shots, and provider-neutral prompts |
 
 ## Design principles
 
