@@ -17,8 +17,8 @@ must keep `main` deployable and include focused tests for new behaviour.
 
 - [x] Creative Universe domain models
 - [x] YAML loading and reference validation
-- [ ] Knowledge enrichment
-- [ ] Story-context rendering
+- [x] Knowledge enrichment
+- [x] Story-context rendering
 - [ ] Narrative timeline and campaign phases
 - [ ] Asset novelty and repetition checks
 
