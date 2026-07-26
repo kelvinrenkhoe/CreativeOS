@@ -5,7 +5,6 @@ from dataclasses import dataclass
 
 from services.campaign_memory import CampaignMemory, CampaignMemoryEntry
 
-
 _WORD = re.compile(r"[\w']+")
 
 
