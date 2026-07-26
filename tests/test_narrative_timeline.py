@@ -52,17 +52,18 @@ def test_distributes_campaign_weeks_across_ordered_story_beats() -> None:
         "resolve",
     )
     assert tuple(
-        (phase.start_week, phase.end_week, phase.duration_weeks)
-        for phase in timeline.phases
+        (phase.start_week, phase.end_week, phase.duration_weeks) for phase in timeline.phases
     ) == ((1, 2, 2), (3, 4, 2), (5, 6, 2))
 
 
 def test_assigns_remainder_weeks_to_earliest_phases() -> None:
     timeline = NarrativeTimelineService().build(build_context(build_arc()), weeks=5)
 
-    assert tuple(
-        (phase.start_week, phase.end_week) for phase in timeline.phases
-    ) == ((1, 2), (3, 4), (5, 5))
+    assert tuple((phase.start_week, phase.end_week) for phase in timeline.phases) == (
+        (1, 2),
+        (3, 4),
+        (5, 5),
+    )
 
 
 def test_resolves_the_phase_for_a_campaign_week() -> None:
@@ -110,10 +111,14 @@ def test_rejects_missing_or_empty_arcs() -> None:
 
 
 def test_renders_deterministic_markdown() -> None:
-    rendered = NarrativeTimelineService().build(
-        build_context(build_arc()),
-        weeks=6,
-    ).render()
+    rendered = (
+        NarrativeTimelineService()
+        .build(
+            build_context(build_arc()),
+            weeks=6,
+        )
+        .render()
+    )
 
     assert rendered.startswith("# Narrative Timeline: No Way Back")
     assert "**Story arc:** Journey Home" in rendered
