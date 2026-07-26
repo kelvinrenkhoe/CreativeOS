@@ -52,7 +52,11 @@ class StoryContext:
     def _entity_section(title: str, entities: tuple[UniverseEntity, ...]) -> str:
         if not entities:
             return ""
-        lines = [f"- **{entity.name}**" + (f": {entity.description}" if entity.description else "") for entity in entities]
+        lines = [
+            f"- **{entity.name}**"
+            + (f": {entity.description}" if entity.description else "")
+            for entity in entities
+        ]
         return f"## {title}\n\n" + "\n".join(lines)
 
     def _arc_section(self) -> str:
