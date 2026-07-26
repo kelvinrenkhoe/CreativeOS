@@ -58,9 +58,7 @@ class FatigueSignalService:
         if not 0 < decline_threshold <= 100:
             raise ValueError("decline_threshold must be between 0 and 100")
         if not decline_threshold <= severe_decline_threshold <= 100:
-            raise ValueError(
-                "severe_decline_threshold must be between decline_threshold and 100"
-            )
+            raise ValueError("severe_decline_threshold must be between decline_threshold and 100")
         self.decline_threshold = decline_threshold
         self.severe_decline_threshold = severe_decline_threshold
 
@@ -85,9 +83,7 @@ class FatigueSignalService:
                 signal.asset_id or "",
             )
         )
-        return FatigueAssessment(
-            campaign_id=current.campaign_id, signals=tuple(signals)
-        )
+        return FatigueAssessment(campaign_id=current.campaign_id, signals=tuple(signals))
 
     def _performance_signals(
         self,
@@ -101,9 +97,7 @@ class FatigueSignalService:
             change = metric.percentage_change
             if change is None or change > -self.decline_threshold:
                 continue
-            severity = (
-                "high" if change <= -self.severe_decline_threshold else "moderate"
-            )
+            severity = "high" if change <= -self.severe_decline_threshold else "moderate"
             signals.append(
                 FatigueSignal(
                     kind="performance-decline",
@@ -140,11 +134,7 @@ class FatigueSignalService:
             signals.append(
                 FatigueSignal(
                     kind=f"{medium}-repetition",
-                    severity=(
-                        "high"
-                        if item.assessment.similarity_score >= 0.9
-                        else "moderate"
-                    ),
+                    severity=("high" if item.assessment.similarity_score >= 0.9 else "moderate"),
                     score=item.assessment.similarity_score,
                     asset_id=asset_id,
                     medium=medium,
