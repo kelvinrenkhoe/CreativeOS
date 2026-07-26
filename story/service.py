@@ -108,7 +108,9 @@ class UniverseService:
             kind = WorkKind(kind_value)
         except ValueError as exc:
             supported = ", ".join(kind.value for kind in WorkKind)
-            raise ValueError(f"unsupported work kind '{kind_value}'; expected one of: {supported}") from exc
+            raise ValueError(
+                f"unsupported work kind '{kind_value}'; expected one of: {supported}"
+            ) from exc
 
         return CreativeWork(
             id=UniverseService._required_text(data, "id", "work"),
