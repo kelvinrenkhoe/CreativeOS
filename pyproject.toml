@@ -54,6 +54,7 @@ include = [
     "core*",
     "models*",
     "services*",
+    "story*",
     "renderers*",
     "plugins*",
     "integrations*",
