@@ -27,7 +27,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 - [x] Objective-driven campaign planner
 - [x] Daily `creativeos next` recommendations
 - [x] Cinematic treatment and storyboard planner
-- [ ] Provider-agnostic video prompt model
+- [x] Provider-agnostic video prompt model
 - [ ] Image and poster planner
 - [ ] Publishing adapters
 
