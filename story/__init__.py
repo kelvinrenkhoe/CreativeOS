@@ -1,5 +1,6 @@
 """Creative Universe domain package."""
 
+from story.context import StoryContext, StoryContextService
 from story.models import (
     Character,
     CreativeWork,
@@ -23,6 +24,8 @@ __all__ = [
     "Relationship",
     "StoryArc",
     "StoryBeat",
+    "StoryContext",
+    "StoryContextService",
     "Symbol",
     "Theme",
     "Universe",
