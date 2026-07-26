@@ -98,10 +98,14 @@ class RecommendationFeedbackService:
         return FeedbackOutcome(
             campaign_id=recommendations.campaign_id,
             accepted=tuple(
-                item for item in recommendations.recommendations if normalized.get(item.id) == "accept"
+                item
+                for item in recommendations.recommendations
+                if normalized.get(item.id) == "accept"
             ),
             rejected=tuple(
-                item for item in recommendations.recommendations if normalized.get(item.id) == "reject"
+                item
+                for item in recommendations.recommendations
+                if normalized.get(item.id) == "reject"
             ),
             pending=tuple(
                 item for item in recommendations.recommendations if item.id not in normalized
@@ -120,11 +124,13 @@ class RecommendationFeedbackService:
             kind = "review-platform-strategy"
             action = f"Review and adjust the {platform} {metric} strategy"
         elif signal.kind == "content-repetition":
+            asset_id = cls._required(signal.asset_id or "", "asset_id")
             kind = "rotate-content-pattern"
-            action = f"Rotate the content pattern for {cls._required(signal.asset_id or '', 'asset_id')}"
+            action = f"Rotate the content pattern for {asset_id}"
         elif signal.kind == "visual-repetition":
+            asset_id = cls._required(signal.asset_id or "", "asset_id")
             kind = "refresh-visual-direction"
-            action = f"Refresh the visual direction for {cls._required(signal.asset_id or '', 'asset_id')}"
+            action = f"Refresh the visual direction for {asset_id}"
         else:
             raise ValueError(f"unsupported fatigue signal kind: {signal.kind}")
 
