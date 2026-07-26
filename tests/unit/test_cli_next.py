@@ -78,9 +78,9 @@ def test_next_command_renders_the_active_recommendation(tmp_path: Path, monkeypa
 
     assert result.exit_code == 0
     assert "Next Recommendation: No Way Back" in result.stdout
-    assert "Campaign week: 3 of 4" in result.stdout
-    assert "Active phase: 2 — Resolve" in result.stdout
-    assert "Platforms: instagram, tiktok" in result.stdout
+    assert "**Campaign week:** 3 of 4" in result.stdout
+    assert "**Active phase:** 2 — Resolve" in result.stdout
+    assert "**Platforms:** instagram, tiktok" in result.stdout
 
 
 def test_next_command_reports_an_invalid_week(tmp_path: Path, monkeypatch) -> None:
