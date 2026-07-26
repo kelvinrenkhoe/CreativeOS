@@ -110,9 +110,7 @@ def next_recommendation(
     try:
         project = Project.discover()
         context = StoryContextService(project).build(work_id)
-        timeline = NarrativeTimelineService().build(
-            context, weeks=weeks, arc_id=arc_id
-        )
+        timeline = NarrativeTimelineService().build(context, weeks=weeks, arc_id=arc_id)
         plan = CampaignPlannerService().build(
             context,
             timeline,
