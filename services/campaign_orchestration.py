@@ -8,7 +8,6 @@ from services.image_planner import ImagePlan, ImagePlannerService
 from services.video_prompt import VideoPrompt, VideoPromptService
 from story.context import StoryContext
 
-
 STAGES = (
     "planned",
     "in-production",
