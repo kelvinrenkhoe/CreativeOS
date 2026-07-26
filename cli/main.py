@@ -99,14 +99,20 @@ def next_recommendation(
     objective: str = typer.Option(..., "--objective", help="Primary campaign objective."),
     audience: str = typer.Option(..., "--audience", help="Target audience."),
     tone: str = typer.Option(..., "--tone", help="Creative tone."),
-    platform: list[str] = typer.Option(..., "--platform", help="Target platform; repeat as needed."),
-    arc_id: str | None = typer.Option(None, "--arc", help="Story arc ID when more than one exists."),
+    platform: list[str] = typer.Option(  # noqa: B008
+        ..., "--platform", help="Target platform; repeat as needed."
+    ),
+    arc_id: str | None = typer.Option(
+        None, "--arc", help="Story arc ID when more than one exists."
+    ),
 ) -> None:
     """Recommend the active content direction for a campaign week."""
     try:
         project = Project.discover()
         context = StoryContextService(project).build(work_id)
-        timeline = NarrativeTimelineService().build(context, weeks=weeks, arc_id=arc_id)
+        timeline = NarrativeTimelineService().build(
+            context, weeks=weeks, arc_id=arc_id
+        )
         plan = CampaignPlannerService().build(
             context,
             timeline,
