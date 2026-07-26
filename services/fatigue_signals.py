@@ -85,7 +85,9 @@ class FatigueSignalService:
                 signal.asset_id or "",
             )
         )
-        return FatigueAssessment(\n            campaign_id=current.campaign_id, signals=tuple(signals)\n        )
+        return FatigueAssessment(
+            campaign_id=current.campaign_id, signals=tuple(signals)
+        )
 
     def _performance_signals(
         self,
