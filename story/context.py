@@ -53,8 +53,7 @@ class StoryContext:
         if not entities:
             return ""
         lines = [
-            f"- **{entity.name}**"
-            + (f": {entity.description}" if entity.description else "")
+            f"- **{entity.name}**" + (f": {entity.description}" if entity.description else "")
             for entity in entities
         ]
         return f"## {title}\n\n" + "\n".join(lines)
@@ -120,15 +119,12 @@ class StoryContextService:
             relationships=tuple(
                 relationship
                 for relationship in universe.relationships
-                if relationship.source_id in selected_ids
-                and relationship.target_id in selected_ids
+                if relationship.source_id in selected_ids and relationship.target_id in selected_ids
             ),
             knowledge=self.knowledge.build_context(work.id),
         )
 
-    def _resolve_many[
-        EntityT: UniverseEntity
-    ](
+    def _resolve_many[EntityT: UniverseEntity](
         self,
         universe: Universe,
         entity_ids: tuple[str, ...],
