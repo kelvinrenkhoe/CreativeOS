@@ -57,7 +57,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 | #27 | Performance Ingestion | Normalized, provider-neutral performance observations |
 | #28 | Campaign Measurement | Campaign-level metric summaries and comparisons |
 | #29 | Fatigue Signals | Content, visual, and performance fatigue indicators |
-| #30 | Recommendation Feedback Loop | Evidence-based, human-reviewed strategy adjustments |\n| #31 | Cross-Campaign Learning | Reusable patterns from completed campaign evidence |
+| #30 | Recommendation Feedback Loop | Evidence-based, human-reviewed strategy adjustments |\n| #32 | Cross-Campaign Learning | Reusable patterns from completed campaign evidence |
 
 ## Design principles
 
