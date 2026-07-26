@@ -15,12 +15,15 @@ from story.models import (
     WorkKind,
 )
 from story.service import DEFAULT_UNIVERSE_FILENAME, UniverseLoadError, UniverseService
+from story.timeline import NarrativeTimeline, NarrativeTimelineService, TimelinePhase
 
 __all__ = [
     "Character",
     "CreativeWork",
     "DEFAULT_UNIVERSE_FILENAME",
     "Location",
+    "NarrativeTimeline",
+    "NarrativeTimelineService",
     "Relationship",
     "StoryArc",
     "StoryBeat",
@@ -28,6 +31,7 @@ __all__ = [
     "StoryContextService",
     "Symbol",
     "Theme",
+    "TimelinePhase",
     "Universe",
     "UniverseEntity",
     "UniverseLoadError",
