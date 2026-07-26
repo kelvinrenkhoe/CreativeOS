@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 
 import pytest
+
 from story import UniverseLoadError, UniverseService, WorkKind
 
 
