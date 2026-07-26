@@ -91,8 +91,7 @@ class UniverseService:
                 for item in UniverseService._records(data, "symbols")
             ),
             arcs=tuple(
-                UniverseService._build_arc(item)
-                for item in UniverseService._records(data, "arcs")
+                UniverseService._build_arc(item) for item in UniverseService._records(data, "arcs")
             ),
             relationships=tuple(
                 UniverseService._build_relationship(item)
