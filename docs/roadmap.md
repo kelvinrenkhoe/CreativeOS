@@ -42,7 +42,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 ## Phase 5 — Campaign Operations
 
 - [x] Approval-gated campaign orchestration
-- [ ] Persistent campaign run state
+- [x] Persistent campaign run state
 - [ ] Provider execution adapters
 - [ ] Campaign scheduling and queueing
 - [ ] Operations dashboard and audit history
@@ -65,8 +65,10 @@ must keep `main` deployable and include focused tests for new behaviour.
 | #27 | Performance Ingestion | Normalized, provider-neutral performance observations |
 | #28 | Campaign Measurement | Campaign-level metric summaries and comparisons |
 | #29 | Fatigue Signals | Content, visual, and performance fatigue indicators |
-| #30 | Recommendation Feedback Loop | Evidence-based, human-reviewed strategy adjustments |\n| #32 | Cross-Campaign Learning | Reusable patterns from completed campaign evidence |
+| #30 | Recommendation Feedback Loop | Evidence-based, human-reviewed strategy adjustments |
+| #32 | Cross-Campaign Learning | Reusable patterns from completed campaign evidence |
 | #33 | Campaign Orchestration | Approval-gated end-to-end campaign lifecycle |
+| #35 | Persistent Campaign Run State | Versioned save and resume of lifecycle progress |
 
 ## Design principles
 
