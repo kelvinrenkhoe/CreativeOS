@@ -20,7 +20,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 - [x] Knowledge enrichment
 - [x] Story-context rendering
 - [x] Narrative timeline and campaign phases
-- [ ] Asset novelty and repetition checks
+- [x] Asset novelty and repetition checks
 
 ## Phase 3 — AI Creative Director
 
