@@ -6,7 +6,7 @@ from json import JSONDecodeError
 from pathlib import Path
 from typing import Protocol
 
-from services.campaign_orchestration import CampaignRun, STAGES, WorkflowEvidence
+from services.campaign_orchestration import STAGES, CampaignRun, WorkflowEvidence
 from services.campaign_planner import (
     CampaignIntent,
     CampaignPhaseDirection,
