@@ -43,7 +43,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 
 - [x] Approval-gated campaign orchestration
 - [x] Persistent campaign run state
-- [ ] Provider execution adapters
+- [x] Provider execution adapters
 - [ ] Campaign scheduling and queueing
 - [ ] Operations dashboard and audit history
 
@@ -69,6 +69,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 | #32 | Cross-Campaign Learning | Reusable patterns from completed campaign evidence |
 | #33 | Campaign Orchestration | Approval-gated end-to-end campaign lifecycle |
 | #35 | Persistent Campaign Run State | Versioned save and resume of lifecycle progress |
+| #36 | Provider Execution Adapters | Approval-gated image and video provider execution |
 
 ## Design principles
 
