@@ -39,6 +39,14 @@ must keep `main` deployable and include focused tests for new behaviour.
 - [x] Recommendation feedback loop
 - [x] Cross-campaign learning
 
+## Phase 5 — Campaign Operations
+
+- [x] Approval-gated campaign orchestration
+- [ ] Persistent campaign run state
+- [ ] Provider execution adapters
+- [ ] Campaign scheduling and queueing
+- [ ] Operations dashboard and audit history
+
 ## Planned pull requests
 
 | PR | Capability | Outcome |
@@ -58,6 +66,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 | #28 | Campaign Measurement | Campaign-level metric summaries and comparisons |
 | #29 | Fatigue Signals | Content, visual, and performance fatigue indicators |
 | #30 | Recommendation Feedback Loop | Evidence-based, human-reviewed strategy adjustments |\n| #32 | Cross-Campaign Learning | Reusable patterns from completed campaign evidence |
+| #33 | Campaign Orchestration | Approval-gated end-to-end campaign lifecycle |
 
 ## Design principles
 
