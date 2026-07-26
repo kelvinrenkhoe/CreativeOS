@@ -16,8 +16,11 @@ from core.config import ConfigurationError
 from core.project import Project
 from renderers.doctor import DoctorRenderer
 from renderers.status import StatusRenderer
+from services.campaign_planner import CampaignPlannerService
+from services.daily_recommendation import DailyRecommendationService
 from services.doctor import DoctorService
 from services.workspace_summary import WorkspaceSummaryService
+from story import NarrativeTimelineService, StoryContextService
 
 app = typer.Typer(
     help="CreativeOS - Productivity toolkit for creators.",
@@ -86,6 +89,42 @@ def status() -> None:
         raise typer.Exit(code=1) from exc
 
     console.print(panel)
+
+
+@app.command("next")
+def next_recommendation(
+    work_id: str = typer.Argument(..., help="Stable Creative Universe work ID."),
+    week: int = typer.Option(..., "--week", min=1, help="Current one-based campaign week."),
+    weeks: int = typer.Option(..., "--weeks", min=1, help="Total campaign length in weeks."),
+    objective: str = typer.Option(..., "--objective", help="Primary campaign objective."),
+    audience: str = typer.Option(..., "--audience", help="Target audience."),
+    tone: str = typer.Option(..., "--tone", help="Creative tone."),
+    platform: list[str] = typer.Option(  # noqa: B008
+        ..., "--platform", help="Target platform; repeat as needed."
+    ),
+    arc_id: str | None = typer.Option(
+        None, "--arc", help="Story arc ID when more than one exists."
+    ),
+) -> None:
+    """Recommend the active content direction for a campaign week."""
+    try:
+        project = Project.discover()
+        context = StoryContextService(project).build(work_id)
+        timeline = NarrativeTimelineService().build(context, weeks=weeks, arc_id=arc_id)
+        plan = CampaignPlannerService().build(
+            context,
+            timeline,
+            objective=objective,
+            audience=audience,
+            tone=tone,
+            platforms=tuple(platform),
+        )
+        recommendation = DailyRecommendationService().recommend(plan, week=week)
+    except (ConfigurationError, FileNotFoundError, KeyError, TypeError, ValueError) as exc:
+        console.print(f"[bold red]Error:[/bold red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    console.print(recommendation.render())
 
 
 if __name__ == "__main__":
