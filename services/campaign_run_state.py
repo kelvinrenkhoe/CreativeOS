@@ -114,12 +114,7 @@ class JsonCampaignRunStore:
 
     def _path(self, campaign_id: str) -> Path:
         normalized = campaign_id.strip()
-        if (
-            not normalized
-            or normalized in {".", ".."}
-            or "/" in normalized
-            or "\\" in normalized
-        ):
+        if not normalized or normalized in {".", ".."} or "/" in normalized or "\\" in normalized:
             raise CampaignRunValidationError("campaign_id must be a safe file name")
         return self.directory / f"{normalized}.json"
 
@@ -272,9 +267,7 @@ class JsonCampaignRunStore:
                             movement=cls._string(shot["movement"], "video_shot.movement"),
                             mood=cls._string(shot["mood"], "video_shot.mood"),
                             motifs=cls._strings(shot["motifs"], "video_shot.motifs"),
-                            continuity=cls._string(
-                                shot["continuity"], "video_shot.continuity"
-                            ),
+                            continuity=cls._string(shot["continuity"], "video_shot.continuity"),
                         )
                         for shot in cls._objects(item["shots"], "video_scene.shots")
                     ),
@@ -290,9 +283,7 @@ class JsonCampaignRunStore:
             work_name=cls._string(value["work_name"], "image_plan.work_name"),
             audience=cls._string(value["audience"], "image_plan.audience"),
             platforms=cls._strings(value["platforms"], "image_plan.platforms"),
-            visual_direction=cls._string(
-                value["visual_direction"], "image_plan.visual_direction"
-            ),
+            visual_direction=cls._string(value["visual_direction"], "image_plan.visual_direction"),
             concepts=tuple(
                 ImageConcept(
                     number=cls._integer(item["number"], "image_concept.number"),
@@ -323,9 +314,7 @@ class JsonCampaignRunStore:
                                 image_format["typography"], "image_format.typography"
                             ),
                         )
-                        for image_format in cls._objects(
-                            item["formats"], "image_concept.formats"
-                        )
+                        for image_format in cls._objects(item["formats"], "image_concept.formats")
                     ),
                 )
                 for item in cls._objects(value["concepts"], "image_plan.concepts")
