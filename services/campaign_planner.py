@@ -53,9 +53,7 @@ class CampaignPlan:
         """Return campaign direction active during a one-based week."""
         if week < 1 or week > self.total_weeks:
             raise ValueError(f"week must be between 1 and {self.total_weeks}")
-        return next(
-            phase for phase in self.phases if phase.start_week <= week <= phase.end_week
-        )
+        return next(phase for phase in self.phases if phase.start_week <= week <= phase.end_week)
 
     def render(self) -> str:
         """Render deterministic Markdown for review and downstream consumers."""
