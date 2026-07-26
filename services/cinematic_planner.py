@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from services.campaign_planner import CampaignPlan, CampaignPhaseDirection
+from services.campaign_planner import CampaignPhaseDirection, CampaignPlan
 from story.context import StoryContext
 
 
