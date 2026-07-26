@@ -1,7 +1,7 @@
 """Deterministic novelty and repetition signals for campaign assets."""
 
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
 
 from services.campaign_memory import CampaignMemory, CampaignMemoryEntry
 
