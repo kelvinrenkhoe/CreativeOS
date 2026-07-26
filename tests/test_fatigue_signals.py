@@ -77,7 +77,9 @@ def test_detects_content_and_visual_repetition() -> None:
         measurement("current", 100),
         measurement("baseline", 100),
         creative=[
-            CreativeFatigueInput(\n                "caption-2", "content", novelty(0.75, repetitive=True)\n            ),
+            CreativeFatigueInput(
+                "caption-2", "content", novelty(0.75, repetitive=True)
+            ),
             CreativeFatigueInput("poster-2", "visual", novelty(0.92, repetitive=True)),
             CreativeFatigueInput("reel-2", "visual", novelty(0.3, repetitive=False)),
         ],
