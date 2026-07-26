@@ -16,6 +16,10 @@ Objective: {{ objective }}
 
 {{ knowledge }}
 
+Campaign memory:
+
+{{ memory }}
+
 Requirements:
 - Keep the caption concise, energetic, and suitable for TikTok.
 - Include a strong opening line and clear call to action.

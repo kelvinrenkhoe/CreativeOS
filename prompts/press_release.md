@@ -16,6 +16,10 @@ Objective: {{ objective }}
 
 {{ knowledge }}
 
+Campaign memory:
+
+{{ memory }}
+
 Requirements:
 - Write a professional music press release.
 - Include a headline, opening summary, campaign details, and listening information.

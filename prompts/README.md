@@ -4,3 +4,7 @@
 
 {{ knowledge }}
 
+Campaign memory:
+
+{{ memory }}
+

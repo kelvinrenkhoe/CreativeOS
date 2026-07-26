@@ -18,6 +18,10 @@ Objective: {{ objective }}
 
 {{ knowledge }}
 
+Campaign memory:
+
+{{ memory }}
+
 Requirements:
 - Produce a practical four-week content calendar.
 - Include the week, platform, content idea, format, and call to action.

@@ -16,6 +16,10 @@ Objective: {{ objective }}
 
 {{ knowledge }}
 
+Campaign memory:
+
+{{ memory }}
+
 Requirements:
 - Write a professional pitch suitable for a radio presenter or DJ.
 - Explain why the song may suit their audience.

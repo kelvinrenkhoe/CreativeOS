@@ -15,6 +15,10 @@ Objective: {{ objective }}
 
 {{ knowledge }}
 
+Campaign memory:
+
+{{ memory }}
+
 Requirements:
 - Keep the post concise and suitable for X.
 - Prioritise the strongest campaign message and call to action.
