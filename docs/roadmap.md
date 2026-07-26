@@ -28,7 +28,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 - [x] Daily `creativeos next` recommendations
 - [x] Cinematic treatment and storyboard planner
 - [x] Provider-agnostic video prompt model
-- [ ] Image and poster planner
+- [x] Image and poster planner
 - [ ] Publishing adapters
 
 ## Phase 4 — Analytics and Learning
@@ -52,6 +52,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 | #22 | Daily Recommendations | Phase-aware `creativeos next` recommendations |
 | #23 | Cinematic Planner | Treatments, scenes, shots, and provider-neutral direction |
 | #24 | Video Prompt Model | Provider-agnostic prompts derived from cinematic treatments |
+| #25 | Image and Poster Planner | Continuity-aware concepts and reusable image formats |
 
 ## Design principles
 
