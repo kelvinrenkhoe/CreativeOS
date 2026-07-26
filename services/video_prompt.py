@@ -94,8 +94,7 @@ class VideoPrompt:
                 ]
             )
             lines.extend(
-                f"{shot.number}. **{shot.duration_seconds}s:** {shot.render()}"
-                for shot in scene.shots
+                f"{shot.number}. **{shot.duration_seconds}s:** {shot.render()}" for shot in scene.shots
             )
         return "\n".join(lines)
 
