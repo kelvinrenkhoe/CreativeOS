@@ -36,7 +36,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 - [x] Performance ingestion
 - [x] Campaign measurement
 - [x] Content and visual fatigue signals
-- [ ] Recommendation feedback loop
+- [x] Recommendation feedback loop
 - [ ] Cross-campaign learning
 
 ## Planned pull requests
@@ -52,9 +52,12 @@ must keep `main` deployable and include focused tests for new behaviour.
 | #22 | Daily Recommendations | Phase-aware `creativeos next` recommendations |
 | #23 | Cinematic Planner | Treatments, scenes, shots, and provider-neutral direction |
 | #24 | Video Prompt Model | Provider-agnostic prompts derived from cinematic treatments |
-| #25 | Image and Poster Planner | Continuity-aware concepts and reusable image formats |\n| #26 | Publishing Adapters | Approval-gated, provider-neutral platform handoff |
-| #27 | Performance Ingestion | Normalized, provider-neutral performance observations |\n| #28 | Campaign Measurement | Campaign-level metric summaries and comparisons |
+| #25 | Image and Poster Planner | Continuity-aware concepts and reusable image formats |
+| #26 | Publishing Adapters | Approval-gated, provider-neutral platform handoff |
+| #27 | Performance Ingestion | Normalized, provider-neutral performance observations |
+| #28 | Campaign Measurement | Campaign-level metric summaries and comparisons |
 | #29 | Fatigue Signals | Content, visual, and performance fatigue indicators |
+| #30 | Recommendation Feedback Loop | Evidence-based, human-reviewed strategy adjustments |
 
 ## Design principles
 
