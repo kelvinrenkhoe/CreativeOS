@@ -15,8 +15,8 @@ must keep `main` deployable and include focused tests for new behaviour.
 
 ## Phase 2 — Creative Universe
 
-- [ ] Creative Universe domain models
-- [ ] YAML loading and reference validation
+- [x] Creative Universe domain models
+- [x] YAML loading and reference validation
 - [ ] Knowledge enrichment
 - [ ] Story-context rendering
 - [ ] Narrative timeline and campaign phases
