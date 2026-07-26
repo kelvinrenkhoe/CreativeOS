@@ -4,7 +4,6 @@ import pytest
 
 from story import UniverseLoadError, UniverseService, WorkKind
 
-
 VALID_UNIVERSE = """
 id: kelvin-rankie-universe
 name: Kelvin Rankie Universe
