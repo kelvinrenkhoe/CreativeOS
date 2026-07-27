@@ -99,9 +99,7 @@ class QueueWorkerService:
                     adapter,
                 )
             except RetryableProviderError as error:
-                attempts.append(
-                    WorkerAttempt(number=number, succeeded=False, detail=str(error))
-                )
+                attempts.append(WorkerAttempt(number=number, succeeded=False, detail=str(error)))
                 history = self._record(
                     history,
                     request_id,
@@ -122,9 +120,7 @@ class QueueWorkerService:
                     tuple(attempts),
                 )
             except Exception as error:
-                attempts.append(
-                    WorkerAttempt(number=number, succeeded=False, detail=str(error))
-                )
+                attempts.append(WorkerAttempt(number=number, succeeded=False, detail=str(error)))
                 return self._failed(
                     claimed,
                     history,
