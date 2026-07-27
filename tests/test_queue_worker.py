@@ -106,7 +106,6 @@ def test_returns_unchanged_state_when_no_work_is_ready() -> None:
 
 
 def test_processes_only_one_job_in_deterministic_queue_order() -> None:
-    service = CampaignQueueService()
     queued = queue("second")
     first = queue("first").jobs[0]
     queued = ExecutionQueue(jobs=(*queued.jobs, first))
