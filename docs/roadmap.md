@@ -52,7 +52,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 - [x] Controlled queue worker
 - [x] Persistent queue and worker leases
 - [x] Provider credential and configuration boundary
-- [ ] Real image provider adapter
+- [x] Real image provider adapter
 - [ ] Real video provider adapter
 - [ ] Production publishing adapter
 - [ ] Analytics ingestion connectors
