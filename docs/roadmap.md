@@ -45,7 +45,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 - [x] Persistent campaign run state
 - [x] Provider execution adapters
 - [x] Campaign scheduling and queueing
-- [ ] Operations dashboard and audit history
+- [x] Operations dashboard and audit history
 
 ## Planned pull requests
 
@@ -70,7 +70,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 | #33 | Campaign Orchestration | Approval-gated end-to-end campaign lifecycle |
 | #35 | Persistent Campaign Run State | Versioned save and resume of lifecycle progress |
 | #36 | Provider Execution Adapters | Approval-gated image and video provider execution |
-| #37 | Campaign Scheduling and Queueing | Ordered, duplicate-safe approved execution work |
+| #37 | Campaign Scheduling and Queueing | Ordered, duplicate-safe approved execution work |\n| #38 | Operations Dashboard and Audit History | Unified read model and attributable operational events |
 
 ## Design principles
 
