@@ -50,7 +50,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 ## Phase 6 — Production Integrations
 
 - [x] Controlled queue worker
-- [ ] Persistent queue and worker leases
+- [x] Persistent queue and worker leases
 - [ ] Provider credential and configuration boundary
 - [ ] Real image provider adapter
 - [ ] Real video provider adapter
@@ -82,7 +82,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 | #36 | Provider Execution Adapters | Approval-gated image and video provider execution |
 | #37 | Campaign Scheduling and Queueing | Ordered, duplicate-safe approved execution work |
 | #38 | Operations Dashboard and Audit History | Unified read model and attributable operational events |
-| #39 | Controlled Queue Worker | Approval-preserving execution with retries and audit evidence |
+| #39 | Controlled Queue Worker | Approval-preserving execution with retries and audit evidence |\n| #40 | Persistent Queue and Worker Leases | Durable queue recovery and exclusive expiring work ownership |
 
 ## Design principles
 
