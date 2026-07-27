@@ -9,7 +9,10 @@ from services.provider_configuration import (
     ProviderConfigurationService,
     ProviderOption,
 )
-from services.provider_execution import ExecutionReceipt, ExecutionRequest
+from services.provider_execution import (
+    ExecutionReceipt,
+    ExecutionRequest,
+)
 
 
 @dataclass
@@ -65,9 +68,7 @@ def configuration() -> ProviderConfiguration:
         model=" cinema-v2 ",
         endpoint=" https://provider.example/v1 ",
         timeout_seconds=90,
-        options=(
-            ProviderOption(name=" Region ", value=" eu-west-2 "),
-        ),
+        options=(ProviderOption(name=" Region ", value=" eu-west-2 "),),
     )
 
 
