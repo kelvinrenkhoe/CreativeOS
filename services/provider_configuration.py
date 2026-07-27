@@ -81,7 +81,9 @@ class ProviderConfigurationService:
     ) -> ProviderExecutionAdapter:
         """Resolve a secret only after validating all non-secret configuration."""
         normalized = self.validate(configuration)
-        factory_provider = self._required(factory.provider, "factory provider").casefold()
+        factory_provider = self._required(
+            factory.provider, "factory provider"
+        ).casefold()
         if factory_provider != normalized.provider:
             raise ProviderConfigurationError(
                 "provider adapter factory does not match configuration"
@@ -94,7 +96,9 @@ class ProviderConfigurationService:
         try:
             adapter = factory.create(normalized, credential)
         except Exception:
-            raise ProviderConfigurationError("provider adapter construction failed") from None
+            raise ProviderConfigurationError(
+                "provider adapter construction failed"
+            ) from None
 
         self._validate_adapter(normalized, adapter)
         return adapter
@@ -115,9 +119,7 @@ class ProviderConfigurationService:
             raise ProviderConfigurationError("at least one media_type is required")
         if len(media_types) != len(set(media_types)):
             raise ProviderConfigurationError("provider media_types must be unique")
-        unsupported = tuple(
-            item for item in media_types if item not in cls._MEDIA_TYPES
-        )
+        unsupported = tuple(item for item in media_types if item not in cls._MEDIA_TYPES)
         if unsupported:
             raise ProviderConfigurationError(
                 f"unsupported provider media_type: {unsupported[0]}"
