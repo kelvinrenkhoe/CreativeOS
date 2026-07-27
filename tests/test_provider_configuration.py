@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pytest
 
@@ -38,7 +38,7 @@ class FakeFactory:
     provider: str = "open-video"
     received_configuration: ProviderConfiguration | None = None
     received_credential: str | None = None
-    adapter: FakeAdapter = FakeAdapter()
+    adapter: FakeAdapter = field(default_factory=FakeAdapter)
 
     def create(
         self,
