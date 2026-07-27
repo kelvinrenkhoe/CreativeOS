@@ -66,10 +66,7 @@ def approval() -> ExecutionApproval:
 def response(*images: bytes) -> Any:
     return SimpleNamespace(
         created=1777777777,
-        data=[
-            SimpleNamespace(b64_json=base64.b64encode(image).decode())
-            for image in images
-        ],
+        data=[SimpleNamespace(b64_json=base64.b64encode(image).decode()) for image in images],
     )
 
 
