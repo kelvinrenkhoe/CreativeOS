@@ -140,8 +140,7 @@ class JsonExecutionQueueStore:
             updated = PersistentQueue(
                 queue=state.queue,
                 leases=tuple(
-                    renewed if item.lease_id == current.lease_id else item
-                    for item in state.leases
+                    renewed if item.lease_id == current.lease_id else item for item in state.leases
                 ),
             )
             self._write_unlocked(updated)
@@ -162,9 +161,7 @@ class JsonExecutionQueueStore:
             updated_queue = self._merge_result(state.queue, result, current.request_id)
             updated = PersistentQueue(
                 queue=updated_queue,
-                leases=tuple(
-                    item for item in state.leases if item.lease_id != current.lease_id
-                ),
+                leases=tuple(item for item in state.leases if item.lease_id != current.lease_id),
             )
             self._write_unlocked(updated)
             return updated
@@ -182,9 +179,7 @@ class JsonExecutionQueueStore:
             current = self._matching_lease(state, lease)
             updated = PersistentQueue(
                 queue=state.queue,
-                leases=tuple(
-                    item for item in state.leases if item.lease_id != current.lease_id
-                ),
+                leases=tuple(item for item in state.leases if item.lease_id != current.lease_id),
             )
             self._write_unlocked(updated)
             return updated
@@ -361,9 +356,7 @@ class JsonExecutionQueueStore:
             status=cls._string(value["status"], "status"),
             claimed_by=cls._optional_string(value.get("claimed_by"), "claimed_by"),
             receipt=receipt,
-            failure_reason=cls._optional_string(
-                value.get("failure_reason"), "failure_reason"
-            ),
+            failure_reason=cls._optional_string(value.get("failure_reason"), "failure_reason"),
         )
 
     @staticmethod
