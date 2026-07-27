@@ -66,9 +66,7 @@ class CampaignQueueService:
         """Return due, unclaimed work in deterministic execution order."""
         now = self._timestamp(now, "now")
         ready = (
-            job
-            for job in queue.jobs
-            if job.status == "scheduled" and job.scheduled_for <= now
+            job for job in queue.jobs if job.status == "scheduled" and job.scheduled_for <= now
         )
         return tuple(
             sorted(
@@ -192,8 +190,7 @@ class CampaignQueueService:
             or cls._required(receipt.asset_id, "receipt asset_id") != request.asset_id
             or cls._required(receipt.media_type, "receipt media_type").casefold()
             != request.media_type
-            or cls._required(receipt.provider, "receipt provider").casefold()
-            != request.provider
+            or cls._required(receipt.provider, "receipt provider").casefold() != request.provider
         ):
             raise ValueError("execution receipt does not match queued request")
         cls._required(receipt.external_id, "receipt external_id")
@@ -219,8 +216,7 @@ class CampaignQueueService:
     ) -> ExecutionQueue:
         return ExecutionQueue(
             jobs=tuple(
-                replacement if job.request.request_id == request_id else job
-                for job in queue.jobs
+                replacement if job.request.request_id == request_id else job for job in queue.jobs
             )
         )
 
