@@ -9,7 +9,6 @@ from services.provider_execution import (
     ExecutionRequest,
 )
 
-
 NOW = datetime(2026, 9, 1, 9, 0, tzinfo=UTC)
 
 
