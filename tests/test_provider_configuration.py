@@ -9,10 +9,7 @@ from services.provider_configuration import (
     ProviderConfigurationService,
     ProviderOption,
 )
-from services.provider_execution import (
-    ExecutionReceipt,
-    ExecutionRequest,
-)
+from services.provider_execution import ExecutionReceipt, ExecutionRequest
 
 
 @dataclass
