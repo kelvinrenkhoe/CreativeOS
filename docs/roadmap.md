@@ -47,6 +47,16 @@ must keep `main` deployable and include focused tests for new behaviour.
 - [x] Campaign scheduling and queueing
 - [x] Operations dashboard and audit history
 
+## Phase 6 — Production Integrations
+
+- [x] Controlled queue worker
+- [ ] Persistent queue and worker leases
+- [ ] Provider credential and configuration boundary
+- [ ] Real image provider adapter
+- [ ] Real video provider adapter
+- [ ] Production publishing adapter
+- [ ] Analytics ingestion connectors
+
 ## Planned pull requests
 
 | PR | Capability | Outcome |
@@ -70,7 +80,9 @@ must keep `main` deployable and include focused tests for new behaviour.
 | #33 | Campaign Orchestration | Approval-gated end-to-end campaign lifecycle |
 | #35 | Persistent Campaign Run State | Versioned save and resume of lifecycle progress |
 | #36 | Provider Execution Adapters | Approval-gated image and video provider execution |
-| #37 | Campaign Scheduling and Queueing | Ordered, duplicate-safe approved execution work |\n| #38 | Operations Dashboard and Audit History | Unified read model and attributable operational events |
+| #37 | Campaign Scheduling and Queueing | Ordered, duplicate-safe approved execution work |
+| #38 | Operations Dashboard and Audit History | Unified read model and attributable operational events |
+| #39 | Controlled Queue Worker | Approval-preserving execution with retries and audit evidence |
 
 ## Design principles
 
