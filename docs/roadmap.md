@@ -51,7 +51,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 
 - [x] Controlled queue worker
 - [x] Persistent queue and worker leases
-- [ ] Provider credential and configuration boundary
+- [x] Provider credential and configuration boundary
 - [ ] Real image provider adapter
 - [ ] Real video provider adapter
 - [ ] Production publishing adapter
