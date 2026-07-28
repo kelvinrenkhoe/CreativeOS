@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
+
 from services.provider_configuration import (
     ProviderConfiguration,
     ProviderConfigurationService,
@@ -15,7 +16,6 @@ from services.provider_execution import (
     ExecutionRequest,
     ProviderExecutionService,
 )
-
 from services.queue_worker import RetryableProviderError
 from services.runway_video_adapter import RunwayVideoAdapter, RunwayVideoAdapterFactory
 
