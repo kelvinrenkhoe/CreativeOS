@@ -108,9 +108,7 @@ def test_uses_image_to_video_when_first_frame_is_supplied(tmp_path: Path) -> Non
         ExecutionParameter(name="prompt_image", value="https://example.test/frame.png")
     )
 
-    ProviderExecutionService().execute(
-        execution, approval(), adapter(tmp_path, transport)
-    )
+    ProviderExecutionService().execute(execution, approval(), adapter(tmp_path, transport))
 
     assert transport.calls[0][1] == "/v1/image_to_video"
     assert transport.calls[0][2]["promptImage"] == "https://example.test/frame.png"
@@ -142,18 +140,14 @@ def test_rejects_invalid_parameters_before_provider_call(
 def test_maps_timeout_to_retryable_without_provider_detail(tmp_path: Path) -> None:
     transport = FakeTransport(tasks=[{"status": "RUNNING"}] * 3)
     with pytest.raises(RetryableProviderError, match="timed out") as captured:
-        ProviderExecutionService().execute(
-            request(), approval(), adapter(tmp_path, transport)
-        )
+        ProviderExecutionService().execute(request(), approval(), adapter(tmp_path, transport))
     assert "task-123" not in str(captured.value)
 
 
 def test_terminal_failure_stops_without_retry(tmp_path: Path) -> None:
     transport = FakeTransport(tasks=[{"status": "FAILED", "failure": "secret detail"}])
     with pytest.raises(RuntimeError, match="did not complete") as captured:
-        ProviderExecutionService().execute(
-            request(), approval(), adapter(tmp_path, transport)
-        )
+        ProviderExecutionService().execute(request(), approval(), adapter(tmp_path, transport))
     assert "secret detail" not in str(captured.value)
 
 
@@ -163,9 +157,7 @@ def test_factory_uses_secret_safe_configuration(tmp_path: Path) -> None:
     def factory(credential: str, **options: Any) -> FakeTransport:
         received.update(credential=credential, **options)
         return FakeTransport(
-            tasks=[
-                {"status": "SUCCEEDED", "output": ["https://example.test/video.mp4"]}
-            ]
+            tasks=[{"status": "SUCCEEDED", "output": ["https://example.test/video.mp4"]}]
         )
 
     configuration = ProviderConfiguration(
