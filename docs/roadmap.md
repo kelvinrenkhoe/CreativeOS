@@ -54,7 +54,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 - [x] Provider credential and configuration boundary
 - [x] Real image provider adapter
 - [x] Real video provider adapter
-- [ ] Production publishing adapter
+- [x] Production publishing adapter
 - [ ] Analytics ingestion connectors
 
 ## Planned pull requests
@@ -82,7 +82,12 @@ must keep `main` deployable and include focused tests for new behaviour.
 | #36 | Provider Execution Adapters | Approval-gated image and video provider execution |
 | #37 | Campaign Scheduling and Queueing | Ordered, duplicate-safe approved execution work |
 | #38 | Operations Dashboard and Audit History | Unified read model and attributable operational events |
-| #39 | Controlled Queue Worker | Approval-preserving execution with retries and audit evidence |\n| #40 | Persistent Queue and Worker Leases | Durable queue recovery and exclusive expiring work ownership |
+| #39 | Controlled Queue Worker | Approval-preserving execution with retries and audit evidence |
+| #40 | Persistent Queue and Worker Leases | Durable queue recovery and exclusive expiring work ownership |
+| #41 | Provider Credential and Configuration Boundary | Secret-safe capability configuration |
+| #42 | Real OpenAI Image Provider Adapter | Approved image execution through OpenAI |
+| #43 | Real Runway Video Provider Adapter | Approved cinematic video execution through Runway |
+| #44 | Production Instagram Publishing Adapter | Human-approved image and Reel publication |
 
 ## Design principles
 
