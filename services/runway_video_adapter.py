@@ -26,9 +26,7 @@ class RunwayTransport:
         self._endpoint = endpoint.rstrip("/")
         self._timeout = timeout
 
-    def request(
-        self, method: str, path: str, payload: dict[str, Any] | None = None
-    ) -> Any:
+    def request(self, method: str, path: str, payload: dict[str, Any] | None = None) -> Any:
         body = json.dumps(payload).encode() if payload is not None else None
         request = urllib.request.Request(
             f"{self._endpoint}{path}",
@@ -44,9 +42,7 @@ class RunwayTransport:
             with urllib.request.urlopen(request, timeout=self._timeout) as response:
                 return json.loads(response.read())
         except (TimeoutError, urllib.error.URLError) as error:
-            raise RetryableProviderError(
-                "Runway video generation temporarily failed"
-            ) from error
+            raise RetryableProviderError("Runway video generation temporarily failed") from error
         except urllib.error.HTTPError as error:
             if error.code == 429 or error.code >= 500:
                 raise RetryableProviderError(
@@ -59,9 +55,7 @@ class RunwayTransport:
             with urllib.request.urlopen(url, timeout=self._timeout) as response:
                 return response.read()
         except (TimeoutError, urllib.error.URLError) as error:
-            raise RetryableProviderError(
-                "Runway video download temporarily failed"
-            ) from error
+            raise RetryableProviderError("Runway video download temporarily failed") from error
 
 
 class RunwayVideoAdapter:
@@ -198,9 +192,7 @@ class RunwayVideoAdapterFactory(ProviderAdapterFactory):
         credential: str,
     ) -> RunwayVideoAdapter:
         if "video" not in configuration.media_types:
-            raise ProviderConfigurationError(
-                "Runway video capability is not configured"
-            )
+            raise ProviderConfigurationError("Runway video capability is not configured")
         options = {item.name: item.value for item in configuration.options}
         allowed = ("output_dir", "poll_interval", "max_polls")
         unsupported = tuple(name for name in options if name not in allowed)
@@ -212,9 +204,7 @@ class RunwayVideoAdapterFactory(ProviderAdapterFactory):
             poll_interval = float(options.get("poll_interval", "5"))
             max_polls = int(options.get("max_polls", "120"))
         except ValueError as error:
-            raise ProviderConfigurationError(
-                "invalid Runway polling configuration"
-            ) from error
+            raise ProviderConfigurationError("invalid Runway polling configuration") from error
         if poll_interval < 0 or max_polls < 1:
             raise ProviderConfigurationError("invalid Runway polling configuration")
 
