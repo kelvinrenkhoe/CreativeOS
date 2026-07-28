@@ -55,7 +55,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 - [x] Real image provider adapter
 - [x] Real video provider adapter
 - [x] Production publishing adapter
-- [ ] Analytics ingestion connectors
+- [x] Analytics ingestion connectors
 
 ## Planned pull requests
 
@@ -88,6 +88,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 | #42 | Real OpenAI Image Provider Adapter | Approved image execution through OpenAI |
 | #43 | Real Runway Video Provider Adapter | Approved cinematic video execution through Runway |
 | #44 | Production Instagram Publishing Adapter | Human-approved image and Reel publication |
+| #45 | Instagram Analytics Ingestion Connector | Read-only media insights normalized for campaign learning |
 
 ## Design principles
 
