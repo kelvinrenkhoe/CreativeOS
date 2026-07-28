@@ -15,7 +15,6 @@ from services.provider_configuration import (
     ProviderConfigurationError,
 )
 from services.provider_execution import ExecutionReceipt, ExecutionRequest
-
 from services.queue_worker import RetryableProviderError
 
 
