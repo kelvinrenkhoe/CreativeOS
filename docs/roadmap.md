@@ -57,6 +57,19 @@ must keep `main` deployable and include focused tests for new behaviour.
 - [x] Production publishing adapter
 - [x] Analytics ingestion connectors
 
+## Phase 7 — Autonomous Campaign Runtime
+
+- [x] Campaign runtime coordinator
+- [ ] Persistent runtime checkpoints
+- [ ] Human review inbox
+- [ ] Publication reconciliation
+- [ ] Scheduled analytics refresh
+- [ ] Evidence-based campaign adaptation
+
+The runtime connects existing campaign services one safe action at a time. It must
+preserve explicit human approval, never infer publication success after an uncertain
+provider response, and never change campaign strategy without reviewable evidence.
+
 ## Planned pull requests
 
 | PR | Capability | Outcome |
@@ -89,6 +102,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 | #43 | Real Runway Video Provider Adapter | Approved cinematic video execution through Runway |
 | #44 | Production Instagram Publishing Adapter | Human-approved image and Reel publication |
 | #45 | Instagram Analytics Ingestion Connector | Read-only media insights normalized for campaign learning |
+| #46 | Campaign Runtime Coordinator | One-action campaign advancement with preserved human-review gates |
 
 ## Design principles
 
