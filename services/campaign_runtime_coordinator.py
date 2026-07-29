@@ -178,22 +178,15 @@ class CampaignRuntimeCoordinator:
 
     @staticmethod
     def _merge(original: ExecutionQueue, campaign_queue: ExecutionQueue) -> ExecutionQueue:
-        replacements = {
-            job.request.request_id: job
-            for job in campaign_queue.jobs
-        }
+        replacements = {job.request.request_id: job for job in campaign_queue.jobs}
         return ExecutionQueue(
-            jobs=tuple(
-                replacements.get(job.request.request_id, job)
-                for job in original.jobs
-            )
+            jobs=tuple(replacements.get(job.request.request_id, job) for job in original.jobs)
         )
 
     @staticmethod
     def _has_open_work(queue: ExecutionQueue, work_id: str) -> bool:
         return any(
-            job.request.work_id == work_id
-            and job.status in {"scheduled", "claimed"}
+            job.request.work_id == work_id and job.status in {"scheduled", "claimed"}
             for job in queue.jobs
         )
 
