@@ -41,9 +41,7 @@ def test_ingests_aggregate_and_time_series_insights() -> None:
                     {"name": "reach", "total_value": {"value": 1250}},
                     {
                         "name": "views",
-                        "values": [
-                            {"value": 1900, "end_time": "2026-07-29T08:00:00+0000"}
-                        ],
+                        "values": [{"value": 1900, "end_time": "2026-07-29T08:00:00+0000"}],
                     },
                 ]
             }
@@ -99,9 +97,7 @@ def test_rejects_invalid_provider_response(response: dict[str, Any]) -> None:
     transport = FakeTransport(responses=[response])
 
     with pytest.raises(InstagramAnalyticsError, match="invalid|no numeric"):
-        connector(transport).ingest(
-            [InstagramPublication(asset_id="asset-1", media_id="media-1")]
-        )
+        connector(transport).ingest([InstagramPublication(asset_id="asset-1", media_id="media-1")])
 
 
 def test_factory_resolves_secret_without_retaining_it() -> None:
@@ -134,12 +130,8 @@ def test_factory_resolves_secret_without_retaining_it() -> None:
     "configuration",
     [
         InstagramAnalyticsConfiguration("TOKEN", "https://graph.facebook.com", ()),
-        InstagramAnalyticsConfiguration(
-            "TOKEN", "https://graph.facebook.com", ("reach", "reach")
-        ),
-        InstagramAnalyticsConfiguration(
-            "TOKEN", "https://graph.facebook.com", ("reach",), 0
-        ),
+        InstagramAnalyticsConfiguration("TOKEN", "https://graph.facebook.com", ("reach", "reach")),
+        InstagramAnalyticsConfiguration("TOKEN", "https://graph.facebook.com", ("reach",), 0),
     ],
 )
 def test_rejects_invalid_configuration(
