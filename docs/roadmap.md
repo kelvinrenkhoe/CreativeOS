@@ -61,7 +61,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 
 - [x] Campaign runtime coordinator
 - [x] Persistent runtime checkpoints
-- [ ] Human review inbox
+- [x] Human review inbox
 - [ ] Publication reconciliation
 - [ ] Scheduled analytics refresh
 - [ ] Evidence-based campaign adaptation
@@ -104,6 +104,7 @@ provider response, and never change campaign strategy without reviewable evidenc
 | #45 | Instagram Analytics Ingestion Connector | Read-only media insights normalized for campaign learning |
 | #46 | Campaign Runtime Coordinator | One-action campaign advancement with preserved human-review gates |
 | #47 | Persistent Runtime Checkpoints | Restart-safe action fencing without duplicate provider execution |
+| #48 | Human Review Inbox | Unified, attributable decisions across campaign review gates |
 
 ## Design principles
 
