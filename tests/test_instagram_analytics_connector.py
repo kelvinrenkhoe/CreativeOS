@@ -134,8 +134,12 @@ def test_factory_resolves_secret_without_retaining_it() -> None:
     "configuration",
     [
         InstagramAnalyticsConfiguration("TOKEN", "https://graph.facebook.com", ()),
-        InstagramAnalyticsConfiguration("TOKEN", "https://graph.facebook.com", ("reach", "reach")),
-        InstagramAnalyticsConfiguration("TOKEN", "https://graph.facebook.com", ("reach",), 0),
+        InstagramAnalyticsConfiguration(
+            "TOKEN", "https://graph.facebook.com", ("reach", "reach")
+        ),
+        InstagramAnalyticsConfiguration(
+            "TOKEN", "https://graph.facebook.com", ("reach",), 0
+        ),
     ],
 )
 def test_rejects_invalid_configuration(
