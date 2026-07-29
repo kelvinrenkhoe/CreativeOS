@@ -15,6 +15,10 @@ from services.provider_execution import (
     ExecutionReceipt,
     ExecutionRequest,
 )
+from services.runtime_checkpoints import (
+    CheckpointedCampaignRuntime,
+    JsonRuntimeCheckpointStore,
+)
 from story.context import StoryContext
 from story.models import Character, CreativeWork, Location, Symbol, Theme
 
@@ -292,3 +296,154 @@ def test_completes_measured_campaign_once_and_then_stops(tmp_path) -> None:
     assert completed.run.stage == "completed"
     assert stopped.action == "completed"
     assert stopped.run == completed.run
+
+
+def test_checkpoint_prevents_duplicate_provider_execution_after_restart(tmp_path) -> None:
+    _, run_store = coordinator(tmp_path / "runs", stage="in-production")
+    checkpoint_path = tmp_path / "runtime-checkpoints.json"
+    queue = queued()
+    adapter = FakeAdapter()
+
+    first = CheckpointedCampaignRuntime().advance(
+        "no-lose-guard-launch",
+        run_store,
+        JsonRuntimeCheckpointStore(checkpoint_path),
+        queue,
+        AuditHistory(),
+        (adapter,),
+        worker_id="worker-1",
+        now=NOW,
+    )
+    replayed = CheckpointedCampaignRuntime().advance(
+        "no-lose-guard-launch",
+        run_store,
+        JsonRuntimeCheckpointStore(checkpoint_path),
+        queue,
+        AuditHistory(),
+        (adapter,),
+        worker_id="worker-2",
+        now=NOW,
+    )
+
+    assert first.result is not None
+    assert first.result.action == "execution-completed"
+    assert first.checkpoint is not None
+    assert first.checkpoint.status == "completed"
+    assert replayed.result is None
+    assert replayed.replayed is True
+    assert replayed.checkpoint == first.checkpoint
+    assert adapter.calls == 1
+
+
+def test_started_checkpoint_becomes_uncertain_after_restart(tmp_path) -> None:
+    path = tmp_path / "runtime-checkpoints.json"
+    first_store = JsonRuntimeCheckpointStore(path)
+    started, acquired = first_store.begin(
+        campaign_id="no-lose-guard-launch",
+        action_key="execution:video-01",
+        now=NOW,
+    )
+
+    recovered, reacquired = JsonRuntimeCheckpointStore(path).begin(
+        campaign_id="no-lose-guard-launch",
+        action_key="execution:video-01",
+        now=NOW,
+    )
+
+    assert acquired is True
+    assert started.status == "started"
+    assert reacquired is False
+    assert recovered.status == "uncertain"
+    assert JsonRuntimeCheckpointStore(path).load() == (recovered,)
+
+
+def test_uncertain_checkpoint_never_retries_provider_work(tmp_path) -> None:
+    _, run_store = coordinator(tmp_path / "runs", stage="in-production")
+    checkpoint_store = JsonRuntimeCheckpointStore(tmp_path / "runtime-checkpoints.json")
+    checkpoint_store.begin(
+        campaign_id="no-lose-guard-launch",
+        action_key="execution:video-01",
+        now=NOW,
+    )
+    adapter = FakeAdapter()
+
+    result = CheckpointedCampaignRuntime().advance(
+        "no-lose-guard-launch",
+        run_store,
+        checkpoint_store,
+        queued(),
+        AuditHistory(),
+        (adapter,),
+        worker_id="worker-2",
+        now=NOW,
+    )
+
+    assert result.uncertain is True
+    assert result.replayed is True
+    assert result.result is None
+    assert adapter.calls == 0
+
+
+def test_unfinished_prior_stage_blocks_later_stage_after_restart(tmp_path) -> None:
+    _, run_store = coordinator(tmp_path / "runs")
+    checkpoint_store = JsonRuntimeCheckpointStore(tmp_path / "runtime-checkpoints.json")
+    checkpoint_store.begin(
+        campaign_id="no-lose-guard-launch",
+        action_key="stage:planned",
+        now=NOW,
+    )
+    run = run_store.load("no-lose-guard-launch")
+    run_store.save(CampaignOrchestrationService().advance(run, "in-production"))
+    adapter = FakeAdapter()
+
+    result = CheckpointedCampaignRuntime().advance(
+        "no-lose-guard-launch",
+        run_store,
+        checkpoint_store,
+        queued(),
+        AuditHistory(),
+        (adapter,),
+        worker_id="worker-2",
+        now=NOW,
+    )
+
+    assert result.uncertain is True
+    assert result.checkpoint is not None
+    assert result.checkpoint.action_key == "stage:planned"
+    assert result.result is None
+    assert adapter.calls == 0
+
+
+def test_paused_runtime_does_not_block_newly_approved_work(tmp_path) -> None:
+    _, run_store = coordinator(tmp_path / "runs", stage="in-production")
+    checkpoint_store = JsonRuntimeCheckpointStore(tmp_path / "runtime-checkpoints.json")
+    runtime = CheckpointedCampaignRuntime()
+    adapter = FakeAdapter()
+
+    paused = runtime.advance(
+        "no-lose-guard-launch",
+        run_store,
+        checkpoint_store,
+        ExecutionQueue(),
+        AuditHistory(),
+        (adapter,),
+        worker_id="worker-1",
+        now=NOW,
+    )
+    resumed = runtime.advance(
+        "no-lose-guard-launch",
+        run_store,
+        checkpoint_store,
+        queued(),
+        AuditHistory(),
+        (adapter,),
+        worker_id="worker-1",
+        now=NOW,
+    )
+
+    assert paused.checkpoint is None
+    assert paused.result is not None
+    assert paused.result.action == "awaiting-approved-assets"
+    assert resumed.result is not None
+    assert resumed.result.action == "execution-completed"
+    assert adapter.calls == 1

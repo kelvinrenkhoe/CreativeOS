@@ -60,7 +60,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 ## Phase 7 — Autonomous Campaign Runtime
 
 - [x] Campaign runtime coordinator
-- [ ] Persistent runtime checkpoints
+- [x] Persistent runtime checkpoints
 - [ ] Human review inbox
 - [ ] Publication reconciliation
 - [ ] Scheduled analytics refresh
@@ -103,6 +103,7 @@ provider response, and never change campaign strategy without reviewable evidenc
 | #44 | Production Instagram Publishing Adapter | Human-approved image and Reel publication |
 | #45 | Instagram Analytics Ingestion Connector | Read-only media insights normalized for campaign learning |
 | #46 | Campaign Runtime Coordinator | One-action campaign advancement with preserved human-review gates |
+| #47 | Persistent Runtime Checkpoints | Restart-safe action fencing without duplicate provider execution |
 
 ## Design principles
 
