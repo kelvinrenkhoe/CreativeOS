@@ -90,8 +90,7 @@ class JsonAnalyticsRefreshStore:
                 if existing.status == "started":
                     existing = replace(existing, status="uncertain")
                     attempts = tuple(
-                        existing if item.attempt_id == attempt_id else item
-                        for item in attempts
+                        existing if item.attempt_id == attempt_id else item for item in attempts
                     )
                     self._write_unlocked(attempts)
                 return existing, False
@@ -144,8 +143,7 @@ class JsonAnalyticsRefreshStore:
             updated = replace(current, status="uncertain")
             self._write_unlocked(
                 tuple(
-                    updated if item.attempt_id == current.attempt_id else item
-                    for item in attempts
+                    updated if item.attempt_id == current.attempt_id else item for item in attempts
                 )
             )
             return updated
@@ -172,8 +170,7 @@ class JsonAnalyticsRefreshStore:
             )
             self._write_unlocked(
                 tuple(
-                    updated if item.attempt_id == current.attempt_id else item
-                    for item in attempts
+                    updated if item.attempt_id == current.attempt_id else item for item in attempts
                 )
             )
             return updated
@@ -209,9 +206,7 @@ class JsonAnalyticsRefreshStore:
         except ScheduledAnalyticsRefreshError:
             raise
         except (KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
-            raise ScheduledAnalyticsRefreshError(
-                "invalid analytics refresh snapshot"
-            ) from error
+            raise ScheduledAnalyticsRefreshError("invalid analytics refresh snapshot") from error
 
     def _write_unlocked(
         self,
@@ -227,9 +222,7 @@ class JsonAnalyticsRefreshStore:
                     "window_started_at": item.window_started_at.isoformat(),
                     "started_at": item.started_at.isoformat(),
                     "completed_at": (
-                        item.completed_at.isoformat()
-                        if item.completed_at is not None
-                        else None
+                        item.completed_at.isoformat() if item.completed_at is not None else None
                     ),
                 }
                 for item in attempts
@@ -282,17 +275,13 @@ class JsonAnalyticsRefreshStore:
                 cls._required(value["window_started_at"], "window_started_at")
             ),
             status=cls._required(value["status"], "status"),
-            started_at=datetime.fromisoformat(
-                cls._required(value["started_at"], "started_at")
-            ),
+            started_at=datetime.fromisoformat(cls._required(value["started_at"], "started_at")),
             completed_at=(
                 datetime.fromisoformat(cls._required(completed_at, "completed_at"))
                 if completed_at is not None
                 else None
             ),
-            record_count=(
-                cls._count(record_count) if record_count is not None else None
-            ),
+            record_count=(cls._count(record_count) if record_count is not None else None),
             failure_reason=cls._optional(value.get("failure_reason")),
         )
 
@@ -303,9 +292,7 @@ class JsonAnalyticsRefreshStore:
     ) -> None:
         identities = tuple(item.attempt_id for item in attempts)
         if len(identities) != len(set(identities)):
-            raise ScheduledAnalyticsRefreshError(
-                "analytics refresh attempt IDs must be unique"
-            )
+            raise ScheduledAnalyticsRefreshError("analytics refresh attempt IDs must be unique")
 
         for item in attempts:
             if item.status not in REFRESH_STATUSES:
@@ -371,9 +358,7 @@ class JsonAnalyticsRefreshStore:
     @staticmethod
     def _count(value: object) -> int:
         if isinstance(value, bool) or not isinstance(value, int) or value < 0:
-            raise ScheduledAnalyticsRefreshError(
-                "record_count must be a non-negative integer"
-            )
+            raise ScheduledAnalyticsRefreshError("record_count must be a non-negative integer")
         return value
 
     @classmethod
@@ -534,7 +519,5 @@ class ScheduledAnalyticsRefreshService:
     def _failure_reason(error: Exception) -> str:
         message = str(error).strip()
         return (
-            error.__class__.__name__
-            if not message
-            else (f"{error.__class__.__name__}: {message}")
+            error.__class__.__name__ if not message else (f"{error.__class__.__name__}: {message}")
         )
