@@ -220,9 +220,7 @@ def test_expected_connector_failure_is_recorded_without_retry(tmp_path):
 
     assert result.attempt is not None
     assert result.attempt.status == "failed"
-    assert result.attempt.failure_reason == (
-        "RuntimeError: Instagram temporarily unavailable"
-    )
+    assert result.attempt.failure_reason == ("RuntimeError: Instagram temporarily unavailable")
     assert result.dataset is None
     assert replay.replayed is True
     assert replay.attempt == result.attempt
