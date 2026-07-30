@@ -63,7 +63,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 - [x] Persistent runtime checkpoints
 - [x] Human review inbox
 - [x] Publication reconciliation
-- [ ] Scheduled analytics refresh
+- [x] Scheduled analytics refresh
 - [ ] Evidence-based campaign adaptation
 
 The runtime connects existing campaign services one safe action at a time. It must
@@ -106,6 +106,7 @@ provider response, and never change campaign strategy without reviewable evidenc
 | #47 | Persistent Runtime Checkpoints | Restart-safe action fencing without duplicate provider execution |
 | #48 | Human Review Inbox | Unified, attributable decisions across campaign review gates |
 | #49 | Publication Reconciliation | Read-only provider evidence for uncertain publication attempts |
+| #50 | Scheduled Analytics Refresh | Durable recurring analytics collection with deterministic windows and restart-safe attempt fencing |
 
 ## Design principles
 
