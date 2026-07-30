@@ -47,6 +47,8 @@ must keep `main` deployable and include focused tests for new behaviour.
 - [x] Campaign scheduling and queueing
 - [x] Operations dashboard and audit history
 
+|#50 | Scheduled Analytics Refresh | Durable recurring analytics collection with deterministic windows and restart-safe attempt fencing |
+
 ## Phase 6 — Production Integrations
 
 - [x] Controlled queue worker
@@ -63,7 +65,7 @@ must keep `main` deployable and include focused tests for new behaviour.
 - [x] Persistent runtime checkpoints
 - [x] Human review inbox
 - [x] Publication reconciliation
-- [ ] Scheduled analytics refresh
+- [x] Scheduled analytics refresh
 - [ ] Evidence-based campaign adaptation
 
 The runtime connects existing campaign services one safe action at a time. It must
