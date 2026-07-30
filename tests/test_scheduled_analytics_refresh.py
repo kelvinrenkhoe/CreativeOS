@@ -105,10 +105,7 @@ def test_ready_orders_schedules_by_window_then_schedule_id():
         now=NOW,
     )
 
-    assert tuple(
-        (item.schedule_id, window)
-        for item, window in result
-    ) == (
+    assert tuple((item.schedule_id, window) for item, window in result) == (
         ("a-schedule", datetime(2026, 7, 30, 12, tzinfo=UTC)),
         ("z-schedule", datetime(2026, 7, 30, 12, tzinfo=UTC)),
         ("later", datetime(2026, 7, 30, 12, 30, tzinfo=UTC)),
