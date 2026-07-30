@@ -6,7 +6,7 @@ import fcntl
 import hashlib
 import json
 import os
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
