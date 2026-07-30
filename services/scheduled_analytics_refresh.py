@@ -286,16 +286,12 @@ class JsonAnalyticsRefreshStore:
                 cls._required(value["started_at"], "started_at")
             ),
             completed_at=(
-                datetime.fromisoformat(
-                    cls._required(completed_at, "completed_at")
-                )
+                datetime.fromisoformat(cls._required(completed_at, "completed_at"))
                 if completed_at is not None
                 else None
             ),
             record_count=(
-                cls._count(record_count)
-                if record_count is not None
-                else None
+                cls._count(record_count) if record_count is not None else None
             ),
             failure_reason=cls._optional(value.get("failure_reason")),
         )
@@ -357,25 +353,19 @@ class JsonAnalyticsRefreshStore:
     @staticmethod
     def _identity(schedule_id: str, window_started_at: datetime) -> str:
         window = window_started_at.astimezone(UTC).isoformat()
-        digest = hashlib.sha256(
-            f"{schedule_id}\0{window}".encode()
-        ).hexdigest()
+        digest = hashlib.sha256(f"{schedule_id}\0{window}".encode()).hexdigest()
         return f"analytics-refresh-{digest[:24]}"
 
     @staticmethod
     def _timestamp(value: datetime, field: str) -> datetime:
         if value.tzinfo is None or value.utcoffset() is None:
-            raise ScheduledAnalyticsRefreshError(
-                f"{field} must include a timezone"
-            )
+            raise ScheduledAnalyticsRefreshError(f"{field} must include a timezone")
         return value.astimezone(UTC)
 
     @staticmethod
     def _required(value: object, field: str) -> str:
         if not isinstance(value, str) or not value.strip():
-            raise ScheduledAnalyticsRefreshError(
-                f"{field} must not be empty"
-            )
+            raise ScheduledAnalyticsRefreshError(f"{field} must not be empty")
         return value.strip()
 
     @staticmethod
@@ -388,9 +378,13 @@ class JsonAnalyticsRefreshStore:
 
     @classmethod
     def _optional(cls, value: object) -> str | None:
-        return None if value is None else cls._required(
-            value,
-            "optional value",
+        return (
+            None
+            if value is None
+            else cls._required(
+                value,
+                "optional value",
+            )
         )
 
 
@@ -494,9 +488,7 @@ class ScheduledAnalyticsRefreshService:
         starts_at = cls._timestamp(schedule.starts_at, "starts_at")
 
         if schedule.interval <= timedelta(0):
-            raise ScheduledAnalyticsRefreshError(
-                "interval must be greater than zero"
-            )
+            raise ScheduledAnalyticsRefreshError("interval must be greater than zero")
         if not schedule.publications:
             raise ScheduledAnalyticsRefreshError(
                 "analytics schedule requires at least one publication"
@@ -541,6 +533,8 @@ class ScheduledAnalyticsRefreshService:
     @staticmethod
     def _failure_reason(error: Exception) -> str:
         message = str(error).strip()
-        return error.__class__.__name__ if not message else (
-            f"{error.__class__.__name__}: {message}"
+        return (
+            error.__class__.__name__
+            if not message
+            else (f"{error.__class__.__name__}: {message}")
         )
