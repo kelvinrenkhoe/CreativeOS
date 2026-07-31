@@ -74,6 +74,7 @@ provider response, and never change campaign strategy without reviewable evidenc
 
 - [x] Read-only campaign runtime status CLI
 - [x] One-action campaign runtime CLI
+- [x] Durable human review decisions
 - [ ] Unified campaign operations dashboard
 - [ ] Content schedule execution
 - [ ] Operator notifications and weekly reports
@@ -122,6 +123,7 @@ checkpoint, and provider state explicitly.
 | #51 | Evidence-Based Campaign Adaptation | Reviewable strategy recommendations derived from preserved campaign evidence |
 | #54 | Campaign Runtime Status CLI | Read-only persisted stage, evidence, and next-requirement inspection |
 | #56 | Campaign Runtime Run CLI | One safe persisted runtime action per operator invocation |
+| #59 | Durable Human Review Decisions | Restart-safe, attributable, idempotent review decisions |
 
 ## Design principles
 
