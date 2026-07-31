@@ -470,6 +470,7 @@ def campaign_resume(
     table.add_row("Replayed", "Yes" if replayed else "No")
     console.print(table)
 
+
 @app.command("dashboard")
 def campaign_dashboard() -> None:
     """Display a read-only overview of every persisted campaign runtime."""
