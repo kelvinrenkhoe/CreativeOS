@@ -325,3 +325,137 @@ def campaign_review(
     console.print(table)
     if not pending.items:
         console.print("No pending reviews.")
+
+
+@app.command("resume")
+def campaign_resume(
+    campaign_id: str = typer.Argument(..., help="Persisted campaign runtime ID."),
+) -> None:
+    """Reconcile one uncertain campaign action from a durable human decision."""
+    try:
+        project = Project.discover()
+        now = datetime.now(UTC)
+        run = JsonCampaignRunStore(project.root / CAMPAIGN_RUNS_PATH).load(campaign_id)
+        checkpoint_store = JsonRuntimeCheckpointStore(project.root / CHECKPOINTS_PATH)
+        decision_store = JsonReviewDecisionStore(project.root / REVIEW_DECISIONS_PATH)
+        queue_state = JsonExecutionQueueStore(project.root / QUEUE_PATH).load()
+        history_store = JsonAuditHistoryStore(project.root / AUDIT_HISTORY_PATH)
+        history = history_store.load()
+
+        decisions = tuple(
+            item
+            for item in decision_store.load()
+            if item.campaign_id == campaign_id and item.kind == "uncertain-action"
+        )
+        if not decisions:
+            raise CampaignRuntimeCommandError(
+                "no recorded uncertain-action decision exists for this campaign"
+            )
+
+        checkpoints = tuple(
+            item for item in checkpoint_store.load() if item.campaign_id == campaign_id
+        )
+        selected = next(
+            (
+                (checkpoint, decision)
+                for decision in decisions
+                for checkpoint in checkpoints
+                if checkpoint.checkpoint_id == decision.subject_id
+            ),
+            None,
+        )
+        if selected is None:
+            raise CampaignRuntimeCommandError(
+                "recorded decision does not match a campaign checkpoint"
+            )
+        checkpoint, decision = selected
+        event_id = f"checkpoint-reconciliation:{decision.review_id}"
+        existing_event = next(
+            (event for event in history.events if event.event_id == event_id),
+            None,
+        )
+        if existing_event is not None:
+            action = existing_event.action
+            replayed = True
+        else:
+            if checkpoint.status != "uncertain":
+                raise CampaignRuntimeCommandError(
+                    "matching checkpoint is not awaiting reconciliation"
+                )
+
+            result_action = None
+            request_id = None
+            resulting_stage = None
+            outcome_reference = None
+            if decision.decision == "confirm-completed":
+                if not checkpoint.action_key.startswith("execution:"):
+                    raise CampaignRuntimeCommandError(
+                        "confirm-completed requires a verifiable persisted provider outcome"
+                    )
+                request_id = checkpoint.action_key.removeprefix("execution:")
+                job = next(
+                    (
+                        item
+                        for item in queue_state.queue.jobs
+                        if item.request.request_id == request_id
+                    ),
+                    None,
+                )
+                if job is None or job.status != "completed" or job.receipt is None:
+                    raise CampaignRuntimeCommandError(
+                        "confirm-completed requires a matching completed queue receipt"
+                    )
+                result_action = "execution-completed"
+                resulting_stage = run.stage
+                outcome_reference = job.receipt.external_id
+
+            resolved = checkpoint_store.reconcile(
+                checkpoint,
+                decision=decision.decision,
+                now=now,
+                result_action=result_action,
+                request_id=request_id,
+                resulting_stage=resulting_stage,
+            )
+            history = AuditHistoryService().record(
+                history,
+                AuditEvent(
+                    event_id=event_id,
+                    occurred_at=now,
+                    category="execution",
+                    action=decision.decision,
+                    subject_id=checkpoint.checkpoint_id,
+                    actor=decision.decided_by,
+                    reference_id=outcome_reference or decision.review_id,
+                    detail=decision.reason,
+                ),
+            )
+            history_store.save(history)
+            action = resolved.result_action or decision.decision
+            replayed = False
+    except (
+        ConfigurationError,
+        CampaignRunStateError,
+        QueueStateError,
+        ReviewDecisionStateError,
+        AuditHistoryStateError,
+        RuntimeCheckpointError,
+        CampaignRuntimeCommandError,
+        PermissionError,
+        ValueError,
+    ) as exc:
+        console.print(f"[bold red]Error:[/bold red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    table = Table(
+        title="Campaign Runtime Resume",
+        show_header=False,
+        box=None,
+        pad_edge=False,
+    )
+    table.add_row("Campaign ID", campaign_id)
+    table.add_row("Checkpoint", checkpoint.checkpoint_id)
+    table.add_row("Decision", decision.decision)
+    table.add_row("Action", action)
+    table.add_row("Replayed", "Yes" if replayed else "No")
+    console.print(table)
