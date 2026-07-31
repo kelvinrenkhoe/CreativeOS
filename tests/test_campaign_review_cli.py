@@ -52,7 +52,7 @@ def test_review_lists_only_campaign_pending_items(tmp_path, monkeypatch) -> None
 
     assert result.exit_code == 0
     assert "Campaign Human Reviews" in result.stdout
-    assert REVIEW_ID in result.stdout
+    assert "review:no-lose" in result.stdout
     assert "uncertain-action" in result.stdout
     assert "confirm-completed" in result.stdout
     assert "confirm-not-completed" in result.stdout
@@ -117,9 +117,7 @@ def test_review_rejects_negative_decision_without_reason(
 
     assert result.exit_code == 1
     assert "requires a reason" in result.stdout
-    assert not (
-        tmp_path / ".creativeos/runtime/review-decisions.json"
-    ).exists()
+    assert not (tmp_path / ".creativeos/runtime/review-decisions.json").exists()
 
 
 def test_review_identical_replay_is_idempotent_and_does_not_duplicate_audit(
@@ -148,9 +146,7 @@ def test_review_identical_replay_is_idempotent_and_does_not_duplicate_audit(
     ).load()
     assert len(decisions) == 1
     history_path = tmp_path / ".creativeos/runtime/audit-history.json"
-    assert history_path.read_text(encoding="utf-8").count(
-        '"event_id": "review-decision:'
-    ) == 1
+    assert history_path.read_text(encoding="utf-8").count('"event_id": "review-decision:') == 1
 
 
 def test_review_requires_complete_explicit_decision_input(
