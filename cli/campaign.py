@@ -15,10 +15,20 @@ from services.campaign import CampaignService
 from services.campaign_generator import CampaignGeneratorService
 from services.campaign_queue import CampaignQueueService
 from services.campaign_run_state import CampaignRunStateError, JsonCampaignRunStore
+from services.human_review_inbox import (
+    HumanReviewInboxService,
+    ReviewDecision,
+    ReviewInbox,
+)
+from services.operations_dashboard import AuditEvent, AuditHistoryService
 from services.persistent_queue import (
     JsonExecutionQueueStore,
     PersistentQueue,
     QueueStateError,
+)
+from services.review_decision_store import (
+    JsonReviewDecisionStore,
+    ReviewDecisionStateError,
 )
 from services.runtime_checkpoints import (
     CheckpointedCampaignRuntime,
@@ -33,6 +43,7 @@ CAMPAIGN_RUNS_PATH = RUNTIME_PATH / "campaign-runs"
 QUEUE_PATH = RUNTIME_PATH / "execution-queue.json"
 AUDIT_HISTORY_PATH = RUNTIME_PATH / "audit-history.json"
 CHECKPOINTS_PATH = RUNTIME_PATH / "campaign-checkpoints.json"
+REVIEW_DECISIONS_PATH = RUNTIME_PATH / "review-decisions.json"
 CLI_WORKER_ID = "creativeos-cli"
 
 
@@ -194,3 +205,123 @@ def campaign_run(
     table.add_row("Request ID", request_id or "None")
     table.add_row("Paused", "Yes" if paused else "No")
     console.print(table)
+
+
+@app.command("review")
+def campaign_review(
+    campaign_id: str = typer.Argument(..., help="Persisted campaign runtime ID."),
+    review_id: str | None = typer.Option(None, "--review-id", help="Exact pending review ID."),
+    decision: str | None = typer.Option(None, "--decision", help="Decision for one review item."),
+    decided_by: str | None = typer.Option(
+        None,
+        "--decided-by",
+        help="Operator identity required when recording a decision.",
+    ),
+    reason: str | None = typer.Option(
+        None,
+        "--reason",
+        help="Reason required for negative or not-completed decisions.",
+    ),
+) -> None:
+    """List pending reviews or record exactly one attributable decision."""
+    try:
+        project = Project.discover()
+        now = datetime.now(UTC)
+        run = JsonCampaignRunStore(project.root / CAMPAIGN_RUNS_PATH).load(campaign_id)
+        checkpoint_store = JsonRuntimeCheckpointStore(project.root / CHECKPOINTS_PATH)
+        decision_store = JsonReviewDecisionStore(project.root / REVIEW_DECISIONS_PATH)
+        history_store = JsonAuditHistoryStore(project.root / AUDIT_HISTORY_PATH)
+
+        inbox = HumanReviewInboxService().build(
+            (run,),
+            checkpoints=tuple(
+                item for item in checkpoint_store.load() if item.campaign_id == campaign_id
+            ),
+        )
+        recorded = {
+            item.review_id: item
+            for item in decision_store.load()
+            if item.campaign_id == campaign_id
+        }
+        pending = ReviewInbox(
+            items=tuple(item for item in inbox.items if item.review_id not in recorded)
+        )
+
+        supplied = (review_id is not None, decision is not None, decided_by is not None)
+        if any(supplied) and not all(supplied):
+            raise CampaignRuntimeCommandError(
+                "--review-id, --decision, and --decided-by must be supplied together"
+            )
+
+        stored = None
+        if all(supplied):
+            selected = next(
+                (item for item in inbox.items if item.review_id == review_id),
+                None,
+            )
+            if selected is None:
+                raise CampaignRuntimeCommandError(f"unknown review_id: {review_id}")
+            selected_inbox = ReviewInbox(items=(selected,))
+            stored = decision_store.record(
+                selected_inbox,
+                ReviewDecision(
+                    review_id=review_id or "",
+                    decision=decision or "",
+                    decided_by=decided_by or "",
+                    reason=reason,
+                ),
+                decided_at=now,
+            )
+            history = history_store.load()
+            event_id = f"review-decision:{stored.review_id}"
+            if not any(event.event_id == event_id for event in history.events):
+                history = AuditHistoryService().record(
+                    history,
+                    AuditEvent(
+                        event_id=event_id,
+                        occurred_at=stored.decided_at,
+                        category="approval",
+                        action=stored.decision,
+                        subject_id=stored.subject_id,
+                        actor=stored.decided_by,
+                        reference_id=stored.review_id,
+                        detail=stored.reason,
+                    ),
+                )
+                history_store.save(history)
+            pending = ReviewInbox(
+                items=tuple(item for item in pending.items if item.review_id != stored.review_id)
+            )
+    except (
+        ConfigurationError,
+        CampaignRunStateError,
+        RuntimeCheckpointError,
+        ReviewDecisionStateError,
+        AuditHistoryStateError,
+        CampaignRuntimeCommandError,
+        PermissionError,
+        ValueError,
+    ) as exc:
+        console.print(f"[bold red]Error:[/bold red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    if stored is not None:
+        console.print(f"[bold green]Recorded {stored.decision}:[/bold green] {stored.review_id}")
+
+    table = Table(title="Campaign Human Reviews", pad_edge=False)
+    table.add_column("Review ID")
+    table.add_column("Kind")
+    table.add_column("Title")
+    table.add_column("Detail")
+    table.add_column("Allowed decisions")
+    for item in pending.items:
+        table.add_row(
+            item.review_id,
+            item.kind,
+            item.title,
+            item.detail,
+            ", ".join(item.allowed_decisions),
+        )
+    console.print(table)
+    if not pending.items:
+        console.print("No pending reviews.")
