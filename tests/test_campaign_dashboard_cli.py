@@ -125,10 +125,7 @@ def test_dashboard_shows_multiple_campaigns_and_safe_recommendations(
         lambda _store: (),
     )
 
-    before = {
-        path: (tmp_path / path).read_text(encoding="utf-8")
-        for path in optional_paths
-    }
+    before = {path: (tmp_path / path).read_text(encoding="utf-8") for path in optional_paths}
 
     def provider_call(*_args, **_kwargs):
         raise AssertionError("dashboard must not execute providers or advance runtime")
@@ -140,15 +137,10 @@ def test_dashboard_shows_multiple_campaigns_and_safe_recommendations(
 
     result = runner.invoke(app, ["dashboard"])
 
-    after = {
-        path: (tmp_path / path).read_text(encoding="utf-8")
-        for path in optional_paths
-    }
+    after = {path: (tmp_path / path).read_text(encoding="utf-8") for path in optional_paths}
     assert result.exit_code == 0
     assert before == after
-    assert result.stdout.index("another-launch") < result.stdout.index(
-        "no-lose-guard-launch"
-    )
+    assert result.stdout.index("another-launch") < result.stdout.index("no-lose-guard-launch")
     assert "creativeos campaign review another-launch" in result.stdout
     assert "creativeos campaign resume no-lose-guard-launch" in result.stdout
     assert "Analytics refresh is not configured." in result.stdout
