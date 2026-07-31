@@ -73,14 +73,14 @@ provider response, and never change campaign strategy without reviewable evidenc
 ## Phase 8 — Live Campaign Operations
 
 - [x] Read-only campaign runtime status CLI
-- [ ] One-action campaign runtime CLI
+- [x] One-action campaign runtime CLI
 - [ ] Unified campaign operations dashboard
 - [ ] Content schedule execution
 - [ ] Operator notifications and weekly reports
 
 This phase exposes the autonomous runtime through safe operator workflows. Status
-inspection remains read-only, while future mutation commands must assemble durable
-queue, audit, checkpoint, and provider state explicitly.
+inspection remains read-only, while mutation commands assemble durable queue, audit,
+checkpoint, and provider state explicitly.
 
 ## Planned pull requests
 
@@ -121,6 +121,7 @@ queue, audit, checkpoint, and provider state explicitly.
 | #50 | Scheduled Analytics Refresh | Durable recurring analytics collection with deterministic windows and restart-safe attempt fencing |
 | #51 | Evidence-Based Campaign Adaptation | Reviewable strategy recommendations derived from preserved campaign evidence |
 | #54 | Campaign Runtime Status CLI | Read-only persisted stage, evidence, and next-requirement inspection |
+| #56 | Campaign Runtime Run CLI | One safe persisted runtime action per operator invocation |
 
 ## Design principles
 
