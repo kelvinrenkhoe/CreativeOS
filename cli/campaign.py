@@ -35,14 +35,14 @@ from services.review_decision_store import (
     JsonReviewDecisionStore,
     ReviewDecisionStateError,
 )
-from services.scheduled_analytics_refresh import (
-    JsonAnalyticsRefreshStore,
-    ScheduledAnalyticsRefreshError,
-)
 from services.runtime_checkpoints import (
     CheckpointedCampaignRuntime,
     JsonRuntimeCheckpointStore,
     RuntimeCheckpointError,
+)
+from services.scheduled_analytics_refresh import (
+    JsonAnalyticsRefreshStore,
+    ScheduledAnalyticsRefreshError,
 )
 
 app = typer.Typer(help="Create and manage music marketing campaigns.", no_args_is_help=True)
