@@ -26,9 +26,7 @@ from services.runtime_checkpoints import (
     RuntimeCheckpointError,
 )
 
-app = typer.Typer(
-    help="Create and manage music marketing campaigns.", no_args_is_help=True
-)
+app = typer.Typer(help="Create and manage music marketing campaigns.", no_args_is_help=True)
 console = Console()
 RUNTIME_PATH = Path(".creativeos") / "runtime"
 CAMPAIGN_RUNS_PATH = RUNTIME_PATH / "campaign-runs"
@@ -45,9 +43,7 @@ class CampaignRuntimeCommandError(ValueError):
 @app.command("create")
 def create_campaign(
     name: str = typer.Argument(..., help="Campaign or release name."),
-    artist: str | None = typer.Option(
-        None, "--artist", help="Override the configured artist."
-    ),
+    artist: str | None = typer.Option(None, "--artist", help="Override the configured artist."),
 ) -> None:
     """Create a complete campaign workspace."""
     try:
@@ -63,9 +59,7 @@ def create_campaign(
 @app.command("generate")
 def generate_campaign(
     name: str = typer.Argument(..., help="Campaign or release name."),
-    force: bool = typer.Option(
-        False, "--force", help="Replace existing campaign content."
-    ),
+    force: bool = typer.Option(False, "--force", help="Replace existing campaign content."),
 ) -> None:
     """Generate marketing assets for an existing campaign."""
     try:
@@ -134,9 +128,7 @@ def campaign_run(
         queue_state = queue_store.load()
         history = history_store.load()
         due = CampaignQueueService().ready(queue_state.queue, now=now)
-        if run.stage == "in-production" and any(
-            job.request.work_id == run.work_id for job in due
-        ):
+        if run.stage == "in-production" and any(job.request.work_id == run.work_id for job in due):
             raise CampaignRuntimeCommandError(
                 "provider execution requires explicit CLI provider configuration"
             )
@@ -159,9 +151,7 @@ def campaign_run(
         if outcome.result is None:
             checkpoint = outcome.checkpoint
             if checkpoint is None or checkpoint.status != "completed":
-                raise CampaignRuntimeCommandError(
-                    "runtime produced no reportable outcome"
-                )
+                raise CampaignRuntimeCommandError("runtime produced no reportable outcome")
             action = checkpoint.result_action or "completed"
             stage = checkpoint.resulting_stage or run.stage
             request_id = checkpoint.request_id
@@ -176,9 +166,7 @@ def campaign_run(
             request_id = result.request_id
             paused = result.paused
             if result.queue != queue_state.queue:
-                queue_store.save(
-                    PersistentQueue(queue=result.queue, leases=queue_state.leases)
-                )
+                queue_store.save(PersistentQueue(queue=result.queue, leases=queue_state.leases))
             if result.history != history:
                 history_store.save(result.history)
     except (
