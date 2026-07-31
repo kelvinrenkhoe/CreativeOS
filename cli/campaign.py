@@ -479,33 +479,19 @@ def campaign_dashboard() -> None:
 
         queue_path = project.root / QUEUE_PATH
         queue_state = (
-            JsonExecutionQueueStore(queue_path).load()
-            if queue_path.exists()
-            else PersistentQueue()
+            JsonExecutionQueueStore(queue_path).load() if queue_path.exists() else PersistentQueue()
         )
         audit_path = project.root / AUDIT_HISTORY_PATH
-        history = (
-            JsonAuditHistoryStore(audit_path).load()
-            if audit_path.exists()
-            else AuditHistory()
-        )
+        history = JsonAuditHistoryStore(audit_path).load() if audit_path.exists() else AuditHistory()
         checkpoint_path = project.root / CHECKPOINTS_PATH
         checkpoints = (
-            JsonRuntimeCheckpointStore(checkpoint_path).load()
-            if checkpoint_path.exists()
-            else ()
+            JsonRuntimeCheckpointStore(checkpoint_path).load() if checkpoint_path.exists() else ()
         )
         decision_path = project.root / REVIEW_DECISIONS_PATH
-        decisions = (
-            JsonReviewDecisionStore(decision_path).load()
-            if decision_path.exists()
-            else ()
-        )
+        decisions = JsonReviewDecisionStore(decision_path).load() if decision_path.exists() else ()
         analytics_path = project.root / ANALYTICS_REFRESH_PATH
         analytics = (
-            JsonAnalyticsRefreshStore(analytics_path).load()
-            if analytics_path.exists()
-            else ()
+            JsonAnalyticsRefreshStore(analytics_path).load() if analytics_path.exists() else ()
         )
 
         dashboard = OperationsDashboardService().build(
@@ -526,14 +512,10 @@ def campaign_dashboard() -> None:
                 )
 
         uncertain_by_campaign = {
-            item.campaign_id: item
-            for item in checkpoints
-            if item.status == "uncertain"
+            item.campaign_id: item for item in checkpoints if item.status == "uncertain"
         }
         decided_subjects = {
-            item.subject_id
-            for item in decisions
-            if item.kind == "uncertain-action"
+            item.subject_id for item in decisions if item.kind == "uncertain-action"
         }
     except (
         ConfigurationError,
@@ -634,4 +616,3 @@ def campaign_dashboard() -> None:
     console.print(events)
     if not dashboard.recent_events:
         console.print("No audit activity recorded.")
-
