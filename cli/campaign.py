@@ -26,7 +26,9 @@ from services.runtime_checkpoints import (
     RuntimeCheckpointError,
 )
 
-app = typer.Typer(help="Create and manage music marketing campaigns.", no_args_is_help=True)
+app = typer.Typer(
+    help="Create and manage music marketing campaigns.", no_args_is_help=True
+)
 console = Console()
 RUNTIME_PATH = Path(".creativeos") / "runtime"
 CAMPAIGN_RUNS_PATH = RUNTIME_PATH / "campaign-runs"
@@ -43,7 +45,9 @@ class CampaignRuntimeCommandError(ValueError):
 @app.command("create")
 def create_campaign(
     name: str = typer.Argument(..., help="Campaign or release name."),
-    artist: str | None = typer.Option(None, "--artist", help="Override the configured artist."),
+    artist: str | None = typer.Option(
+        None, "--artist", help="Override the configured artist."
+    ),
 ) -> None:
     """Create a complete campaign workspace."""
     try:
@@ -59,7 +63,9 @@ def create_campaign(
 @app.command("generate")
 def generate_campaign(
     name: str = typer.Argument(..., help="Campaign or release name."),
-    force: bool = typer.Option(False, "--force", help="Replace existing campaign content."),
+    force: bool = typer.Option(
+        False, "--force", help="Replace existing campaign content."
+    ),
 ) -> None:
     """Generate marketing assets for an existing campaign."""
     try:
@@ -153,7 +159,9 @@ def campaign_run(
         if outcome.result is None:
             checkpoint = outcome.checkpoint
             if checkpoint is None or checkpoint.status != "completed":
-                raise CampaignRuntimeCommandError("runtime produced no reportable outcome")
+                raise CampaignRuntimeCommandError(
+                    "runtime produced no reportable outcome"
+                )
             action = checkpoint.result_action or "completed"
             stage = checkpoint.resulting_stage or run.stage
             request_id = checkpoint.request_id
