@@ -1,6 +1,7 @@
 """Tests for durable scheduled analytics refreshes."""
 
 from datetime import UTC, datetime, timedelta
+from threading import Event, Thread
 
 import pytest
 
@@ -57,6 +58,20 @@ class SuccessfulConnector:
 
     def ingest(self, publications):
         self.calls.append(publications)
+        return dataset()
+
+
+class BlockingConnector:
+    def __init__(self) -> None:
+        self.calls = []
+        self.started = Event()
+        self.release = Event()
+
+    def ingest(self, publications):
+        self.calls.append(publications)
+        self.started.set()
+        if not self.release.wait(timeout=5):
+            raise TimeoutError("test did not release connector")
         return dataset()
 
 
@@ -165,6 +180,55 @@ def test_completed_window_is_not_collected_twice_after_restart(tmp_path):
     assert replay.dataset is None
     assert replay.attempt == first.attempt
     assert len(connector.calls) == 1
+
+
+def test_overlapping_refreshes_collect_once_and_replay(tmp_path):
+    path = tmp_path / "analytics-refresh.json"
+    configured = schedule()
+    connector = BlockingConnector()
+    service = ScheduledAnalyticsRefreshService()
+    results = []
+    errors = []
+    second_finished = Event()
+
+    def refresh(*, finished=None):
+        try:
+            results.append(
+                service.refresh(
+                    configured,
+                    connector,
+                    JsonAnalyticsRefreshStore(path),
+                    now=NOW,
+                )
+            )
+        except BaseException as error:
+            errors.append(error)
+        finally:
+            if finished is not None:
+                finished.set()
+
+    first = Thread(target=refresh)
+    second = Thread(target=refresh, kwargs={"finished": second_finished})
+    first.start()
+    assert connector.started.wait(timeout=5)
+
+    second.start()
+    try:
+        assert not second_finished.wait(timeout=0.1)
+    finally:
+        connector.release.set()
+
+    first.join(timeout=5)
+    second.join(timeout=5)
+
+    assert not first.is_alive()
+    assert not second.is_alive()
+    assert errors == []
+    assert len(connector.calls) == 1
+    assert len(results) == 2
+    assert sum(result.replayed for result in results) == 1
+    assert {result.attempt.status for result in results if result.attempt} == {"completed"}
+    assert len(JsonAnalyticsRefreshStore(path).load()) == 1
 
 
 def test_started_attempt_becomes_uncertain_after_restart(tmp_path):
