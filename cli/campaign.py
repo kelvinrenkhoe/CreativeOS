@@ -20,7 +20,12 @@ from services.human_review_inbox import (
     ReviewDecision,
     ReviewInbox,
 )
-from services.operations_dashboard import AuditEvent, AuditHistoryService
+from services.operations_dashboard import (
+    AuditEvent,
+    AuditHistory,
+    AuditHistoryService,
+    OperationsDashboardService,
+)
 from services.persistent_queue import (
     JsonExecutionQueueStore,
     PersistentQueue,
@@ -29,6 +34,10 @@ from services.persistent_queue import (
 from services.review_decision_store import (
     JsonReviewDecisionStore,
     ReviewDecisionStateError,
+)
+from services.scheduled_analytics_refresh import (
+    JsonAnalyticsRefreshStore,
+    ScheduledAnalyticsRefreshError,
 )
 from services.runtime_checkpoints import (
     CheckpointedCampaignRuntime,
@@ -44,6 +53,7 @@ QUEUE_PATH = RUNTIME_PATH / "execution-queue.json"
 AUDIT_HISTORY_PATH = RUNTIME_PATH / "audit-history.json"
 CHECKPOINTS_PATH = RUNTIME_PATH / "campaign-checkpoints.json"
 REVIEW_DECISIONS_PATH = RUNTIME_PATH / "review-decisions.json"
+ANALYTICS_REFRESH_PATH = RUNTIME_PATH / "analytics-refresh.json"
 CLI_WORKER_ID = "creativeos-cli"
 
 
@@ -459,3 +469,169 @@ def campaign_resume(
     table.add_row("Action", action)
     table.add_row("Replayed", "Yes" if replayed else "No")
     console.print(table)
+
+@app.command("dashboard")
+def campaign_dashboard() -> None:
+    """Display a read-only overview of every persisted campaign runtime."""
+    try:
+        project = Project.discover()
+        runs = JsonCampaignRunStore(project.root / CAMPAIGN_RUNS_PATH).load_all()
+
+        queue_path = project.root / QUEUE_PATH
+        queue_state = (
+            JsonExecutionQueueStore(queue_path).load()
+            if queue_path.exists()
+            else PersistentQueue()
+        )
+        audit_path = project.root / AUDIT_HISTORY_PATH
+        history = (
+            JsonAuditHistoryStore(audit_path).load()
+            if audit_path.exists()
+            else AuditHistory()
+        )
+        checkpoint_path = project.root / CHECKPOINTS_PATH
+        checkpoints = (
+            JsonRuntimeCheckpointStore(checkpoint_path).load()
+            if checkpoint_path.exists()
+            else ()
+        )
+        decision_path = project.root / REVIEW_DECISIONS_PATH
+        decisions = (
+            JsonReviewDecisionStore(decision_path).load()
+            if decision_path.exists()
+            else ()
+        )
+        analytics_path = project.root / ANALYTICS_REFRESH_PATH
+        analytics = (
+            JsonAnalyticsRefreshStore(analytics_path).load()
+            if analytics_path.exists()
+            else ()
+        )
+
+        dashboard = OperationsDashboardService().build(
+            runs,
+            queue_state.queue,
+            history,
+        )
+        inbox = HumanReviewInboxService().build(
+            runs,
+            checkpoints=checkpoints,
+        )
+        decided_ids = {item.review_id for item in decisions}
+        pending_by_campaign: dict[str, int] = {}
+        for item in inbox.items:
+            if item.review_id not in decided_ids:
+                pending_by_campaign[item.campaign_id] = (
+                    pending_by_campaign.get(item.campaign_id, 0) + 1
+                )
+
+        uncertain_by_campaign = {
+            item.campaign_id: item
+            for item in checkpoints
+            if item.status == "uncertain"
+        }
+        decided_subjects = {
+            item.subject_id
+            for item in decisions
+            if item.kind == "uncertain-action"
+        }
+    except (
+        ConfigurationError,
+        CampaignRunStateError,
+        QueueStateError,
+        AuditHistoryStateError,
+        RuntimeCheckpointError,
+        ReviewDecisionStateError,
+        ScheduledAnalyticsRefreshError,
+        ValueError,
+    ) as exc:
+        console.print(f"[bold red]Error:[/bold red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    campaigns = Table(title="Campaign Operations", pad_edge=False)
+    campaigns.add_column("Campaign")
+    campaigns.add_column("Stage")
+    campaigns.add_column("Next requirement")
+    campaigns.add_column("Pending reviews")
+    campaigns.add_column("Recommended command")
+    for item in dashboard.campaigns:
+        uncertain = uncertain_by_campaign.get(item.campaign_id)
+        if uncertain is not None:
+            command = (
+                f"creativeos campaign resume {item.campaign_id}"
+                if uncertain.checkpoint_id in decided_subjects
+                else f"creativeos campaign review {item.campaign_id}"
+            )
+        elif item.stage == "completed":
+            command = f"creativeos campaign status {item.campaign_id}"
+        else:
+            command = f"creativeos campaign run {item.campaign_id}"
+        campaigns.add_row(
+            item.campaign_id,
+            item.stage,
+            item.requires_action,
+            str(pending_by_campaign.get(item.campaign_id, 0)),
+            command,
+        )
+    console.print(campaigns)
+    if not dashboard.campaigns:
+        console.print("No persisted campaign runs.")
+
+    queue = Table(title="Execution Queue", pad_edge=False)
+    queue.add_column("Status")
+    queue.add_column("Count")
+    for status, count in dashboard.queue_status_counts:
+        queue.add_row(status, str(count))
+    console.print(queue)
+    if not dashboard.queue_status_counts:
+        console.print("Queue is empty.")
+    for job in dashboard.failed_jobs:
+        console.print(
+            f"[bold red]Failed:[/bold red] {job.request_id} "
+            f"({job.provider}, {job.asset_id}) — {job.reason}"
+        )
+
+    analytics_table = Table(title="Analytics Refresh", pad_edge=False)
+    analytics_table.add_column("Status")
+    analytics_table.add_column("Count")
+    analytics_counts: dict[str, int] = {}
+    for attempt in analytics:
+        analytics_counts[attempt.status] = analytics_counts.get(attempt.status, 0) + 1
+    for status, count in sorted(analytics_counts.items()):
+        analytics_table.add_row(status, str(count))
+    console.print(analytics_table)
+    if not analytics:
+        console.print("Analytics refresh is not configured.")
+    else:
+        latest = max(
+            analytics,
+            key=lambda item: (item.started_at, item.attempt_id),
+        )
+        detail = latest.failure_reason or (
+            f"{latest.record_count} records"
+            if latest.record_count is not None
+            else "manual reconciliation required"
+            if latest.status == "uncertain"
+            else "in progress"
+        )
+        console.print(
+            f"Latest: {latest.schedule_id} — {latest.status} "
+            f"({latest.started_at.isoformat()}; {detail})"
+        )
+
+    events = Table(title="Recent Audit Activity", pad_edge=False)
+    events.add_column("Occurred")
+    events.add_column("Category")
+    events.add_column("Action")
+    events.add_column("Subject")
+    for event in dashboard.recent_events:
+        events.add_row(
+            event.occurred_at.isoformat(),
+            event.category,
+            event.action,
+            event.subject_id,
+        )
+    console.print(events)
+    if not dashboard.recent_events:
+        console.print("No audit activity recorded.")
+
