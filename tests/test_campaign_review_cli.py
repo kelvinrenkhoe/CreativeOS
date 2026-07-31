@@ -6,7 +6,6 @@ from types import SimpleNamespace
 from typer.testing import CliRunner
 
 from cli.campaign import app
-from services.operations_dashboard import AuditHistory
 from services.review_decision_store import JsonReviewDecisionStore
 from services.runtime_checkpoints import RuntimeCheckpoint
 
