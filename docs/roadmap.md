@@ -70,6 +70,18 @@ The runtime connects existing campaign services one safe action at a time. It mu
 preserve explicit human approval, never infer publication success after an uncertain
 provider response, and never change campaign strategy without reviewable evidence.
 
+## Phase 8 — Live Campaign Operations
+
+- [x] Read-only campaign runtime status CLI
+- [ ] One-action campaign runtime CLI
+- [ ] Unified campaign operations dashboard
+- [ ] Content schedule execution
+- [ ] Operator notifications and weekly reports
+
+This phase exposes the autonomous runtime through safe operator workflows. Status
+inspection remains read-only, while future mutation commands must assemble durable
+queue, audit, checkpoint, and provider state explicitly.
+
 ## Planned pull requests
 
 | PR | Capability | Outcome |
@@ -108,6 +120,7 @@ provider response, and never change campaign strategy without reviewable evidenc
 | #49 | Publication Reconciliation | Read-only provider evidence for uncertain publication attempts |
 | #50 | Scheduled Analytics Refresh | Durable recurring analytics collection with deterministic windows and restart-safe attempt fencing |
 | #51 | Evidence-Based Campaign Adaptation | Reviewable strategy recommendations derived from preserved campaign evidence |
+| #54 | Campaign Runtime Status CLI | Read-only persisted stage, evidence, and next-requirement inspection |
 
 ## Design principles
 
