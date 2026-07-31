@@ -208,9 +208,7 @@ class JsonRuntimeCheckpointStore:
                     completed_at=now,
                     result_action=self._required(result_action, "result_action"),
                     request_id=(
-                        self._required(request_id, "request_id")
-                        if request_id is not None
-                        else None
+                        self._required(request_id, "request_id") if request_id is not None else None
                     ),
                     resulting_stage=self._required(resulting_stage, "resulting_stage"),
                 )
