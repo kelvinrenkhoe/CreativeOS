@@ -63,6 +63,7 @@ class JsonAnalyticsRefreshStore:
     def __init__(self, path: Path) -> None:
         self.path = path
         self.lock_path = path.with_suffix(f"{path.suffix}.lock")
+        self.refresh_lock_path = path.with_suffix(f"{path.suffix}.refresh.lock")
 
     def load(self) -> tuple[AnalyticsRefreshAttempt, ...]:
         with self._locked():
@@ -244,9 +245,16 @@ class JsonAnalyticsRefreshStore:
 
         os.replace(temporary_path, self.path)
 
+    def refresh_locked(self):
+        return self._file_lock(self.refresh_lock_path)
+
     def _locked(self):
-        self.lock_path.parent.mkdir(parents=True, exist_ok=True)
-        handle = self.lock_path.open("a+", encoding="utf-8")
+        return self._file_lock(self.lock_path)
+
+    @staticmethod
+    def _file_lock(path: Path):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        handle = path.open("a+", encoding="utf-8")
 
         class Lock:
             def __enter__(self):
@@ -431,35 +439,36 @@ class ScheduledAnalyticsRefreshService:
         if window is None:
             return ScheduledAnalyticsRefreshResult(attempt=None)
 
-        attempt, acquired = store.begin(
-            schedule_id=schedule.schedule_id,
-            window_started_at=window,
-            now=now,
-        )
-        if not acquired:
-            return ScheduledAnalyticsRefreshResult(
-                attempt=attempt,
-                replayed=True,
-            )
-
-        try:
-            dataset = connector.ingest(schedule.publications)
-        except Exception as error:
-            failed = store.fail(
-                attempt,
-                reason=self._failure_reason(error),
+        with store.refresh_locked():
+            attempt, acquired = store.begin(
+                schedule_id=schedule.schedule_id,
+                window_started_at=window,
                 now=now,
             )
-            return ScheduledAnalyticsRefreshResult(attempt=failed)
-        except BaseException:
-            store.mark_uncertain(attempt)
-            raise
+            if not acquired:
+                return ScheduledAnalyticsRefreshResult(
+                    attempt=attempt,
+                    replayed=True,
+                )
 
-        completed = store.complete(attempt, dataset, now=now)
-        return ScheduledAnalyticsRefreshResult(
-            attempt=completed,
-            dataset=dataset,
-        )
+            try:
+                dataset = connector.ingest(schedule.publications)
+            except Exception as error:
+                failed = store.fail(
+                    attempt,
+                    reason=self._failure_reason(error),
+                    now=now,
+                )
+                return ScheduledAnalyticsRefreshResult(attempt=failed)
+            except BaseException:
+                store.mark_uncertain(attempt)
+                raise
+
+            completed = store.complete(attempt, dataset, now=now)
+            return ScheduledAnalyticsRefreshResult(
+                attempt=completed,
+                dataset=dataset,
+            )
 
     @classmethod
     def _schedule(
