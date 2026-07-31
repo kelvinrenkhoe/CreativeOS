@@ -43,9 +43,7 @@ class JsonAuditHistoryStore:
             except AuditHistoryStateError:
                 raise
             except (KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
-                raise AuditHistoryStateError(
-                    "invalid audit history snapshot"
-                ) from error
+                raise AuditHistoryStateError("invalid audit history snapshot") from error
 
     def save(self, history: AuditHistory) -> None:
         """Validate and atomically replace the complete history."""
@@ -105,9 +103,7 @@ class JsonAuditHistoryStore:
             action=JsonAuditHistoryStore._string(value["action"], "action"),
             subject_id=JsonAuditHistoryStore._string(value["subject_id"], "subject_id"),
             actor=JsonAuditHistoryStore._string(value["actor"], "actor"),
-            reference_id=JsonAuditHistoryStore._optional(
-                value.get("reference_id"), "reference_id"
-            ),
+            reference_id=JsonAuditHistoryStore._optional(value.get("reference_id"), "reference_id"),
             detail=JsonAuditHistoryStore._optional(value.get("detail"), "detail"),
         )
 
