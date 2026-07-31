@@ -112,6 +112,20 @@ class JsonCampaignRunStore:
         self._validate(run)
         return run
 
+    def load_all(self) -> tuple[CampaignRun, ...]:
+        """Load every saved campaign run in deterministic campaign-ID order."""
+        if not self.directory.exists():
+            return ()
+        if not self.directory.is_dir():
+            raise CampaignRunCorruptedError(
+                f"Campaign run store is not a directory: {self.directory}"
+            )
+
+        return tuple(
+            self.load(path.stem)
+            for path in sorted(self.directory.glob("*.json"), key=lambda item: item.name)
+        )
+
     def _path(self, campaign_id: str) -> Path:
         normalized = campaign_id.strip()
         if not normalized or normalized in {".", ".."} or "/" in normalized or "\\" in normalized:
