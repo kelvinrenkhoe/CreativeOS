@@ -113,6 +113,23 @@ class JsonRuntimeCheckpointStore:
                 None,
             )
             if existing is not None:
+                if existing.status == "retryable":
+                    restarted = replace(
+                        existing,
+                        status="started",
+                        started_at=now,
+                        completed_at=None,
+                        result_action=None,
+                        request_id=None,
+                        resulting_stage=None,
+                    )
+                    self._write_unlocked(
+                        tuple(
+                            restarted if item.checkpoint_id == checkpoint_id else item
+                            for item in checkpoints
+                        )
+                    )
+                    return restarted, True
                 if existing.status == "started":
                     existing = replace(existing, status="uncertain")
                     checkpoints = tuple(
@@ -155,6 +172,65 @@ class JsonRuntimeCheckpointStore:
     ) -> RuntimeCheckpoint:
         """Fence an action whose provider or persistence outcome is unknown."""
         return self._finish(checkpoint, status="uncertain", now=now)
+
+    def reconcile(
+        self,
+        checkpoint: RuntimeCheckpoint,
+        *,
+        decision: str,
+        now: datetime,
+        result_action: str | None = None,
+        request_id: str | None = None,
+        resulting_stage: str | None = None,
+    ) -> RuntimeCheckpoint:
+        """Resolve one uncertain action without inferring an external outcome."""
+        decision = self._required(decision, "decision")
+        if decision not in {"confirm-completed", "confirm-not-completed"}:
+            raise RuntimeCheckpointError(f"unsupported reconciliation decision: {decision}")
+        now = self._timestamp(now, "now")
+        with self._locked():
+            checkpoints = self._load_unlocked()
+            current = next(
+                (item for item in checkpoints if item.checkpoint_id == checkpoint.checkpoint_id),
+                None,
+            )
+            if current != checkpoint or current.status != "uncertain":
+                raise RuntimeCheckpointError("checkpoint is not the active uncertain action")
+
+            if decision == "confirm-completed":
+                if result_action is None or resulting_stage is None:
+                    raise RuntimeCheckpointError(
+                        "confirm-completed requires a verified persisted outcome"
+                    )
+                updated = replace(
+                    current,
+                    status="completed",
+                    completed_at=now,
+                    result_action=self._required(result_action, "result_action"),
+                    request_id=(
+                        self._required(request_id, "request_id")
+                        if request_id is not None
+                        else None
+                    ),
+                    resulting_stage=self._required(resulting_stage, "resulting_stage"),
+                )
+            else:
+                updated = replace(
+                    current,
+                    status="retryable",
+                    completed_at=now,
+                    result_action="confirmed-not-completed",
+                    request_id=None,
+                    resulting_stage="retryable",
+                )
+
+            self._write_unlocked(
+                tuple(
+                    updated if item.checkpoint_id == current.checkpoint_id else item
+                    for item in checkpoints
+                )
+            )
+            return updated
 
     def _finish(
         self,
@@ -277,13 +353,13 @@ class JsonRuntimeCheckpointStore:
         if len(identities) != len(set(identities)):
             raise RuntimeCheckpointError("checkpoint IDs must be unique")
         for item in checkpoints:
-            if item.status not in {"started", "completed", "uncertain"}:
+            if item.status not in {"started", "completed", "uncertain", "retryable"}:
                 raise RuntimeCheckpointError(f"unsupported checkpoint status: {item.status}")
             cls._timestamp(item.started_at, "started_at")
             expected = cls._identity(item.campaign_id, item.action_key)
             if item.checkpoint_id != expected:
                 raise RuntimeCheckpointError("checkpoint identity does not match its action")
-            if item.status == "completed":
+            if item.status in {"completed", "retryable"}:
                 if (
                     item.completed_at is None
                     or item.result_action is None
