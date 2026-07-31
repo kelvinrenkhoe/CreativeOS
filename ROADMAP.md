@@ -8,6 +8,7 @@
 | One-action campaign runtime CLI | Complete | #56 / #57 |
 | Durable human-review decisions | Complete | #59 / #60 |
 | Campaign human-review CLI | Complete | #58 / #61 |
-| Campaign resume CLI | In progress | #62 |
+| Campaign resume CLI | Complete | #62 / #63 |
+| Unified campaign operations dashboard | In progress | #64 |
 
-The resume command reconciles exactly one uncertain runtime checkpoint from a matching durable human decision. A completed decision requires a persisted provider receipt; a not-completed decision safely reopens the action for a later explicitly configured retry.
+The dashboard assembles validated campaign, review, queue, analytics-refresh, and audit state into one read-only operator view. It recommends existing safe CLI commands without advancing campaigns or contacting providers.
