@@ -52,7 +52,7 @@ def test_review_lists_only_campaign_pending_items(tmp_path, monkeypatch) -> None
 
     assert result.exit_code == 0
     assert "Campaign Human Reviews" in result.stdout
-    assert "review:no-lose" in result.stdout
+    assert "execution:r" in result.stdout
     assert "uncertain-action" in result.stdout
     assert "confirm-completed" in result.stdout
     assert "confirm-not-completed" in result.stdout
