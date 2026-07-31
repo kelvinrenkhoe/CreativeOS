@@ -62,7 +62,7 @@ def configure_resume(monkeypatch, tmp_path, *, stored_decision=None, events=()):
     )
     monkeypatch.setattr(
         "cli.campaign.JsonReviewDecisionStore.load",
-        lambda _store: (() if stored_decision is None else (stored_decision,)),
+        lambda _store: () if stored_decision is None else (stored_decision,),
     )
     monkeypatch.setattr(
         "cli.campaign.JsonExecutionQueueStore.load",
