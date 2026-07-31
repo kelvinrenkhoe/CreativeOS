@@ -3,6 +3,7 @@
 from datetime import UTC, datetime
 from types import SimpleNamespace
 
+from rich.console import Console
 from typer.testing import CliRunner
 
 from cli.campaign import app
@@ -31,6 +32,10 @@ def uncertain_checkpoint():
 
 
 def configure_review(monkeypatch, tmp_path) -> None:
+    monkeypatch.setattr(
+        "cli.campaign.console",
+        Console(width=240),
+    )
     monkeypatch.setattr(
         "cli.campaign.Project.discover",
         lambda: SimpleNamespace(root=tmp_path),
