@@ -235,9 +235,7 @@ def campaign_review(
         inbox = HumanReviewInboxService().build(
             (run,),
             checkpoints=tuple(
-                item
-                for item in checkpoint_store.load()
-                if item.campaign_id == campaign_id
+                item for item in checkpoint_store.load() if item.campaign_id == campaign_id
             ),
         )
         recorded = {
@@ -292,9 +290,7 @@ def campaign_review(
                 )
                 history_store.save(history)
             pending = ReviewInbox(
-                items=tuple(
-                    item for item in pending.items if item.review_id != stored.review_id
-                )
+                items=tuple(item for item in pending.items if item.review_id != stored.review_id)
             )
     except (
         ConfigurationError,
@@ -310,9 +306,7 @@ def campaign_review(
         raise typer.Exit(code=1) from exc
 
     if stored is not None:
-        console.print(
-            f"[bold green]Recorded {stored.decision}:[/bold green] {stored.review_id}"
-        )
+        console.print(f"[bold green]Recorded {stored.decision}:[/bold green] {stored.review_id}")
 
     table = Table(title="Campaign Human Reviews", pad_edge=False)
     table.add_column("Review ID")
