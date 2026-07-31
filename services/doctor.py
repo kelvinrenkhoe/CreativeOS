@@ -6,6 +6,8 @@ import sys
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
+from core.config import CONFIG_FILENAME, ConfigurationError
+from core.project import Project
 from models.doctor import DoctorCheck, DoctorReport
 
 MINIMUM_PYTHON_VERSION = (3, 13)
@@ -26,9 +28,19 @@ REQUIRED_DIRECTORIES = (
     "tests",
 )
 
+REPOSITORY_PATHS = (
+    "songs",
+    "campaigns",
+    "books",
+    "templates",
+    "assets",
+    "knowledge",
+    "media",
+)
+
 
 class DoctorService:
-    """Run health checks against a CreativeOS project."""
+    """Run health checks against CreativeOS and the current project."""
 
     def __init__(self, root: Path | None = None) -> None:
         self.root = (root or Path.cwd()).resolve()
@@ -40,11 +52,131 @@ class DoctorService:
             self._check_package(),
             self._check_git_installed(),
             self._check_git_repository(),
-            *self._check_required_files(),
-            *self._check_required_directories(),
         )
 
+        if self._find_workspace_config() is None:
+            checks += (
+                *self._check_required_files(),
+                *self._check_required_directories(),
+            )
+        else:
+            checks += self._check_creator_workspace()
+
         return DoctorReport(checks=checks)
+
+    def _find_workspace_config(self) -> Path | None:
+        """Return the nearest workspace configuration path."""
+        current = self.root.parent if self.root.is_file() else self.root
+
+        for directory in (current, *current.parents):
+            config_path = directory / CONFIG_FILENAME
+            if config_path.is_file():
+                return config_path
+
+        return None
+
+    def _check_creator_workspace(self) -> tuple[DoctorCheck, ...]:
+        """Validate the discovered creator workspace."""
+        config_path = self._find_workspace_config()
+        assert config_path is not None
+
+        config_check = DoctorCheck(
+            category="Workspace",
+            name=CONFIG_FILENAME,
+            passed=True,
+            detail=str(config_path),
+        )
+
+        try:
+            project = Project.discover(self.root)
+        except ConfigurationError as exc:
+            return (
+                config_check,
+                DoctorCheck(
+                    category="Workspace",
+                    name="Configuration",
+                    passed=False,
+                    detail=str(exc),
+                ),
+            )
+
+        checks = [
+            config_check,
+            DoctorCheck(
+                category="Workspace",
+                name="Configuration",
+                passed=True,
+                detail=project.name,
+            ),
+        ]
+
+        checks.extend(
+            DoctorCheck(
+                category="Repository",
+                name=f"{key}/",
+                passed=project.repository_path(key).is_dir(),
+                detail=str(project.repository_path(key)),
+            )
+            for key in REPOSITORY_PATHS
+        )
+
+        checks.extend(
+            self._check_named_directory(
+                category="Releases",
+                name="Current song",
+                parent=project.songs_path,
+                configured_name=project.current_song,
+            )
+        )
+        checks.extend(
+            self._check_named_directory(
+                category="Releases",
+                name="Upcoming song",
+                parent=project.songs_path,
+                configured_name=project.upcoming_song,
+            )
+        )
+
+        checks.extend(
+            DoctorCheck(
+                category="Campaigns",
+                name=campaign,
+                passed=(project.campaigns_path / campaign).is_dir(),
+                detail=str(project.campaigns_path / campaign),
+            )
+            for campaign in project.active_campaigns
+        )
+
+        return tuple(checks)
+
+    @staticmethod
+    def _check_named_directory(
+        *,
+        category: str,
+        name: str,
+        parent: Path,
+        configured_name: str,
+    ) -> tuple[DoctorCheck, ...]:
+        """Validate an optional configured directory."""
+        if not configured_name:
+            return (
+                DoctorCheck(
+                    category=category,
+                    name=name,
+                    passed=True,
+                    detail="Not configured",
+                ),
+            )
+
+        directory = parent / configured_name
+        return (
+            DoctorCheck(
+                category=category,
+                name=name,
+                passed=directory.is_dir(),
+                detail=str(directory),
+            ),
+        )
 
     def _check_python(self) -> DoctorCheck:
         current = sys.version_info[:3]

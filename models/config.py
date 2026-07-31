@@ -43,6 +43,21 @@ class AIConfig:
 
 
 @dataclass(frozen=True)
+class ReleasesConfig:
+    """Current and upcoming release settings."""
+
+    current: str = ""
+    upcoming: str = ""
+
+
+@dataclass(frozen=True)
+class CampaignsConfig:
+    """Campaign activity settings."""
+
+    active: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class CreativeOSConfig:
     """Complete CreativeOS workspace configuration."""
 
@@ -51,6 +66,8 @@ class CreativeOSConfig:
     artist: ArtistConfig
     repository: RepositoryConfig = field(default_factory=RepositoryConfig)
     ai: AIConfig = field(default_factory=AIConfig)
+    releases: ReleasesConfig = field(default_factory=ReleasesConfig)
+    campaigns: CampaignsConfig = field(default_factory=CampaignsConfig)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "CreativeOSConfig":
@@ -68,10 +85,22 @@ class CreativeOSConfig:
 
         repository_data = data.get("repository", {})
         ai_data = data.get("ai", {})
+        releases_data = data.get("releases", {})
+        campaigns_data = data.get("campaigns", {})
         if not isinstance(repository_data, dict):
             raise ValueError("repository must be a mapping.")
         if not isinstance(ai_data, dict):
             raise ValueError("ai must be a mapping.")
+        if not isinstance(releases_data, dict):
+            raise ValueError("releases must be a mapping.")
+        if not isinstance(campaigns_data, dict):
+            raise ValueError("campaigns must be a mapping.")
+
+        active_campaigns = campaigns_data.get("active", [])
+        if not isinstance(active_campaigns, list) or not all(
+            isinstance(campaign, str) for campaign in active_campaigns
+        ):
+            raise ValueError("campaigns.active must be a list of strings.")
 
         return cls(
             version=version,
@@ -83,6 +112,8 @@ class CreativeOSConfig:
             ),
             repository=RepositoryConfig(**repository_data),
             ai=AIConfig(**ai_data),
+            releases=ReleasesConfig(**releases_data),
+            campaigns=CampaignsConfig(active=tuple(active_campaigns)),
         )
 
     def repository_path(self, root: Path, key: str) -> Path:
