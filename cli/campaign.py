@@ -482,7 +482,9 @@ def campaign_dashboard() -> None:
             JsonExecutionQueueStore(queue_path).load() if queue_path.exists() else PersistentQueue()
         )
         audit_path = project.root / AUDIT_HISTORY_PATH
-        history = JsonAuditHistoryStore(audit_path).load() if audit_path.exists() else AuditHistory()
+        history = (
+            JsonAuditHistoryStore(audit_path).load() if audit_path.exists() else AuditHistory()
+        )
         checkpoint_path = project.root / CHECKPOINTS_PATH
         checkpoints = (
             JsonRuntimeCheckpointStore(checkpoint_path).load() if checkpoint_path.exists() else ()
