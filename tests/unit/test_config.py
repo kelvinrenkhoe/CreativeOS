@@ -56,6 +56,9 @@ def test_load_config_returns_typed_model(tmp_path: Path) -> None:
     assert config.artist.name == "Kelvin"
     assert config.repository.songs == "music/songs"
     assert config.repository.assets == "assets"
+    assert config.releases.current == ""
+    assert config.releases.upcoming == ""
+    assert config.campaigns.active == ()
 
 
 def test_load_config_rejects_missing_required_fields(tmp_path: Path) -> None:

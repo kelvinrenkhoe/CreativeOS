@@ -34,6 +34,21 @@ class Project:
     def genre(self) -> str:
         return self.config.artist.genre
 
+    @property
+    def current_song(self) -> str:
+        """Return the configured current release."""
+        return self.config.releases.current
+
+    @property
+    def upcoming_song(self) -> str:
+        """Return the configured upcoming release."""
+        return self.config.releases.upcoming
+
+    @property
+    def active_campaigns(self) -> tuple[str, ...]:
+        """Return the configured active campaign names."""
+        return self.config.campaigns.active
+
     def repository(self) -> Repository:
         """Return the repository service for this workspace."""
         return self._repository

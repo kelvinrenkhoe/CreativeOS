@@ -19,6 +19,13 @@ repository:
   assets: creative/assets
   knowledge: knowledge
   media: media
+releases:
+  current: No Break
+  upcoming: No Lose Guard
+campaigns:
+  active:
+    - No Break
+    - No Lose Guard
 """
 
 
@@ -51,6 +58,18 @@ def test_project_exposes_indexed_repository_operations(tmp_path: Path) -> None:
     assert project.search("break") == (project.song("No Break"),)
     assert project.stats() == RepositoryStats(songs=1)
     assert project.refresh().stats == RepositoryStats(songs=1)
+
+
+def test_project_exposes_release_and_campaign_status(tmp_path: Path) -> None:
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    (workspace / "creativeos.yaml").write_text(CONFIG, encoding="utf-8")
+
+    project = Project(workspace)
+
+    assert project.current_song == "No Break"
+    assert project.upcoming_song == "No Lose Guard"
+    assert project.active_campaigns == ("No Break", "No Lose Guard")
 
 
 def test_project_rejects_unknown_repository_path(tmp_path: Path) -> None:
