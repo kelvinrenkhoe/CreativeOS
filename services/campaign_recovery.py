@@ -38,6 +38,7 @@ class CampaignRecoveryService:
         completed = set(execution_state.completed_item_ids)
         fixed = set(request.fixed_milestone_ids)
         missed = set(request.missed_item_ids)
+        initially_ready = set(execution_state.ready_item_ids)
         original_position = {item_id: index for index, item_id in enumerate(original)}
         recovered: list[str] = []
         placed = set(completed)
@@ -60,6 +61,10 @@ class CampaignRecoveryService:
                     for item_id in remaining
                     if item_id not in fixed
                     and self._is_ready(item_id, dependency_graph, placed)
+                    and (
+                        item_id not in missed
+                        or slot > original_position[item_id]
+                    )
                 )
                 if not candidates:
                     raise CampaignRecoveryError(
@@ -68,6 +73,7 @@ class CampaignRecoveryService:
                 candidate = min(
                     candidates,
                     key=lambda item_id: (
+                        item_id not in initially_ready,
                         item_id in missed,
                         original_position[item_id],
                         item_id,
