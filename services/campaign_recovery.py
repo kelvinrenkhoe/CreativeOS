@@ -61,11 +61,7 @@ class CampaignRecoveryService:
                     for item_id in remaining
                     if item_id not in fixed
                     and self._is_ready(item_id, dependency_graph, placed)
-                    and (
-                        item_id not in missed
-                        or slot > original_position[item_id]
-                        or not fixed
-                    )
+                    and (item_id not in missed or slot > original_position[item_id] or not fixed)
                 )
                 if not candidates:
                     if fixed:
