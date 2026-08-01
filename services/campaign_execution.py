@@ -52,9 +52,7 @@ class CampaignExecutionService:
         completed_item_ids=(),
     ) -> CampaignExecutionState:
         """Build a deterministic execution snapshot from explicit completion state."""
-        ordered_item_ids = tuple(
-            item.item_id for week in timeline.weeks for item in week.items
-        )
+        ordered_item_ids = tuple(item.item_id for week in timeline.weeks for item in week.items)
         if len(ordered_item_ids) != len(set(ordered_item_ids)):
             raise CampaignExecutionError("timeline content item IDs must be unique")
 
@@ -78,9 +76,7 @@ class CampaignExecutionService:
             item.item_id: item.unmet_prerequisite_ids for item in evaluation.blocked_items
         }
 
-        completed_in_order = tuple(
-            item_id for item_id in ordered_item_ids if item_id in completed
-        )
+        completed_in_order = tuple(item_id for item_id in ordered_item_ids if item_id in completed)
         ready_in_order = tuple(item_id for item_id in ordered_item_ids if item_id in ready)
         blocked_in_order = tuple(
             ExecutionBlockedItem(item_id, blocked_by_id[item_id])
