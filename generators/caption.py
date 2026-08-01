@@ -1,15 +1,8 @@
 """Generate deterministic platform-aware captions with repetition controls."""
 
-from models.caption import (
-    CaptionError,
-    CaptionPlatform,
-    CaptionRequest,
-    CaptionSet,
-    CaptionStructure,
-    CaptionVariant,
-)
-from models.creative_brief import CreativeBrief
-from models.creative_studio import CreativeDeliverable, DeliverableType
+from models import caption as caption_models
+from models import creative_brief as creative_brief_models
+from models import creative_studio as creative_studio_models
 
 
 _HOOKS = (
@@ -34,11 +27,11 @@ _ANGLES = (
     "personal transformation",
 )
 _STRUCTURES = (
-    CaptionStructure.HOOK_STORY_CTA,
-    CaptionStructure.QUESTION_INSIGHT_CTA,
-    CaptionStructure.STATEMENT_CONTEXT_CTA,
-    CaptionStructure.MOMENT_MESSAGE_CTA,
-    CaptionStructure.SHORT_HOOK_CTA,
+    caption_models.CaptionStructure.HOOK_STORY_CTA,
+    caption_models.CaptionStructure.QUESTION_INSIGHT_CTA,
+    caption_models.CaptionStructure.STATEMENT_CONTEXT_CTA,
+    caption_models.CaptionStructure.MOMENT_MESSAGE_CTA,
+    caption_models.CaptionStructure.SHORT_HOOK_CTA,
 )
 _HASHTAGS = (
     "#NoLoseGuard",
@@ -54,16 +47,16 @@ class CaptionGenerator:
 
     def generate(
         self,
-        brief: CreativeBrief,
-        deliverable: CreativeDeliverable,
-        request: CaptionRequest,
-    ) -> CaptionSet:
-        if deliverable.deliverable_type is not DeliverableType.CAPTION:
-            raise CaptionError("deliverable must be a caption")
+        brief: creative_brief_models.CreativeBrief,
+        deliverable: creative_studio_models.CreativeDeliverable,
+        request: caption_models.CaptionRequest,
+    ) -> caption_models.CaptionSet:
+        if deliverable.deliverable_type is not creative_studio_models.DeliverableType.CAPTION:
+            raise caption_models.CaptionError("deliverable must be a caption")
 
         deliverable_campaign = deliverable.deliverable_id.split("-week-")[0]
         if deliverable_campaign != brief.campaign_id:
-            raise CaptionError("brief and deliverable must share a campaign")
+            raise caption_models.CaptionError("brief and deliverable must share a campaign")
 
         history = request.history
         hooks = _available(_HOOKS, history.hooks, "hooks")
@@ -71,7 +64,7 @@ class CaptionGenerator:
         angles = _available(_ANGLES, history.emotional_angles, "emotional angles")
         structures = tuple(item for item in _STRUCTURES if item not in history.structures)
         if not structures:
-            raise CaptionError("no unused caption structures are available")
+            raise caption_models.CaptionError("no unused caption structures are available")
         hashtags = tuple(item for item in _HASHTAGS if item not in history.hashtags)
 
         variants = tuple(
@@ -88,7 +81,7 @@ class CaptionGenerator:
             for index, platform in enumerate(request.platforms)
         )
 
-        return CaptionSet(
+        return caption_models.CaptionSet(
             caption_set_id=f"{deliverable.deliverable_id}-variants",
             campaign_id=brief.campaign_id,
             campaign_name=brief.campaign_name,
@@ -98,28 +91,28 @@ class CaptionGenerator:
 
     @staticmethod
     def _build_variant(
-        brief: CreativeBrief,
-        deliverable: CreativeDeliverable,
-        platform: CaptionPlatform,
+        brief: creative_brief_models.CreativeBrief,
+        deliverable: creative_studio_models.CreativeDeliverable,
+        platform: caption_models.CaptionPlatform,
         hook: str,
         emotional_angle: str,
         call_to_action: str,
-        structure: CaptionStructure,
+        structure: caption_models.CaptionStructure,
         available_hashtags: tuple[str, ...],
-    ) -> CaptionVariant:
+    ) -> caption_models.CaptionVariant:
         source = deliverable.source_item_id or brief.next_item_id or "the campaign story"
         body = (
             f"{brief.campaign_name} carries a {emotional_angle} message for "
             f"{brief.audience.lower()} Through {source}, the campaign focuses on "
             f"{brief.objective.lower()} The voice remains {brief.tone.lower()}"
         )
-        hashtag_limit = 0 if platform is CaptionPlatform.WHATSAPP else 2
-        if platform is CaptionPlatform.INSTAGRAM:
+        hashtag_limit = 0 if platform is caption_models.CaptionPlatform.WHATSAPP else 2
+        if platform is caption_models.CaptionPlatform.INSTAGRAM:
             hashtag_limit = 4
-        elif platform is CaptionPlatform.TIKTOK:
+        elif platform is caption_models.CaptionPlatform.TIKTOK:
             hashtag_limit = 3
 
-        return CaptionVariant(
+        return caption_models.CaptionVariant(
             caption_id=f"{deliverable.deliverable_id}-{platform.value}",
             platform=platform,
             structure=structure,
@@ -138,5 +131,5 @@ def _available(
 ) -> tuple[str, ...]:
     values = tuple(item for item in candidates if item not in blocked)
     if not values:
-        raise CaptionError(f"no unused {label} are available")
+        raise caption_models.CaptionError(f"no unused {label} are available")
     return values
