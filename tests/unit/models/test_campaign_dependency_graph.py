@@ -102,9 +102,7 @@ def test_evaluate_reports_ready_and_blocked_items() -> None:
 
 
 def test_evaluate_unlocks_dependents_after_prerequisites_complete() -> None:
-    evaluation = graph().evaluate(
-        ("announcement", "behind-scenes", "lyric-video")
-    )
+    evaluation = graph().evaluate(("announcement", "behind-scenes", "lyric-video"))
 
     assert evaluation.ready_item_ids == ("fan-challenge",)
     assert evaluation.blocked_items == ()
