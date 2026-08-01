@@ -80,15 +80,11 @@ class CampaignDependencyGraph:
 
     def topological_order(self) -> tuple[str, ...]:
         """Return a stable prerequisite-first ordering or reject cycles."""
-        prerequisites = {
-            item_id: set(self.prerequisites_for(item_id)) for item_id in self.item_ids
-        }
+        prerequisites = {item_id: set(self.prerequisites_for(item_id)) for item_id in self.item_ids}
         ordered: list[str] = []
         remaining = set(self.item_ids)
         while remaining:
-            ready = tuple(
-                sorted(item_id for item_id in remaining if not prerequisites[item_id])
-            )
+            ready = tuple(sorted(item_id for item_id in remaining if not prerequisites[item_id]))
             if not ready:
                 raise CampaignDependencyGraphError("campaign dependency graph contains a cycle")
             ordered.extend(ready)
@@ -127,9 +123,7 @@ class CampaignDependencyGraph:
             raise CampaignDependencyGraphError("completed content item IDs must be unique")
         unknown = tuple(sorted(set(completed).difference(self.item_ids)))
         if unknown:
-            raise CampaignDependencyGraphError(
-                f"unknown completed content item: {unknown[0]}"
-            )
+            raise CampaignDependencyGraphError(f"unknown completed content item: {unknown[0]}")
 
         completed_set = set(completed)
         ready: list[str] = []
