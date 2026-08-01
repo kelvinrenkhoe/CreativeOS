@@ -99,7 +99,9 @@ class CampaignTimeline:
         )
         actual_starts = tuple(week.start_date for week in self.weeks)
         if actual_starts != expected_starts:
-            raise CampaignTimelineError("timeline weeks must start on consecutive seven-day intervals")
+            raise CampaignTimelineError(
+                "timeline weeks must start on consecutive seven-day intervals"
+            )
 
         object.__setattr__(self, "campaign_id", self.campaign_id.strip())
 
