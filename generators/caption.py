@@ -1,7 +1,5 @@
 """Generate deterministic platform-aware captions with repetition controls."""
 
-from models.creative_brief import CreativeBrief
-from models.creative_studio import CreativeDeliverable, DeliverableType
 from models.caption import (
     CaptionError,
     CaptionPlatform,
@@ -10,6 +8,8 @@ from models.caption import (
     CaptionStructure,
     CaptionVariant,
 )
+from models.creative_brief import CreativeBrief
+from models.creative_studio import CreativeDeliverable, DeliverableType
 
 
 _HOOKS = (
