@@ -56,9 +56,7 @@ class WeeklyContentPlan:
 class WeeklyContentPlanner:
     """Create a deterministic plan that respects recent persisted history."""
 
-    def build(
-        self, campaign_id, week_start, candidates, *, history=(), constraints=None
-    ):
+    def build(self, campaign_id, week_start, candidates, *, history=(), constraints=None):
         campaign_id = self._required(campaign_id, "campaign_id")
         constraints = constraints or VarietyConstraints()
         if not isinstance(week_start, date):
@@ -70,9 +68,7 @@ class WeeklyContentPlanner:
         if not candidates:
             raise WeeklyContentPlanError("at least one content candidate is required")
         candidates = tuple(
-            sorted(
-                candidates, key=lambda value: self._key(campaign_id, week_start, value)
-            )
+            sorted(candidates, key=lambda value: self._key(campaign_id, week_start, value))
         )
         recent = tuple(
             item
@@ -86,9 +82,7 @@ class WeeklyContentPlanner:
             raise WeeklyContentPlanError(
                 "unable to build seven-day plan with the configured variety constraints"
             )
-        items = tuple(
-            self._item(campaign_id, day, candidate) for day, candidate in chosen
-        )
+        items = tuple(self._item(campaign_id, day, candidate) for day, candidate in chosen)
         plan = WeeklyContentPlan(campaign_id, week_start, items)
         self.validate(plan)
         return plan
@@ -97,9 +91,7 @@ class WeeklyContentPlanner:
         self._required(plan.campaign_id, "campaign_id")
         expected = tuple(plan.week_start + timedelta(days=index) for index in range(7))
         if tuple(item.scheduled_date for item in plan.items) != expected:
-            raise WeeklyContentPlanError(
-                "weekly plan must contain seven ordered consecutive dates"
-            )
+            raise WeeklyContentPlanError("weekly plan must contain seven ordered consecutive dates")
         identities = set()
         for item in plan.items:
             candidate = ContentCandidate(
@@ -114,9 +106,7 @@ class WeeklyContentPlanner:
             ):
                 raise WeeklyContentPlanError("weekly content item is invalid")
             if item.item_id in identities:
-                raise WeeklyContentPlanError(
-                    "weekly content item identity is duplicated"
-                )
+                raise WeeklyContentPlanError("weekly content item identity is duplicated")
             identities.add(item.item_id)
 
     def _choose(self, start, candidates, history, constraints, chosen):
@@ -143,9 +133,7 @@ class WeeklyContentPlanner:
             ("angle", constraints.angle_spacing),
             (
                 "format",
-                constraints.video_format_spacing
-                if candidate.format.startswith("video")
-                else 0,
+                constraints.video_format_spacing if candidate.format.startswith("video") else 0,
             ),
         )
         return all(
@@ -161,9 +149,7 @@ class WeeklyContentPlanner:
     @classmethod
     def _candidate(cls, value):
         if not isinstance(value, ContentCandidate):
-            raise WeeklyContentPlanError(
-                "candidates must be ContentCandidate instances"
-            )
+            raise WeeklyContentPlanError("candidates must be ContentCandidate instances")
         return ContentCandidate(
             *(cls._required(item, field) for field, item in asdict(value).items())
         )
@@ -176,9 +162,7 @@ class WeeklyContentPlanner:
 
     @staticmethod
     def _key(campaign_id, week_start, candidate):
-        raw = "\0".join(
-            (campaign_id, week_start.isoformat(), *asdict(candidate).values())
-        )
+        raw = "\0".join((campaign_id, week_start.isoformat(), *asdict(candidate).values()))
         return hashlib.sha256(raw.encode()).hexdigest()
 
     @staticmethod
@@ -211,18 +195,12 @@ class JsonWeeklyContentPlanStore:
             raise WeeklyContentPlanError("plan does not belong to this campaign store")
         with self._locked():
             plans = self._load()
-            existing = next(
-                (value for value in plans if value.week_start == plan.week_start), None
-            )
+            existing = next((value for value in plans if value.week_start == plan.week_start), None)
             if existing == plan:
                 return existing
             if existing is not None and not replace:
-                raise WeeklyContentPlanError(
-                    "weekly plan already exists; replacement is required"
-                )
-            plans = tuple(
-                value for value in plans if value.week_start != plan.week_start
-            ) + (plan,)
+                raise WeeklyContentPlanError("weekly plan already exists; replacement is required")
+            plans = tuple(value for value in plans if value.week_start != plan.week_start) + (plan,)
             plans = tuple(sorted(plans, key=lambda value: value.week_start))
             self._write(plans)
             return plan
@@ -235,24 +213,18 @@ class JsonWeeklyContentPlanStore:
             if payload.get("version") != VERSION:
                 raise WeeklyContentPlanError("unsupported weekly content plan version")
             if payload.get("campaign_id") != self.campaign_id:
-                raise WeeklyContentPlanError(
-                    "weekly content plan campaign does not match store"
-                )
+                raise WeeklyContentPlanError("weekly content plan campaign does not match store")
             plans = tuple(self._decode(value) for value in payload["plans"])
             weeks = tuple(value.week_start for value in plans)
             if weeks != tuple(sorted(set(weeks))):
-                raise WeeklyContentPlanError(
-                    "weekly plans must have unique ordered week starts"
-                )
+                raise WeeklyContentPlanError("weekly plans must have unique ordered week starts")
             for plan in plans:
                 WeeklyContentPlanner().validate(plan)
             return plans
         except WeeklyContentPlanError:
             raise
         except (KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
-            raise WeeklyContentPlanError(
-                "invalid weekly content plan snapshot"
-            ) from error
+            raise WeeklyContentPlanError("invalid weekly content plan snapshot") from error
 
     def _write(self, plans):
         self.path.parent.mkdir(parents=True, exist_ok=True)
