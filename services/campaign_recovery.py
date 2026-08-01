@@ -64,9 +64,14 @@ class CampaignRecoveryService:
                     and (
                         item_id not in missed
                         or slot > original_position[item_id]
+                        or not fixed
                     )
                 )
                 if not candidates:
+                    if fixed:
+                        raise CampaignRecoveryError(
+                            "fixed milestone cannot remain after rescheduling missed content"
+                        )
                     raise CampaignRecoveryError(
                         f"campaign recovery has no safe item for position {slot + 1}"
                     )
