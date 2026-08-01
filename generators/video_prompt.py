@@ -91,9 +91,7 @@ class VideoPromptGenerator:
                 f"Use a {scene.shot.value} shot with {scene.movement.value} movement"
             ),
             subject_motion=f"Animate the characters performing: {scene.action}",
-            environmental_motion=(
-                f"Add subtle natural movement appropriate to {scene.location}"
-            ),
+            environmental_motion=(f"Add subtle natural movement appropriate to {scene.location}"),
             transition_direction=(
                 f"End with a {scene.transition.value} transition timed to the final beat"
             ),
