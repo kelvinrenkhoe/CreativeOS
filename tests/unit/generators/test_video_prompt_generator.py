@@ -59,8 +59,17 @@ def deliverable(kind: DeliverableType = DeliverableType.VIDEO_PROMPT) -> Creativ
     )
 
 
-def image_deliverable() -> CreativeDeliverable:
-    return deliverable(DeliverableType.IMAGE_PROMPT)
+def image_deliverable(campaign_id: str = "no-lose-guard") -> CreativeDeliverable:
+    return CreativeDeliverable(
+        deliverable_id=f"{campaign_id}-week-3-image_prompt",
+        deliverable_type=DeliverableType.IMAGE_PROMPT,
+        campaign_week=3,
+        objective="Build anticipation.",
+        audience="Afrobeats listeners.",
+        tone="Hopeful and cinematic.",
+        platforms=("instagram", "tiktok"),
+        source_item_id="video-prompt",
+    )
 
 
 def storyboard(campaign_id: str = "no-lose-guard") -> Storyboard:
@@ -112,7 +121,7 @@ def storyboard(campaign_id: str = "no-lose-guard") -> Storyboard:
 def image_prompts(source_brief: CreativeBrief, source_storyboard: Storyboard):
     return ImagePromptGenerator().generate(
         source_brief,
-        image_deliverable(),
+        image_deliverable(source_brief.campaign_id),
         source_storyboard,
     )
 
