@@ -118,7 +118,10 @@ class CampaignDependencyGraph:
     def evaluate(self, completed_item_ids=()) -> CampaignDependencyEvaluation:
         """Classify incomplete items as ready or blocked."""
         completed = tuple(
-            sorted(CampaignDependency._required(item_id, "completed_item_id") for item_id in completed_item_ids)
+            sorted(
+                CampaignDependency._required(item_id, "completed_item_id")
+                for item_id in completed_item_ids
+            )
         )
         if len(completed) != len(set(completed)):
             raise CampaignDependencyGraphError("completed content item IDs must be unique")
