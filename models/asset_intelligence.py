@@ -1,9 +1,9 @@
 """Immutable models for deterministic creative asset intelligence."""
 
+import re
 from dataclasses import dataclass
 from enum import StrEnum
 from hashlib import sha256
-import re
 
 
 class AssetIntelligenceError(ValueError):
