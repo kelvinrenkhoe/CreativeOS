@@ -12,6 +12,7 @@ from cli.campaign import app as campaign_app
 from cli.index import app as index_app
 from cli.repository import search_command, stats_command
 from cli.song import app as song_app
+from cli.week_plan import app as week_plan_app
 from core.config import ConfigurationError
 from core.project import Project
 from renderers.doctor import DoctorRenderer
@@ -27,6 +28,7 @@ app = typer.Typer(
     no_args_is_help=True,
 )
 
+campaign_app.add_typer(week_plan_app, name="week")
 app.add_typer(song_app, name="song")
 app.add_typer(campaign_app, name="campaign")
 app.add_typer(index_app, name="index")
