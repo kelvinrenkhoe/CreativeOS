@@ -28,7 +28,8 @@ class ImagePromptGenerator:
         if deliverable.deliverable_type is not DeliverableType.IMAGE_PROMPT:
             raise ImagePromptError("deliverable must be an image prompt")
         campaign_ids = {brief.campaign_id, storyboard.campaign_id}
-        if len(campaign_ids) != 1 or deliverable.deliverable_id.split("-week-")[0] != brief.campaign_id:
+        deliverable_campaign_id = deliverable.deliverable_id.split("-week-")[0]
+        if len(campaign_ids) != 1 or deliverable_campaign_id != brief.campaign_id:
             raise ImagePromptError("brief, deliverable, and storyboard must share a campaign")
 
         prompts = tuple(
