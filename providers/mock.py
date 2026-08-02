@@ -11,7 +11,6 @@ from providers.models import (
     ProviderError,
 )
 
-
 _MEDIA_TYPES = {
     ProviderCapability.TEXT: MediaType.TEXT,
     ProviderCapability.IMAGE: MediaType.IMAGE,
