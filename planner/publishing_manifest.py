@@ -23,10 +23,8 @@ class PublishingManifestPlanner:
             missing = sorted(required - package_paths)
             if missing:
                 missing_assets = ", ".join(missing)
-                raise PublishingError(
-                    f"publishing slot {slot.slot_id} references missing assets: "
-                    f"{missing_assets}"
-                )
+                message = f"publishing slot {slot.slot_id} references missing assets"
+                raise PublishingError(f"{message}: {missing_assets}")
         return PublishingManifest(
             manifest_id=f"{package.package_id}-publishing",
             campaign_id=package.metadata.campaign_id,
