@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from enum import StrEnum
 
+
 class PublishingError(ValueError):
     """Raised when a publishing plan is invalid."""
 
