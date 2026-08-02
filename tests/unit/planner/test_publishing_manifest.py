@@ -20,6 +20,7 @@ from models.publishing import (
 )
 from planner.publishing_manifest import PublishingManifestPlanner
 
+
 def _package() -> CampaignPackage:
     assets = (
         PackageAsset("copy/captions.md", PackageMediaType.MARKDOWN, "Captions"),
