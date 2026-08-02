@@ -1,14 +1,8 @@
 """Generate deterministic platform-aware captions with repetition controls."""
 
-from models import (
-    caption as caption_models,
-)
-from models import (
-    creative_brief as creative_brief_models,
-)
-from models import (
-    creative_studio as creative_studio_models,
-)
+import models.caption as caption_models
+import models.creative_brief as creative_brief_models
+import models.creative_studio as creative_studio_models
 
 
 _HOOKS = (
