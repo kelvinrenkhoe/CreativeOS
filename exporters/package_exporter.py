@@ -13,7 +13,6 @@ from models.campaign_package import (
 )
 from models.creative_brief import CreativeBrief
 
-
 _REQUIRED_PATHS = frozenset(
     {
         "strategy/creative_brief.md",
