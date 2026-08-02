@@ -31,8 +31,7 @@ class VoiceoverGenerator:
             raise VoiceoverError("storyboard and deliverable must share a campaign week")
 
         segments = tuple(
-            self._build_segment(brief, scene, len(storyboard.scenes))
-            for scene in storyboard.scenes
+            self._build_segment(brief, scene, len(storyboard.scenes)) for scene in storyboard.scenes
         )
         call_to_action = storyboard.call_to_action
         return VoiceoverScript(
