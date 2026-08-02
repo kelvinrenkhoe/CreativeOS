@@ -4,7 +4,6 @@ import models.caption as caption_models
 import models.creative_brief as creative_brief_models
 import models.creative_studio as creative_studio_models
 
-
 _HOOKS = (
     "Some seasons test how firmly you can stand.",
     "The moment you nearly stop can become the moment you rise.",
