@@ -122,8 +122,8 @@ class PressGenerator:
                 MediaChannel.PRESS,
                 MediaGoal.COVERAGE,
                 f"Quotes from {campaign}",
-                f'“{campaign} is about turning pressure into purpose.” — {artist}\n\n'
-                f'“The story of {subject} reminds us to keep moving.” — {artist}',
+                f"“{campaign} is about turning pressure into purpose.” — {artist}\n\n"
+                f"“The story of {subject} reminds us to keep moving.” — {artist}",
             ),
             PressAsset(
                 f"{context.campaign_id}-press-headline",
