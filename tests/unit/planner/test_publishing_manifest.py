@@ -62,9 +62,7 @@ def _slots() -> tuple[PublishingSlot, ...]:
 
 
 def test_planner_orders_slots_and_preserves_campaign_context() -> None:
-    manifest = PublishingManifestPlanner().plan(
-        _package(), _slots(), timezone="Europe/London"
-    )
+    manifest = PublishingManifestPlanner().plan(_package(), _slots(), timezone="Europe/London")
 
     assert tuple(slot.slot_id for slot in manifest.slots) == (
         "monday-instagram",
@@ -100,9 +98,7 @@ def test_missing_package_asset_is_rejected() -> None:
     )
 
     with pytest.raises(PublishingError, match="references missing assets"):
-        PublishingManifestPlanner().plan(
-            _package(), (slot,), timezone="Europe/London"
-        )
+        PublishingManifestPlanner().plan(_package(), (slot,), timezone="Europe/London")
 
 
 def test_slot_rejects_invalid_time() -> None:
