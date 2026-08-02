@@ -5,6 +5,7 @@ import json
 from models.campaign_package import CampaignPackage, PackageAsset, PackageMediaType
 from models.publishing import PublishingError, PublishingManifest, PublishingSlot
 
+
 class PublishingManifestPlanner:
     """Validate package-backed publishing slots and render a stable manifest asset."""
 
@@ -21,8 +22,10 @@ class PublishingManifestPlanner:
             required = {slot.primary_asset_path, *slot.supporting_asset_paths}
             missing = sorted(required - package_paths)
             if missing:
+                missing_assets = ", ".join(missing)
                 raise PublishingError(
-                    f"publishing slot {slot.slot_id} references missing assets: {', '.join(missing)}"
+                    f"publishing slot {slot.slot_id} references missing assets: "
+                    f"{missing_assets}"
                 )
         return PublishingManifest(
             manifest_id=f"{package.package_id}-publishing",
