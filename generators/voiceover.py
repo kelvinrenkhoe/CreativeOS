@@ -2,7 +2,7 @@
 
 from models.creative_brief import CreativeBrief
 from models.creative_studio import CreativeDeliverable, DeliverableType
-from models.storyboard import SceneMood, Storyboard
+from models.storyboard import SceneMood, Storyboard, StoryboardScene
 from models.voiceover import (
     NarrationPace,
     VoiceoverError,
@@ -48,9 +48,13 @@ class VoiceoverGenerator:
         )
 
     @staticmethod
-    def _build_segment(brief: CreativeBrief, scene, scene_count: int) -> VoiceoverSegment:
+    def _build_segment(
+        brief: CreativeBrief,
+        scene: StoryboardScene,
+        scene_count: int,
+    ) -> VoiceoverSegment:
         if scene.scene_number == 1:
-            narration = f"Every journey begins with a moment that asks us to choose."
+            narration = "Every journey begins with a moment that asks us to choose."
         elif scene.scene_number == scene_count:
             narration = f"This is {brief.campaign_name}: keep moving, and never lose your guard."
         else:
