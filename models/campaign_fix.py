@@ -36,9 +36,7 @@ class CampaignFix:
         if not self.title.strip():
             raise ValueError("title must not be empty")
         if self.kind not in VALID_FIX_KINDS:
-            raise ValueError(
-                "kind must be one of: automatic, manual, unsupported"
-            )
+            raise ValueError("kind must be one of: automatic, manual, unsupported")
         if self.operation not in VALID_OPERATIONS:
             raise ValueError("unsupported fix operation")
         if not self.detail.strip():
