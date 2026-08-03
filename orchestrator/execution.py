@@ -63,7 +63,10 @@ class CampaignExecutionReport:
 
     @property
     def succeeded(self) -> bool:
-        return all(record.status is not StageExecutionStatus.FAILED for record in self.stage_records)
+        return all(
+            record.status is not StageExecutionStatus.FAILED
+            for record in self.stage_records
+        )
 
     @property
     def completed_stages(self) -> tuple[str, ...]:
