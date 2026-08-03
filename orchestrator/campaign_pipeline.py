@@ -22,6 +22,12 @@ class PipelineRegistry:
             raise PipelineError(f"pipeline stage already registered: {stage.name}")
         self._stages[stage.name] = stage
 
+    def get(self, stage_name: str) -> PipelineStage:
+        try:
+            return self._stages[stage_name]
+        except KeyError as error:
+            raise PipelineError(f"pipeline stage not found: {stage_name}") from error
+
     def stages(self) -> tuple[PipelineStage, ...]:
         return tuple(self._stages[name] for name in sorted(self._stages))
 
