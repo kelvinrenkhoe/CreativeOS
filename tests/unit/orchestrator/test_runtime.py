@@ -45,9 +45,7 @@ def test_runtime_executes_real_campaign_sequence_through_context() -> None:
 
     assert report.succeeded is True
     assert report.completed_stages == ("brief", "captions", "package")
-    assert context.get("package") == (
-        "package:brief:No Lose Guard|captions:brief:No Lose Guard"
-    )
+    assert context.get("package") == ("package:brief:No Lose Guard|captions:brief:No Lose Guard")
 
 
 def test_runtime_stage_reports_missing_context_values() -> None:
