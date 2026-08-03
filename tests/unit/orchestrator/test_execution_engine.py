@@ -28,9 +28,7 @@ def test_execution_report_records_order_and_stage_timing() -> None:
             dependencies=("brief",),
         )
     )
-    registry.register(
-        PipelineStage("brief", lambda context: context.set("brief", "No Lose Guard"))
-    )
+    registry.register(PipelineStage("brief", lambda context: context.set("brief", "No Lose Guard")))
     engine = CampaignExecutionEngine(
         registry,
         clock=_clock(100, 110, 115, 120, 130, 140),
@@ -44,10 +42,7 @@ def test_execution_report_records_order_and_stage_timing() -> None:
     assert report.skipped_stages == ()
     assert report.total_duration_ms == 40
     assert tuple(record.duration_ms for record in report.stage_records) == (5, 10)
-    assert all(
-        record.status is StageExecutionStatus.COMPLETED
-        for record in report.stage_records
-    )
+    assert all(record.status is StageExecutionStatus.COMPLETED for record in report.stage_records)
 
 
 def test_execution_report_marks_remaining_stages_skipped_after_failure() -> None:
