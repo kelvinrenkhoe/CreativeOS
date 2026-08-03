@@ -28,9 +28,7 @@ def test_pipeline_orders_dependencies_and_propagates_context() -> None:
             dependencies=("brief",),
         )
     )
-    registry.register(
-        PipelineStage("brief", lambda context: context.set("brief", "No Lose Guard"))
-    )
+    registry.register(PipelineStage("brief", lambda context: context.set("brief", "No Lose Guard")))
 
     context = ExecutionContext("no-lose-guard")
     result = CampaignPipeline(registry).run(context)
@@ -89,9 +87,7 @@ def test_registry_rejects_duplicate_stage_names() -> None:
 
 def test_plan_rejects_missing_dependency() -> None:
     registry = PipelineRegistry()
-    registry.register(
-        PipelineStage("captions", lambda _context: None, dependencies=("brief",))
-    )
+    registry.register(PipelineStage("captions", lambda _context: None, dependencies=("brief",)))
 
     with pytest.raises(PipelineError, match="missing dependencies"):
         CampaignPipeline(registry).plan()
