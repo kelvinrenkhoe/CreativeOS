@@ -38,9 +38,7 @@ def test_planner_classifies_automatic_and_manual_fixes() -> None:
 
     assert len(plan.automatic) == 1
     assert plan.automatic[0].operation == "create-file"
-    assert plan.automatic[0].target == (
-        "campaigns/no-lose-guard/schedule/content-calendar.md"
-    )
+    assert plan.automatic[0].target == ("campaigns/no-lose-guard/schedule/content-calendar.md")
     assert len(plan.manual) == 1
     assert plan.manual[0].operation == "update-configuration"
 
@@ -72,9 +70,7 @@ def test_workspace_fix_reuses_recommendation_action() -> None:
     plan = CampaignAutoFixPlanner().plan(recommendations)
 
     assert plan.automatic[0].operation == "run-command"
-    assert plan.automatic[0].target == (
-        'creativeos campaign create "No Lose Guard"'
-    )
+    assert plan.automatic[0].target == ('creativeos campaign create "No Lose Guard"')
 
 
 def test_planner_orders_by_priority_then_fix_kind() -> None:
