@@ -53,9 +53,9 @@ def test_executor_creates_safe_directories_and_templates(tmp_path: Path) -> None
 
     assert len(execution.applied) == 3
     assert (tmp_path / "campaigns/no-lose-guard/assets/artwork").is_dir()
-    assert (
-        tmp_path / "campaigns/no-lose-guard/schedule/content-calendar.md"
-    ).read_text(encoding="utf-8") == "# Content Calendar\n"
+    assert (tmp_path / "campaigns/no-lose-guard/schedule/content-calendar.md").read_text(
+        encoding="utf-8"
+    ) == "# Content Calendar\n"
     assert (tmp_path / "campaigns/no-lose-guard/radio/stations.csv").read_text(
         encoding="utf-8"
     ) == "station,contact,status,notes\n"
