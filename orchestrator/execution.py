@@ -64,8 +64,7 @@ class CampaignExecutionReport:
     @property
     def succeeded(self) -> bool:
         return all(
-            record.status is not StageExecutionStatus.FAILED
-            for record in self.stage_records
+            record.status is not StageExecutionStatus.FAILED for record in self.stage_records
         )
 
     @property
