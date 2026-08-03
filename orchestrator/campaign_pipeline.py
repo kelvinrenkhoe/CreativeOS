@@ -49,9 +49,7 @@ class CampaignPipeline:
         ordered: list[PipelineStage] = []
         while remaining:
             ready = sorted(
-                name
-                for name in remaining
-                if set(stages[name].dependencies).issubset(completed)
+                name for name in remaining if set(stages[name].dependencies).issubset(completed)
             )
             if not ready:
                 names = ", ".join(sorted(remaining))
@@ -79,9 +77,7 @@ class CampaignPipeline:
 
         for entry in plan:
             stage = stages[entry.stage_name]
-            events.append(
-                PipelineEvent(PipelineEventType.STAGE_STARTED, stage.name)
-            )
+            events.append(PipelineEvent(PipelineEventType.STAGE_STARTED, stage.name))
             try:
                 stage.execute(context)
             except Exception as error:  # noqa: BLE001
@@ -95,9 +91,7 @@ class CampaignPipeline:
                 )
                 break
             completed.append(stage.name)
-            events.append(
-                PipelineEvent(PipelineEventType.STAGE_COMPLETED, stage.name)
-            )
+            events.append(PipelineEvent(PipelineEventType.STAGE_COMPLETED, stage.name))
 
         return PipelineResult(
             campaign_id=context.campaign_id,
