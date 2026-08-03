@@ -8,6 +8,7 @@ from pathlib import Path
 
 from core.config import CONFIG_FILENAME, ConfigurationError
 from core.project import Project
+from doctor import DoctorCheckRegistry
 from models.doctor import DoctorCheck, DoctorReport
 
 MINIMUM_PYTHON_VERSION = (3, 13)
@@ -47,8 +48,13 @@ REPOSITORY_PATHS = REQUIRED_REPOSITORY_PATHS + OPTIONAL_REPOSITORY_PATHS
 class DoctorService:
     """Run health checks against CreativeOS and the current project."""
 
-    def __init__(self, root: Path | None = None) -> None:
+    def __init__(
+        self,
+        root: Path | None = None,
+        registry: DoctorCheckRegistry | None = None,
+    ) -> None:
         self.root = (root or Path.cwd()).resolve()
+        self.registry = registry or DoctorCheckRegistry()
 
     def run(self) -> DoctorReport:
         """Run all health checks and return a report."""
@@ -67,6 +73,7 @@ class DoctorService:
         else:
             checks += self._check_creator_workspace()
 
+        checks += self.registry.run_all()
         return DoctorReport(checks=checks)
 
     def _find_workspace_config(self) -> Path | None:
