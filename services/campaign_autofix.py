@@ -35,9 +35,7 @@ RULES: dict[str, FixRule] = {
     "Content calendar": FixRule(
         kind="automatic",
         operation="create-file",
-        target_template=(
-            "campaigns/{campaign_slug}/schedule/content-calendar.md"
-        ),
+        target_template=("campaigns/{campaign_slug}/schedule/content-calendar.md"),
         detail="Create the standard empty content-calendar template.",
     ),
     "Press release": FixRule(
@@ -86,10 +84,7 @@ RULES: dict[str, FixRule] = {
         kind="unsupported",
         operation="unsupported",
         target_template="campaigns/{campaign_slug}/campaign.yaml",
-        detail=(
-            "Manifest repair is not safe until the required campaign values "
-            "are known."
-        ),
+        detail=("Manifest repair is not safe until the required campaign values are known."),
     ),
     "Manifest configuration": FixRule(
         kind="unsupported",
@@ -185,8 +180,7 @@ class CampaignAutoFixPlanner:
         return "-".join(
             part
             for part in "".join(
-                character.lower() if character.isalnum() else " "
-                for character in value
+                character.lower() if character.isalnum() else " " for character in value
             ).split()
             if part
         )
