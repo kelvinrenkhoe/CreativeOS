@@ -10,7 +10,13 @@ from rich.table import Table
 from ai.manager import AIManager
 from core.config import ConfigurationError
 from core.project import Project
+from orchestrator import (
+    CampaignRuntimePreset,
+    CampaignRuntimePresetRegistry,
+    RuntimeStage,
+)
 from services.audit_history_store import AuditHistoryStateError, JsonAuditHistoryStore
+from services.campaign_doctor import CampaignDoctorService
 from services.campaign import CampaignService
 from services.campaign_generator import CampaignGeneratorService
 from services.campaign_queue import CampaignQueueService
@@ -59,6 +65,49 @@ CLI_WORKER_ID = "creativeos-cli"
 
 class CampaignRuntimeCommandError(ValueError):
     """Reject unsafe or incomplete CLI runtime execution."""
+
+
+def _campaign_doctor_registry() -> CampaignRuntimePresetRegistry:
+    """Return runtime preset metadata used by execution preflight."""
+    registry = CampaignRuntimePresetRegistry()
+    registry.register(
+        CampaignRuntimePreset(
+            name="music-release",
+            description="Validate a music-release campaign before execution.",
+            required_context_keys=("campaign",),
+            stages=(
+                RuntimeStage(
+                    "brief",
+                    lambda campaign: campaign,
+                    ("campaign",),
+                    "brief",
+                ),
+            ),
+        )
+    )
+    return registry
+
+
+def _validate_campaign_preflight(project: Project, campaign_name: str) -> None:
+    """Block execution when required campaign readiness checks fail."""
+    report = CampaignDoctorService(
+        project,
+        _campaign_doctor_registry(),
+    ).diagnose(
+        campaign_name,
+        context={"campaign": campaign_name},
+    )
+
+    if report.healthy:
+        return
+
+    failures = ", ".join(check.name for check in report.checks if check.failed)
+
+    raise CampaignRuntimeCommandError(
+        f'campaign readiness preflight failed for "{campaign_name}": '
+        f"{failures}. Run: creativeos doctor --campaign "
+        f'"{campaign_name}"'
+    )
 
 
 @app.command("create")
@@ -146,6 +195,8 @@ def campaign_run(
         checkpoint_store = JsonRuntimeCheckpointStore(project.root / CHECKPOINTS_PATH)
 
         run = run_store.load(campaign_id)
+        _validate_campaign_preflight(project, run.plan.work_name)
+
         queue_state = queue_store.load()
         history = history_store.load()
         due = CampaignQueueService().ready(queue_state.queue, now=now)
