@@ -36,6 +36,9 @@ class DoctorRenderer:
                 if check.passed:
                     status = Text("✓", style="bold green")
                     name = Text(check.name, style="green")
+                elif check.warning:
+                    status = Text("!", style="bold yellow")
+                    name = Text(check.name, style="yellow")
                 else:
                     status = Text("✗", style="bold red")
                     name = Text(check.name, style="red")
@@ -44,21 +47,35 @@ class DoctorRenderer:
 
             sections.append(table)
 
-        if report.healthy:
-            result = Text(
-                f"System healthy — {report.passed_count} checks passed.",
-                style="bold green",
-            )
-            border_style = "green"
-        else:
+        if report.failed_count:
             result = Text(
                 (
                     f"Health checks failed — {report.failed_count} failed, "
-                    f"{report.passed_count} passed."
+                    f"{report.warning_count} warnings, {report.passed_count} passed. "
+                    f"Health score: {report.health_score}%."
                 ),
                 style="bold red",
             )
             border_style = "red"
+        elif report.warning_count:
+            result = Text(
+                (
+                    f"System healthy with warnings — {report.warning_count} warnings, "
+                    f"{report.passed_count} passed. Health score: "
+                    f"{report.health_score}%."
+                ),
+                style="bold yellow",
+            )
+            border_style = "yellow"
+        else:
+            result = Text(
+                (
+                    f"System healthy — {report.passed_count} checks passed. "
+                    f"Health score: {report.health_score}%."
+                ),
+                style="bold green",
+            )
+            border_style = "green"
 
         sections.append(result)
 
