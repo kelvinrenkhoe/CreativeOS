@@ -15,8 +15,14 @@ from cli.song import app as song_app
 from cli.week_plan import app as week_plan_app
 from core.config import ConfigurationError
 from core.project import Project
+from orchestrator import (
+    CampaignRuntimePreset,
+    CampaignRuntimePresetRegistry,
+    RuntimeStage,
+)
 from renderers.doctor import DoctorRenderer
 from renderers.status import StatusRenderer
+from services.campaign_doctor import CampaignDoctorService
 from services.campaign_planner import CampaignPlannerService
 from services.daily_recommendation import DailyRecommendationService
 from services.doctor import DoctorService
@@ -37,6 +43,27 @@ app.command("search")(search_command)
 app.command("stats")(stats_command)
 
 console = Console()
+
+
+def _campaign_preset_registry() -> CampaignRuntimePresetRegistry:
+    """Return the built-in preset metadata required by Campaign Doctor."""
+    registry = CampaignRuntimePresetRegistry()
+    registry.register(
+        CampaignRuntimePreset(
+            name="music-release",
+            description="Validate a music-release campaign before execution.",
+            required_context_keys=("campaign",),
+            stages=(
+                RuntimeStage(
+                    "brief",
+                    lambda campaign: campaign,
+                    ("campaign",),
+                    "brief",
+                ),
+            ),
+        )
+    )
+    return registry
 
 
 @app.callback()
@@ -67,11 +94,37 @@ def version_command() -> None:
 
 
 @app.command()
-def doctor() -> None:
-    """Check the CreativeOS installation and project health."""
-    report = DoctorService().run()
-    panel = DoctorRenderer().render(report)
+def doctor(
+    campaign: str | None = typer.Option(
+        None,
+        "--campaign",
+        help="Check a named campaign instead of the workspace.",
+    ),
+    preset: str = typer.Option(
+        "music-release",
+        "--preset",
+        help="Runtime preset used for campaign readiness checks.",
+    ),
+) -> None:
+    """Check CreativeOS workspace or campaign health."""
+    try:
+        if campaign is None:
+            report = DoctorService().run()
+        else:
+            project = Project.discover()
+            report = CampaignDoctorService(
+                project,
+                _campaign_preset_registry(),
+            ).diagnose(
+                campaign,
+                preset_name=preset,
+                context={"campaign": campaign},
+            )
+    except (ConfigurationError, ValueError) as exc:
+        console.print(f"[bold red]Error:[/bold red] {exc}")
+        raise typer.Exit(code=1) from exc
 
+    panel = DoctorRenderer().render(report)
     console.print(panel)
 
     if not report.healthy:
