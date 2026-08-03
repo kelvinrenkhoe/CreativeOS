@@ -15,12 +15,14 @@ from orchestrator import (
     CampaignRuntimePresetRegistry,
     RuntimeStage,
 )
+from renderers.campaign_score import CampaignScoreRenderer
 from services.audit_history_store import AuditHistoryStateError, JsonAuditHistoryStore
 from services.campaign import CampaignService
 from services.campaign_doctor import CampaignDoctorService
 from services.campaign_generator import CampaignGeneratorService
 from services.campaign_queue import CampaignQueueService
 from services.campaign_run_state import CampaignRunStateError, JsonCampaignRunStore
+from services.campaign_scoring import CampaignScoringService
 from services.human_review_inbox import (
     HumanReviewInboxService,
     ReviewDecision,
@@ -148,6 +150,34 @@ def generate_campaign(
     )
     for path in paths:
         console.print(f"- {path.relative_to(project.root)}")
+
+
+@app.command("score")
+def campaign_score(
+    campaign_name: str = typer.Argument(
+        ...,
+        help="Campaign or release name.",
+    ),
+) -> None:
+    """Display the deterministic quality score for a campaign."""
+    try:
+        project = Project.discover()
+        report = CampaignDoctorService(
+            project,
+            _campaign_doctor_registry(),
+        ).diagnose(
+            campaign_name,
+            context={"campaign": campaign_name},
+        )
+        score = CampaignScoringService().score(
+            campaign_name,
+            report,
+        )
+    except (ConfigurationError, ValueError) as exc:
+        console.print(f"[bold red]Error:[/bold red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    console.print(CampaignScoreRenderer().render(score))
 
 
 @app.command("status")
