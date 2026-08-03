@@ -25,9 +25,7 @@ class CampaignFixExecutor:
     ) -> CampaignFixExecutionReport:
         """Execute safe automatic fixes and report all skipped work."""
         workspace_root = root.resolve()
-        results = tuple(
-            self._execute_fix(workspace_root, fix) for fix in plan.fixes
-        )
+        results = tuple(self._execute_fix(workspace_root, fix) for fix in plan.fixes)
         return CampaignFixExecutionReport(
             campaign_name=plan.campaign_name,
             results=results,
