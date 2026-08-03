@@ -1,6 +1,12 @@
 """Campaign pipeline orchestration public API."""
 
 from orchestrator.campaign_pipeline import CampaignPipeline, PipelineRegistry
+from orchestrator.execution import (
+    CampaignExecutionReport,
+    StageExecutionRecord,
+    StageExecutionStatus,
+)
+from orchestrator.execution_engine import CampaignExecutionEngine
 from orchestrator.models import (
     ExecutionContext,
     ExecutionPlanEntry,
@@ -12,6 +18,8 @@ from orchestrator.models import (
 )
 
 __all__ = [
+    "CampaignExecutionEngine",
+    "CampaignExecutionReport",
     "CampaignPipeline",
     "ExecutionContext",
     "ExecutionPlanEntry",
@@ -21,4 +29,6 @@ __all__ = [
     "PipelineRegistry",
     "PipelineResult",
     "PipelineStage",
+    "StageExecutionRecord",
+    "StageExecutionStatus",
 ]
