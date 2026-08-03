@@ -17,6 +17,7 @@ def runtime_run(*, stage: str):
         campaign_id="no-lose-guard-launch",
         work_id="no-lose-guard",
         stage=stage,
+        plan=SimpleNamespace(work_name="No Lose Guard"),
     )
 
 
@@ -32,6 +33,10 @@ def configure_runtime(monkeypatch, tmp_path, *, stage: str):
     monkeypatch.setattr(
         "cli.campaign.JsonCampaignRunStore.load",
         lambda _store, _campaign_id: runtime_run(stage=stage),
+    )
+    monkeypatch.setattr(
+        "cli.campaign._validate_campaign_preflight",
+        lambda _project, _campaign_name: None,
     )
     monkeypatch.setattr(
         "cli.campaign.JsonExecutionQueueStore.load",
@@ -149,6 +154,10 @@ def test_run_returns_non_zero_for_invalid_durable_state(
         "cli.campaign.JsonCampaignRunStore.load",
         lambda _store, _campaign_id: runtime_run(stage="planned"),
     )
+    monkeypatch.setattr(
+        "cli.campaign._validate_campaign_preflight",
+        lambda _project, _campaign_name: None,
+    )
 
     def fail(_store):
         raise QueueStateError("invalid queue snapshot")
@@ -185,3 +194,60 @@ def test_run_refuses_due_provider_work_without_explicit_configuration(
 
     assert result.exit_code == 1
     assert "explicit CLI provider configuration" in result.stdout
+
+
+def test_run_blocks_before_runtime_state_when_preflight_fails(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    observed = {
+        "queue_loads": 0,
+        "advance_calls": 0,
+    }
+
+    monkeypatch.setattr(
+        "cli.campaign.Project.discover",
+        lambda: SimpleNamespace(root=tmp_path),
+    )
+    monkeypatch.setattr(
+        "cli.campaign.JsonCampaignRunStore.load",
+        lambda _store, _campaign_id: runtime_run(stage="planned"),
+    )
+
+    def fail_preflight(_project, campaign_name):
+        assert campaign_name == "No Lose Guard"
+        raise ValueError(
+            'campaign readiness preflight failed for "No Lose Guard": '
+            'Release date. Run: creativeos doctor --campaign "No Lose Guard"'
+        )
+
+    monkeypatch.setattr(
+        "cli.campaign._validate_campaign_preflight",
+        fail_preflight,
+    )
+
+    def must_not_load_queue(_store):
+        observed["queue_loads"] += 1
+        raise AssertionError("queue state must not be loaded")
+
+    monkeypatch.setattr(
+        "cli.campaign.JsonExecutionQueueStore.load",
+        must_not_load_queue,
+    )
+
+    def must_not_advance(*_args, **_kwargs):
+        observed["advance_calls"] += 1
+        raise AssertionError("runtime must not advance")
+
+    monkeypatch.setattr(
+        "cli.campaign.CheckpointedCampaignRuntime.advance",
+        must_not_advance,
+    )
+
+    result = runner.invoke(app, ["run", "no-lose-guard-launch"])
+
+    assert result.exit_code == 1
+    assert observed["queue_loads"] == 0
+    assert observed["advance_calls"] == 0
+    assert "campaign readiness preflight failed" in result.stdout
+    assert 'creativeos doctor --campaign "No Lose Guard"' in result.stdout
