@@ -16,6 +16,11 @@ from orchestrator.models import (
     PipelineResult,
     PipelineStage,
 )
+from orchestrator.presets import (
+    CampaignRuntimePreset,
+    CampaignRuntimePresetRegistry,
+    music_release_preset,
+)
 from orchestrator.runtime import CampaignRuntimeBuilder, RuntimeStage
 
 __all__ = [
@@ -23,6 +28,8 @@ __all__ = [
     "CampaignExecutionReport",
     "CampaignPipeline",
     "CampaignRuntimeBuilder",
+    "CampaignRuntimePreset",
+    "CampaignRuntimePresetRegistry",
     "ExecutionContext",
     "ExecutionPlanEntry",
     "PipelineError",
@@ -34,4 +41,5 @@ __all__ = [
     "RuntimeStage",
     "StageExecutionRecord",
     "StageExecutionStatus",
+    "music_release_preset",
 ]
