@@ -21,9 +21,7 @@ class CampaignFixResult:
         if not self.operation.strip():
             raise ValueError("operation must not be empty")
         if self.status not in VALID_EXECUTION_STATUSES:
-            raise ValueError(
-                "status must be one of: already-present, applied, skipped"
-            )
+            raise ValueError("status must be one of: already-present, applied, skipped")
         if not self.detail.strip():
             raise ValueError("detail must not be empty")
 
@@ -47,9 +45,7 @@ class CampaignFixExecutionReport:
     @property
     def already_present(self) -> tuple[CampaignFixResult, ...]:
         """Return fixes whose target already existed."""
-        return tuple(
-            result for result in self.results if result.status == "already-present"
-        )
+        return tuple(result for result in self.results if result.status == "already-present")
 
     @property
     def skipped(self) -> tuple[CampaignFixResult, ...]:
