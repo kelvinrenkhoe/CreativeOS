@@ -28,15 +28,20 @@ REQUIRED_DIRECTORIES = (
     "tests",
 )
 
-REPOSITORY_PATHS = (
+REQUIRED_REPOSITORY_PATHS = (
     "songs",
     "campaigns",
-    "books",
-    "templates",
     "assets",
     "knowledge",
+)
+
+OPTIONAL_REPOSITORY_PATHS = (
+    "books",
+    "templates",
     "media",
 )
+
+REPOSITORY_PATHS = REQUIRED_REPOSITORY_PATHS + OPTIONAL_REPOSITORY_PATHS
 
 
 class DoctorService:
@@ -116,6 +121,7 @@ class DoctorService:
                 name=f"{key}/",
                 passed=project.repository_path(key).is_dir(),
                 detail=str(project.repository_path(key)),
+                required=key in REQUIRED_REPOSITORY_PATHS,
             )
             for key in REPOSITORY_PATHS
         )
