@@ -136,7 +136,7 @@ def test_help_lists_orchestration_options() -> None:
     invocation = runner.invoke(app, ["campaign", "run", "--help"])
 
     assert invocation.exit_code == 0
-    assert "--once" in invocation.stdout
-    assert "--until-blocked" in invocation.stdout
-    assert "--until-complete" in invocation.stdout
-    assert "--max-steps" in invocation.stdout
+    assert "Advance exactly one safe action." in invocation.stdout
+    assert "Continue until completion" in invocation.stdout
+    assert "Continue toward completion" in invocation.stdout
+    assert "Maximum safe actions" in invocation.stdout
