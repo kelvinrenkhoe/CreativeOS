@@ -11,6 +11,7 @@ from services.campaign_doctor import CampaignDoctorService
 from services.campaign_queue import CampaignQueueService
 from services.campaign_run_state import JsonCampaignRunStore
 from services.persistent_queue import JsonExecutionQueueStore, PersistentQueue
+from services.provider_execution import ProviderExecutionAdapter
 from services.runtime_checkpoints import (
     CheckpointedCampaignRuntime,
     JsonRuntimeCheckpointStore,
@@ -57,6 +58,7 @@ class CampaignRunnerAPI:
         runtime=None,
         queue_service=None,
         preflight=None,
+        adapters: tuple[ProviderExecutionAdapter, ...] = (),
         worker_id: str = DEFAULT_WORKER_ID,
     ) -> None:
         self.project = project
@@ -71,6 +73,7 @@ class CampaignRunnerAPI:
         self.runtime = runtime or CheckpointedCampaignRuntime()
         self.queue_service = queue_service or CampaignQueueService()
         self.preflight = preflight or self._validate_preflight
+        self.adapters = adapters
         self.worker_id = worker_id
 
     def advance(
@@ -89,13 +92,25 @@ class CampaignRunnerAPI:
             queue_state = self.queue_store.load()
             history = self.history_store.load()
             due = self.queue_service.ready(queue_state.queue, now=reference_time)
-            if run.stage == "in-production" and any(
-                job.request.work_id == run.work_id for job in due
-            ):
+            due_for_run = tuple(job for job in due if job.request.work_id == run.work_id)
+            unsupported = tuple(
+                job
+                for job in due_for_run
+                if not self._supports(
+                    job.request.provider,
+                    job.request.media_type,
+                )
+            )
+            if run.stage == "in-production" and unsupported:
+                required = ", ".join(
+                    sorted(
+                        {f"{job.request.provider}/{job.request.media_type}" for job in unsupported}
+                    )
+                )
                 return CampaignRunnerResult(
                     campaign_id=campaign_id,
                     stage=run.stage,
-                    errors=("provider execution requires explicit provider configuration",),
+                    errors=(f"provider execution requires configured adapters: {required}",),
                 )
 
             outcome = self.runtime.advance(
@@ -104,7 +119,7 @@ class CampaignRunnerAPI:
                 self.checkpoint_store,
                 queue_state.queue,
                 history,
-                (),
+                self.adapters,
                 worker_id=self.worker_id,
                 now=reference_time,
             )
@@ -156,6 +171,17 @@ class CampaignRunnerAPI:
                 campaign_id=campaign_id,
                 errors=(str(exc),),
             )
+
+    def _supports(self, provider: str, media_type: str) -> bool:
+        """Return whether one injected adapter supports the execution request."""
+        normalized_provider = provider.strip().casefold()
+        normalized_media_type = media_type.strip().casefold()
+        return any(
+            adapter.provider.strip().casefold() == normalized_provider
+            and normalized_media_type
+            in tuple(item.strip().casefold() for item in adapter.media_types)
+            for adapter in self.adapters
+        )
 
     def _validate_preflight(self, campaign_name: str) -> None:
         """Block runtime advancement when campaign readiness checks fail."""
