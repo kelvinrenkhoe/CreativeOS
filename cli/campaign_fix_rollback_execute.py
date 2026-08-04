@@ -62,9 +62,9 @@ def rollback_command(
             dry_run=dry_run,
         )
         history_record = CampaignFixRollbackHistoryRecord.from_report(report)
-        JsonCampaignFixRollbackHistoryStore(
-            project.root / ROLLBACK_HISTORY_PATH
-        ).append(history_record)
+        JsonCampaignFixRollbackHistoryStore(project.root / ROLLBACK_HISTORY_PATH).append(
+            history_record
+        )
     except typer.Exit:
         raise
     except (
