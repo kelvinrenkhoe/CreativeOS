@@ -8,6 +8,7 @@ from rich.console import Console
 from rich.table import Table
 
 from ai.manager import AIManager
+from api.campaign_runner import CampaignRunnerAPI
 from core.config import ConfigurationError
 from core.project import Project
 from orchestrator import (
@@ -23,7 +24,6 @@ from services.audit_history_store import AuditHistoryStateError, JsonAuditHistor
 from services.campaign import CampaignService
 from services.campaign_doctor import CampaignDoctorService
 from services.campaign_generator import CampaignGeneratorService
-from services.campaign_queue import CampaignQueueService
 from services.campaign_recommendations import CampaignRecommendationsService
 from services.campaign_run_state import CampaignRunStateError, JsonCampaignRunStore
 from services.campaign_scoring import CampaignScoringService
@@ -48,7 +48,6 @@ from services.review_decision_store import (
     ReviewDecisionStateError,
 )
 from services.runtime_checkpoints import (
-    CheckpointedCampaignRuntime,
     JsonRuntimeCheckpointStore,
     RuntimeCheckpointError,
 )
@@ -257,71 +256,15 @@ def campaign_run(
     """Advance at most one safe campaign runtime action."""
     try:
         project = Project.discover()
-        now = datetime.now(UTC)
-        run_store = JsonCampaignRunStore(project.root / CAMPAIGN_RUNS_PATH)
-        queue_store = JsonExecutionQueueStore(project.root / QUEUE_PATH)
-        history_store = JsonAuditHistoryStore(project.root / AUDIT_HISTORY_PATH)
-        checkpoint_store = JsonRuntimeCheckpointStore(project.root / CHECKPOINTS_PATH)
-
-        run = run_store.load(campaign_id)
-        _validate_campaign_preflight(project, run.plan.work_name)
-
-        queue_state = queue_store.load()
-        history = history_store.load()
-        due = CampaignQueueService().ready(queue_state.queue, now=now)
-        if run.stage == "in-production" and any(job.request.work_id == run.work_id for job in due):
-            raise CampaignRuntimeCommandError(
-                "provider execution requires explicit CLI provider configuration"
-            )
-
-        outcome = CheckpointedCampaignRuntime().advance(
-            campaign_id,
-            run_store,
-            checkpoint_store,
-            queue_state.queue,
-            history,
-            (),
-            worker_id=CLI_WORKER_ID,
-            now=now,
-        )
-        if outcome.uncertain:
-            raise CampaignRuntimeCommandError(
-                "runtime action is uncertain; reconcile it before retrying"
-            )
-
-        if outcome.result is None:
-            checkpoint = outcome.checkpoint
-            if checkpoint is None or checkpoint.status != "completed":
-                raise CampaignRuntimeCommandError("runtime produced no reportable outcome")
-            action = checkpoint.result_action or "completed"
-            stage = checkpoint.resulting_stage or run.stage
-            request_id = checkpoint.request_id
-            paused = action.startswith("awaiting-") or action in {
-                "execution-failed",
-                "completed",
-            }
-        else:
-            result = outcome.result
-            action = result.action
-            stage = result.run.stage
-            request_id = result.request_id
-            paused = result.paused
-            if result.queue != queue_state.queue:
-                queue_store.save(PersistentQueue(queue=result.queue, leases=queue_state.leases))
-            if result.history != history:
-                history_store.save(result.history)
-    except (
-        ConfigurationError,
-        CampaignRunStateError,
-        QueueStateError,
-        AuditHistoryStateError,
-        RuntimeCheckpointError,
-        CampaignRuntimeCommandError,
-        PermissionError,
-        ValueError,
-    ) as exc:
+    except ConfigurationError as exc:
         console.print(f"[bold red]Error:[/bold red] {exc}")
         raise typer.Exit(code=1) from exc
+
+    result = CampaignRunnerAPI(project, worker_id=CLI_WORKER_ID).advance(campaign_id)
+    if result.errors:
+        for error in result.errors:
+            console.print(f"[bold red]Error:[/bold red] {error}")
+        raise typer.Exit(code=1)
 
     table = Table(
         title="Campaign Runtime Action",
@@ -329,11 +272,11 @@ def campaign_run(
         box=None,
         pad_edge=False,
     )
-    table.add_row("Campaign ID", campaign_id)
-    table.add_row("Stage", stage)
-    table.add_row("Action", action)
-    table.add_row("Request ID", request_id or "None")
-    table.add_row("Paused", "Yes" if paused else "No")
+    table.add_row("Campaign ID", result.campaign_id)
+    table.add_row("Stage", result.stage or "Unknown")
+    table.add_row("Action", result.action or "None")
+    table.add_row("Request ID", result.request_id or "None")
+    table.add_row("Paused", "Yes" if result.paused else "No")
     console.print(table)
 
 
