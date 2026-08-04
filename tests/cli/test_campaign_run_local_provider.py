@@ -22,13 +22,14 @@ class StubRunnerAPI:
             )
         )
 
-    def advance(self, campaign_id):
+    def advance(self, campaign_id, *, now=None):
         return SimpleNamespace(
             campaign_id=campaign_id,
             stage="ready",
             action="execution-completed",
             request_id="request-1",
             paused=False,
+            uncertain=False,
             errors=(),
         )
 
@@ -81,4 +82,4 @@ def test_run_help_describes_provider_option() -> None:
     invocation = runner.invoke(app, ["campaign", "run", "--help"])
 
     assert invocation.exit_code == 0
-    assert "deterministic local execution" in invocation.stdout
+    assert "Explicit execution provider." in invocation.stdout
