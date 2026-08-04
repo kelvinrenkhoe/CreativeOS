@@ -82,10 +82,7 @@ class CampaignTimelineAPI:
         except (TypeError, ValueError):
             return CampaignTimelineResult(
                 campaign=campaign_name,
-                errors=(
-                    f"Invalid release date: {manifest.release_date}; "
-                    "expected YYYY-MM-DD",
-                ),
+                errors=(f"Invalid release date: {manifest.release_date}; expected YYYY-MM-DD",),
             )
 
         timeline = self.service.generate(release_date)
@@ -108,9 +105,7 @@ class CampaignTimelineAPI:
             return None, "Campaign manifest must contain a mapping"
 
         allowed_fields = {field.name for field in fields(CampaignManifest)}
-        manifest_data = {
-            key: value for key, value in loaded.items() if key in allowed_fields
-        }
+        manifest_data = {key: value for key, value in loaded.items() if key in allowed_fields}
         if isinstance(manifest_data.get("release_date"), date):
             manifest_data["release_date"] = manifest_data["release_date"].isoformat()
 
