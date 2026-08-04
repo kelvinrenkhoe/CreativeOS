@@ -124,9 +124,7 @@ def test_missing_adapter_blocks_due_provider_work() -> None:
     result = instance.advance(CAMPAIGN_ID, now=NOW)
 
     assert result.successful is False
-    assert result.errors == (
-        "provider execution requires configured adapters: in-memory/image",
-    )
+    assert result.errors == ("provider execution requires configured adapters: in-memory/image",)
     assert runtime.calls == 0
 
 
@@ -136,9 +134,7 @@ def test_adapter_with_wrong_media_type_blocks_execution() -> None:
 
     result = instance.advance(CAMPAIGN_ID, now=NOW)
 
-    assert result.errors == (
-        "provider execution requires configured adapters: in-memory/image",
-    )
+    assert result.errors == ("provider execution requires configured adapters: in-memory/image",)
     assert runtime.calls == 0
 
 
@@ -148,9 +144,7 @@ def test_adapter_with_wrong_provider_blocks_execution() -> None:
 
     result = instance.advance(CAMPAIGN_ID, now=NOW)
 
-    assert result.errors == (
-        "provider execution requires configured adapters: in-memory/image",
-    )
+    assert result.errors == ("provider execution requires configured adapters: in-memory/image",)
     assert runtime.calls == 0
 
 
