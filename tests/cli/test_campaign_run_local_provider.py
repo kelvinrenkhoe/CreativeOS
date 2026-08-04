@@ -82,4 +82,4 @@ def test_run_help_describes_provider_option() -> None:
     invocation = runner.invoke(app, ["campaign", "run", "--help"])
 
     assert invocation.exit_code == 0
-    assert "deterministic local execution" in invocation.stdout
+    assert "Explicit execution provider." in invocation.stdout
