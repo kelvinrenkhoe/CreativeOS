@@ -131,7 +131,7 @@ def test_dashboard_shows_multiple_campaigns_and_safe_recommendations(
         raise AssertionError("dashboard must not execute providers or advance runtime")
 
     monkeypatch.setattr(
-        "cli.campaign.CheckpointedCampaignRuntime.advance",
+        "api.campaign_runner.CheckpointedCampaignRuntime.advance",
         provider_call,
     )
 
