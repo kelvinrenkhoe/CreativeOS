@@ -6,12 +6,12 @@ from datetime import datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
-from models.campaign_fix_rollback import slugify
 from models.campaign_fix_rollback_execution import (
     CampaignFixRollbackExecutionReport,
     CampaignFixRollbackResult,
 )
 from models.campaign_fix_rollback_history import CampaignFixRollbackHistoryRecord
+from services.campaign import slugify
 
 
 class CampaignFixRollbackHistoryError(ValueError):
