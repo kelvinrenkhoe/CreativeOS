@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, fields
 from datetime import date
+from pathlib import Path
 
 import yaml
 
@@ -96,7 +97,7 @@ class CampaignTimelineAPI:
         )
 
     @staticmethod
-    def _load_manifest(path) -> tuple[CampaignManifest | None, str | None]:
+    def _load_manifest(path: Path) -> tuple[CampaignManifest | None, str | None]:
         """Load one campaign manifest without modifying the filesystem."""
         try:
             loaded = yaml.safe_load(path.read_text(encoding="utf-8"))
