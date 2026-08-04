@@ -57,9 +57,7 @@ def prepare_fix_receipt(root: Path) -> tuple[Path, Path]:
             ),
         ),
     )
-    JsonCampaignFixReceiptStore(
-        root / ".creativeos" / "campaign-fix-receipts"
-    ).save(report)
+    JsonCampaignFixReceiptStore(root / ".creativeos" / "campaign-fix-receipts").save(report)
     return created_file, created_directory
 
 
