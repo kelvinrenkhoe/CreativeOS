@@ -19,6 +19,7 @@ repository:
   assets: assets
   knowledge: knowledge
 """
+DEFAULT_REPORT = object()
 
 
 def project(root: Path) -> Project:
@@ -82,7 +83,7 @@ class StubTimeline:
 
 
 class StubDoctor:
-    def __init__(self, report=object(), error: ValueError | None = None) -> None:
+    def __init__(self, report=DEFAULT_REPORT, error: ValueError | None = None) -> None:
         self.report = report
         self.error = error
 
