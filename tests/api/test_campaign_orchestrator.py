@@ -129,9 +129,7 @@ def test_identical_results_stop_as_no_progress() -> None:
 
     assert outcome.steps == 2
     assert outcome.events[-1].kind == "campaign-stalled"
-    assert outcome.warnings == (
-        "orchestration stopped because the runner made no progress",
-    )
+    assert outcome.warnings == ("orchestration stopped because the runner made no progress",)
 
 
 def test_step_limit_bounds_orchestration() -> None:
