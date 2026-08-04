@@ -2,9 +2,7 @@
 
 from dataclasses import dataclass
 
-VALID_ROLLBACK_EXECUTION_STATUSES = frozenset(
-    {"removed", "would-remove", "missing", "skipped"}
-)
+VALID_ROLLBACK_EXECUTION_STATUSES = frozenset({"removed", "would-remove", "missing", "skipped"})
 
 
 @dataclass(frozen=True)
@@ -23,9 +21,7 @@ class CampaignFixRollbackResult:
         if not self.operation.strip():
             raise ValueError("operation must not be empty")
         if self.status not in VALID_ROLLBACK_EXECUTION_STATUSES:
-            raise ValueError(
-                "status must be one of: missing, removed, skipped, would-remove"
-            )
+            raise ValueError("status must be one of: missing, removed, skipped, would-remove")
         if not self.detail.strip():
             raise ValueError("detail must not be empty")
 
@@ -50,9 +46,7 @@ class CampaignFixRollbackExecutionReport:
     @property
     def would_remove(self) -> tuple[CampaignFixRollbackResult, ...]:
         """Return targets a dry run would remove."""
-        return tuple(
-            result for result in self.results if result.status == "would-remove"
-        )
+        return tuple(result for result in self.results if result.status == "would-remove")
 
     @property
     def missing(self) -> tuple[CampaignFixRollbackResult, ...]:
