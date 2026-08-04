@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from rich.console import Console
 from typer.testing import CliRunner
 
 from cli.main import app
@@ -67,11 +68,14 @@ def test_rollback_plan_renders_latest_receipt(
     create_workspace(tmp_path)
     save_receipt(tmp_path)
     monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        "cli.campaign_fix_rollback.console",
+        Console(width=200),
+    )
 
     result = runner.invoke(
         app,
         ["campaign", "rollback-plan", "No Lose Guard"],
-        terminal_width=180,
     )
 
     assert result.exit_code == 0
@@ -98,8 +102,9 @@ def test_rollback_plan_requires_fix_receipt(
     )
 
     assert result.exit_code == 1
-    assert "No campaign fix receipt found" in result.stdout
-    assert "creativeos campaign fix" in result.stdout
+    output = " ".join(result.stdout.split())
+    assert "No campaign fix receipt found" in output
+    assert "creativeos campaign fix" in output
 
 
 def test_rollback_plan_requires_workspace(
