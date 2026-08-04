@@ -35,8 +35,8 @@ class StubRunnerAPI:
 
 def _patch_runtime(monkeypatch) -> None:
     StubRunnerAPI.calls = []
-    monkeypatch.setattr("cli.campaign_run.Project.discover", lambda: object())
-    monkeypatch.setattr("cli.campaign_run.CampaignRunnerAPI", StubRunnerAPI)
+    monkeypatch.setattr("cli.campaign.Project.discover", lambda: object())
+    monkeypatch.setattr("cli.campaign.CampaignRunnerAPI", StubRunnerAPI)
 
 
 def test_run_without_provider_remains_fail_closed(monkeypatch) -> None:
