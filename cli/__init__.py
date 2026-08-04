@@ -2,6 +2,12 @@
 
 from cli import campaign_dashboard as _campaign_dashboard
 from cli import campaign_manager as _campaign_manager
+from cli import campaign_planner as _campaign_planner
 from cli import campaign_timeline as _campaign_timeline
 
-__all__ = ("_campaign_dashboard", "_campaign_manager", "_campaign_timeline")
+__all__ = (
+    "_campaign_dashboard",
+    "_campaign_manager",
+    "_campaign_planner",
+    "_campaign_timeline",
+)
