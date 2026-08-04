@@ -41,6 +41,9 @@ def _load_manifest(project: Project, campaign_name: str) -> CampaignManifest:
 
     allowed_fields = {field.name for field in fields(CampaignManifest)}
     manifest_data = {key: value for key, value in loaded.items() if key in allowed_fields}
+    if isinstance(manifest_data.get("release_date"), date):
+        manifest_data["release_date"] = manifest_data["release_date"].isoformat()
+
     try:
         return CampaignManifest(**manifest_data)
     except (TypeError, ValueError) as exc:
