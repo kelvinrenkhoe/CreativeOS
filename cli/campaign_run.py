@@ -87,7 +87,11 @@ def _render_events(result) -> None:
 
 def _render_summary(result, provider: str | None) -> None:
     last = result.last_result
-    title = "Campaign Runtime Action" if result.policy == POLICY_ONCE else "Campaign Orchestration Summary"
+    title = (
+        "Campaign Runtime Action"
+        if result.policy == POLICY_ONCE
+        else "Campaign Orchestration Summary"
+    )
     table = Table(
         title=title,
         show_header=False,
