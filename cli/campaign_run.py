@@ -155,8 +155,9 @@ def campaign_run_command(
         console.print(f"[bold red]Error:[/bold red] {exc}")
         raise typer.Exit(code=1) from exc
 
-    _render_events(result)
-    _render_summary(result, provider)
+    if not result.errors:
+        _render_events(result)
+        _render_summary(result, provider)
 
     for warning in result.warnings:
         console.print(f"[bold yellow]Warning:[/bold yellow] {warning}")
