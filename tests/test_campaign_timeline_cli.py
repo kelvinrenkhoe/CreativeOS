@@ -66,8 +66,8 @@ def test_timeline_renders_chronological_release_schedule(
     assert "2026-09-01" in output
     assert "Release day" in output
     assert "+7" in output
-    assert output.index("2026-08-11") < output.index("2026-09-01")
-    assert output.index("2026-09-01") < output.index("2026-09-08")
+    assert output.index("Pre-save campaign begins") < output.index("Release day")
+    assert output.index("Release day") < output.index("Playlist push")
 
 
 def test_timeline_reports_missing_release_date(tmp_path: Path, monkeypatch) -> None:
