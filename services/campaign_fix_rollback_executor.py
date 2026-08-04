@@ -22,8 +22,7 @@ class CampaignFixRollbackExecutor:
         """Execute a rollback plan and return a complete report."""
         root = workspace_root.resolve()
         results = tuple(
-            self._execute_action(root, action, dry_run=dry_run)
-            for action in plan.actions
+            self._execute_action(root, action, dry_run=dry_run) for action in plan.actions
         )
         return CampaignFixRollbackExecutionReport(
             campaign_name=plan.campaign_name,
