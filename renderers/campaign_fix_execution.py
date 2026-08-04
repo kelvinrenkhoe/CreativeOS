@@ -20,9 +20,7 @@ class CampaignFixExecutionRenderer:
         summary.add_row("Skipped", str(len(report.skipped)))
 
         sections: list[object] = [summary]
-        sections.extend(
-            self._section("Applied", report.applied, "green", "✓")
-        )
+        sections.extend(self._section("Applied", report.applied, "green", "✓"))
         sections.extend(
             self._section(
                 "Already Present",
