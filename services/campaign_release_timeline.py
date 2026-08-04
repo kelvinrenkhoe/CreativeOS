@@ -12,17 +12,72 @@ class CampaignReleaseTimelineService:
     """Build a fixed music-release rollout around a release date."""
 
     _MUSIC_RELEASE_EVENTS = (
-        (-21, "Pre-save campaign begins", "Social", "Launch the pre-save campaign and publish the primary call to action."),
-        (-14, "First teaser video", "Teaser", "Publish the first short teaser introducing the release mood."),
-        (-10, "Behind-the-scenes clip", "Video", "Share a behind-the-scenes clip that adds context to the song."),
-        (-7, "Cover artwork reveal", "Artwork", "Reveal the official cover artwork across campaign channels."),
-        (-5, "Countdown starts", "Social", "Begin the final countdown sequence with daily reminders."),
-        (-3, "Press and influencer outreach", "Press", "Send the release pack to press, DJs, and selected creators."),
-        (-1, "Final release reminder", "Social", "Publish the final reminder and confirm release-time links."),
-        (0, "Release day", "Release", "Publish the release announcement and activate all launch assets."),
-        (1, "Thank supporters", "Follow-up", "Thank early listeners and invite them to share the release."),
-        (4, "Performance clip", "Live", "Publish a performance-led clip to sustain attention."),
-        (7, "Playlist push", "Playlist", "Run the focused playlist and save campaign follow-up."),
+        (
+            -21,
+            "Pre-save campaign begins",
+            "Social",
+            "Launch the pre-save campaign and publish the primary call to action.",
+        ),
+        (
+            -14,
+            "First teaser video",
+            "Teaser",
+            "Publish the first short teaser introducing the release mood.",
+        ),
+        (
+            -10,
+            "Behind-the-scenes clip",
+            "Video",
+            "Share a behind-the-scenes clip that adds context to the song.",
+        ),
+        (
+            -7,
+            "Cover artwork reveal",
+            "Artwork",
+            "Reveal the official cover artwork across campaign channels.",
+        ),
+        (
+            -5,
+            "Countdown starts",
+            "Social",
+            "Begin the final countdown sequence with daily reminders.",
+        ),
+        (
+            -3,
+            "Press and influencer outreach",
+            "Press",
+            "Send the release pack to press, DJs, and selected creators.",
+        ),
+        (
+            -1,
+            "Final release reminder",
+            "Social",
+            "Publish the final reminder and confirm release-time links.",
+        ),
+        (
+            0,
+            "Release day",
+            "Release",
+            "Publish the release announcement and activate all launch assets.",
+        ),
+        (
+            1,
+            "Thank supporters",
+            "Follow-up",
+            "Thank early listeners and invite them to share the release.",
+        ),
+        (
+            4,
+            "Performance clip",
+            "Live",
+            "Publish a performance-led clip to sustain attention.",
+        ),
+        (
+            7,
+            "Playlist push",
+            "Playlist",
+            "Run the focused playlist and save campaign follow-up.",
+        ),
     )
 
     def generate(
