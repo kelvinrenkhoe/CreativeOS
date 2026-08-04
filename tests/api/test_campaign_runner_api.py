@@ -143,7 +143,10 @@ def test_advance_does_not_save_unchanged_state(tmp_path: Path) -> None:
         queue=None,
         history=None,
     )
-    api, deps = runner(tmp_path, outcome=SimpleNamespace(uncertain=False, result=None, checkpoint=None))
+    api, deps = runner(
+        tmp_path,
+        outcome=SimpleNamespace(uncertain=False, result=None, checkpoint=None),
+    )
     outcome_result.queue = deps.queue
     outcome_result.history = deps.history
     deps.runtime.outcome = SimpleNamespace(
