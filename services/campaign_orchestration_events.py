@@ -67,6 +67,10 @@ class JsonOrchestrationEventStore:
         campaign_id = self._safe(campaign_id, "campaign_id")
         run_id = self._required(run_id, "run_id")
         policy = self._required(policy, "policy")
+        source_events = tuple(events)
+        if any(event.campaign_id != campaign_id for event in source_events):
+            raise ValueError("event campaign IDs must match campaign_id")
+
         existing = self.load(campaign_id)
         if any(item.run_id == run_id for item in existing):
             raise ValueError(f"orchestration run already exists: {run_id}")
@@ -84,11 +88,8 @@ class JsonOrchestrationEventStore:
                 request_id=event.request_id,
                 detail=event.detail,
             )
-            for sequence, event in enumerate(events, start=1)
+            for sequence, event in enumerate(source_events, start=1)
         )
-        if any(event.campaign_id != campaign_id for event in events):
-            raise ValueError("event campaign IDs must match campaign_id")
-
         self._save(campaign_id, existing + stored)
         return stored
 
