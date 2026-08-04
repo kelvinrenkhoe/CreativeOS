@@ -87,9 +87,7 @@ class CampaignTasksAPI:
             )
 
         jobs = tuple(
-            job
-            for job in state.queue.jobs
-            if slugify(job.request.work_id) == campaign_slug
+            job for job in state.queue.jobs if slugify(job.request.work_id) == campaign_slug
         )
         active = tuple(job for job in jobs if job.status in ("scheduled", "claimed"))
         completed_jobs = tuple(job for job in jobs if job.status == "completed")
@@ -99,15 +97,11 @@ class CampaignTasksAPI:
             if job.status in ("failed", "cancelled")
         )
 
-        overdue = self._sorted(
-            job for job in active if job.scheduled_for.date() < reference_date
-        )
+        overdue = self._sorted(job for job in active if job.scheduled_for.date() < reference_date)
         due_today = self._sorted(
             job for job in active if job.scheduled_for.date() == reference_date
         )
-        upcoming = self._sorted(
-            job for job in active if job.scheduled_for.date() > reference_date
-        )
+        upcoming = self._sorted(job for job in active if job.scheduled_for.date() > reference_date)
         completed = self._sorted(completed_jobs)
         completion_percent = round(len(completed_jobs) / len(jobs) * 100) if jobs else 0
 
