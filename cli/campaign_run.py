@@ -63,9 +63,7 @@ def _runner(project, adapters: tuple[ProviderExecutionAdapter, ...]):
 
 def _render_events(result) -> None:
     events = tuple(
-        event
-        for event in result.events
-        if event.kind not in {"campaign-started", "step-started"}
+        event for event in result.events if event.kind not in {"campaign-started", "step-started"}
     )
     if not events:
         return
