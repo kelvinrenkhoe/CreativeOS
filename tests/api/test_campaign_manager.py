@@ -146,9 +146,7 @@ def test_reference_date_is_passed_to_dependencies(tmp_path: Path) -> None:
     tasks = TasksStub()
     reference = date(2026, 8, 4)
 
-    manager(tmp_path, dashboard=dashboard, tasks=tasks).today(
-        "No Lose Guard", today=reference
-    )
+    manager(tmp_path, dashboard=dashboard, tasks=tasks).today("No Lose Guard", today=reference)
 
     assert dashboard.reference_date == reference
     assert tasks.reference_date == reference
