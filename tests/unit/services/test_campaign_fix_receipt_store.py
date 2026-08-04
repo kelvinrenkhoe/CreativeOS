@@ -60,7 +60,7 @@ def test_missing_receipt_has_actionable_error(tmp_path: Path) -> None:
 def test_invalid_receipt_is_rejected(tmp_path: Path) -> None:
     store = JsonCampaignFixReceiptStore(tmp_path)
     path = store.path_for("No Lose Guard")
-    path.parent.mkdir(parents=True)
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps({"version": 99}), encoding="utf-8")
 
     with pytest.raises(CampaignFixReceiptError, match="Unsupported"):
