@@ -190,7 +190,15 @@ def test_due_provider_work_is_blocked_without_configuration(tmp_path: Path) -> N
         work_id="work-1",
         plan=SimpleNamespace(work_name="No Lose Guard"),
     )
-    due = (SimpleNamespace(request=SimpleNamespace(work_id="work-1")),)
+    due = (
+        SimpleNamespace(
+            request=SimpleNamespace(
+                work_id="work-1",
+                provider="in-memory",
+                media_type="image",
+            )
+        ),
+    )
     api, deps = runner(
         tmp_path,
         run=run,
@@ -201,7 +209,9 @@ def test_due_provider_work_is_blocked_without_configuration(tmp_path: Path) -> N
     response = api.advance("campaign-1")
 
     assert not response.successful
-    assert "explicit provider configuration" in response.errors[0]
+    assert response.errors == (
+        "provider execution requires configured adapters: in-memory/image",
+    )
     assert deps.runtime.calls == []
 
 
