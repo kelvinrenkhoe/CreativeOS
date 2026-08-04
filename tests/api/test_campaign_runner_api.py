@@ -209,9 +209,7 @@ def test_due_provider_work_is_blocked_without_configuration(tmp_path: Path) -> N
     response = api.advance("campaign-1")
 
     assert not response.successful
-    assert response.errors == (
-        "provider execution requires configured adapters: in-memory/image",
-    )
+    assert response.errors == ("provider execution requires configured adapters: in-memory/image",)
     assert deps.runtime.calls == []
 
 
