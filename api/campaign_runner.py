@@ -60,9 +60,7 @@ class CampaignRunnerAPI:
         worker_id: str = DEFAULT_WORKER_ID,
     ) -> None:
         self.project = project
-        self.run_store = run_store or JsonCampaignRunStore(
-            project.root / CAMPAIGN_RUNS_PATH
-        )
+        self.run_store = run_store or JsonCampaignRunStore(project.root / CAMPAIGN_RUNS_PATH)
         self.queue_store = queue_store or JsonExecutionQueueStore(project.root / QUEUE_PATH)
         self.history_store = history_store or JsonAuditHistoryStore(
             project.root / AUDIT_HISTORY_PATH
@@ -97,9 +95,7 @@ class CampaignRunnerAPI:
                 return CampaignRunnerResult(
                     campaign_id=campaign_id,
                     stage=run.stage,
-                    errors=(
-                        "provider execution requires explicit provider configuration",
-                    ),
+                    errors=("provider execution requires explicit provider configuration",),
                 )
 
             outcome = self.runtime.advance(
@@ -117,9 +113,7 @@ class CampaignRunnerAPI:
                     campaign_id=campaign_id,
                     stage=run.stage,
                     uncertain=True,
-                    errors=(
-                        "runtime action is uncertain; reconcile it before retrying",
-                    ),
+                    errors=("runtime action is uncertain; reconcile it before retrying",),
                 )
 
             if outcome.result is None:
