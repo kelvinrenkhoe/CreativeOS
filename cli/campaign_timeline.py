@@ -7,6 +7,7 @@ import typer
 import yaml
 from rich.console import Console
 
+from cli.campaign import app as campaign_app
 from core.config import ConfigurationError
 from core.project import Project
 from models.campaign import CampaignManifest
@@ -71,3 +72,6 @@ def timeline_command(
         raise typer.Exit(code=1) from exc
 
     console.print(CampaignReleaseTimelineRenderer().render(campaign_name, timeline))
+
+
+campaign_app.command("timeline")(timeline_command)
