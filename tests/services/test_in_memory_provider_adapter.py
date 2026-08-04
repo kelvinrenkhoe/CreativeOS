@@ -51,9 +51,7 @@ def test_provider_service_executes_request_and_returns_receipt() -> None:
 
     assert receipt.request_id == "request-1"
     assert receipt.external_id.startswith("memory-")
-    assert receipt.outputs == (
-        f"memory://in-memory/image/{receipt.external_id}",
-    )
+    assert receipt.outputs == (f"memory://in-memory/image/{receipt.external_id}",)
     assert adapter.receipt("request-1") == receipt
 
 
