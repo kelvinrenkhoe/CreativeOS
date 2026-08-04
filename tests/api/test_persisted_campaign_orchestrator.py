@@ -1,6 +1,5 @@
 """Tests for persisted bounded campaign orchestration."""
 
-from pathlib import Path
 from types import SimpleNamespace
 
 from api.persisted_campaign_orchestrator import (
