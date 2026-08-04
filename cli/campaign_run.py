@@ -4,9 +4,8 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from api.campaign_runner import CampaignRunnerAPI
+from cli import campaign as campaign_cli
 from core.config import ConfigurationError
-from core.project import Project
 from services.in_memory_provider import InMemoryProviderExecutionAdapter
 from services.provider_execution import ProviderExecutionAdapter
 
@@ -39,13 +38,13 @@ def campaign_run_command(
 ) -> None:
     """Advance at most one safe campaign runtime action."""
     try:
-        project = Project.discover()
+        project = campaign_cli.Project.discover()
         adapters = _adapters_for(provider)
     except (ConfigurationError, ValueError) as exc:
         console.print(f"[bold red]Error:[/bold red] {exc}")
         raise typer.Exit(code=1) from exc
 
-    result = CampaignRunnerAPI(
+    result = campaign_cli.CampaignRunnerAPI(
         project,
         adapters=adapters,
         worker_id=CLI_WORKER_ID,
