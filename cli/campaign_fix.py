@@ -59,9 +59,7 @@ def fix_command(
         )
         plan = CampaignAutoFixPlanner().plan(recommendations)
         execution = CampaignFixExecutor().execute(project.root, plan)
-        JsonCampaignFixReceiptStore(
-            project.root / RECEIPTS_PATH
-        ).save(execution)
+        JsonCampaignFixReceiptStore(project.root / RECEIPTS_PATH).save(execution)
     except (ConfigurationError, OSError, ValueError) as exc:
         console.print(f"[bold red]Error:[/bold red] {exc}")
         raise typer.Exit(code=1) from exc
