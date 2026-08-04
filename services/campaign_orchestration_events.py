@@ -1,10 +1,11 @@
 """Durable storage for bounded campaign orchestration event history."""
 
 import json
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from json import JSONDecodeError
 from pathlib import Path
-from typing import Iterable, Protocol
+from typing import Protocol
 
 EVENT_STORE_VERSION = "1"
 
