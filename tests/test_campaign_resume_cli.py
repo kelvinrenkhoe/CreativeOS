@@ -202,7 +202,7 @@ def test_resume_never_invokes_provider_execution(tmp_path, monkeypatch) -> None:
         raise AssertionError("resume must not invoke provider execution")
 
     monkeypatch.setattr(
-        "cli.campaign.CheckpointedCampaignRuntime.advance",
+        "api.campaign_runner.CheckpointedCampaignRuntime.advance",
         provider_call,
     )
 
