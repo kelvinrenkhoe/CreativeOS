@@ -77,9 +77,7 @@ class CampaignAnalyticsAPI:
             return CampaignAnalyticsResult(campaign=campaign_name, errors=(error,))
         assert manifest is not None
 
-        configured = tuple(
-            check for check in self._CHECKS if self._is_configured(manifest, check)
-        )
+        configured = tuple(check for check in self._CHECKS if self._is_configured(manifest, check))
         missing = tuple(check for check in self._CHECKS if check not in configured)
         score = round(len(configured) / len(self._CHECKS) * 100)
 
@@ -89,9 +87,7 @@ class CampaignAnalyticsAPI:
             warnings.append(release_error)
 
         reference_date = today or date.today()
-        days_to_release = (
-            (release_date - reference_date).days if release_date is not None else None
-        )
+        days_to_release = (release_date - reference_date).days if release_date is not None else None
         if days_to_release is not None and days_to_release < 0:
             warnings.append("Campaign release date is in the past")
 
