@@ -67,9 +67,7 @@ def job(
 def save(project: Project, *jobs: QueueJob) -> None:
     """Persist queue jobs at the canonical runtime path."""
     path = project.root / ".creativeos" / "runtime" / "execution-queue.json"
-    JsonExecutionQueueStore(path).save(
-        PersistentQueue(queue=ExecutionQueue(jobs=jobs))
-    )
+    JsonExecutionQueueStore(path).save(PersistentQueue(queue=ExecutionQueue(jobs=jobs)))
 
 
 def test_today_classifies_campaign_tasks(tmp_path: Path) -> None:
