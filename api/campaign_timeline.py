@@ -136,7 +136,8 @@ class CampaignTimelineAPI:
             next_milestone=next_milestone,
             overdue_milestones=len(tuple(event for event in events if event.date < reference_date)),
             warnings=(
-                "Milestone completion is not tracked; overdue_milestones counts elapsed milestones.",
+                "Milestone completion is not tracked; "
+                "overdue_milestones counts elapsed milestones.",
             ),
         )
 
