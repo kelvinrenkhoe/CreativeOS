@@ -44,11 +44,19 @@ def campaign_run_command(
         console.print(f"[bold red]Error:[/bold red] {exc}")
         raise typer.Exit(code=1) from exc
 
-    result = campaign_cli.CampaignRunnerAPI(
-        project,
-        adapters=adapters,
-        worker_id=CLI_WORKER_ID,
-    ).advance(campaign_id)
+    if adapters:
+        api = campaign_cli.CampaignRunnerAPI(
+            project,
+            adapters=adapters,
+            worker_id=CLI_WORKER_ID,
+        )
+    else:
+        api = campaign_cli.CampaignRunnerAPI(
+            project,
+            worker_id=CLI_WORKER_ID,
+        )
+
+    result = api.advance(campaign_id)
     if result.errors:
         for error in result.errors:
             console.print(f"[bold red]Error:[/bold red] {error}")
