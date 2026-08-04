@@ -58,10 +58,10 @@ class StubTasks:
         }
         values.update(changes)
         self.result = SimpleNamespace(**values)
-        self.today = None
+        self.reference_date = None
 
     def today(self, _campaign, *, today):
-        self.today = today
+        self.reference_date = today
         return self.result
 
 
@@ -156,7 +156,7 @@ def test_summary_passes_same_reference_date_to_every_api(tmp_path: Path) -> None
     ).summary("No Lose Guard", today=reference)
 
     assert analytics.today == reference
-    assert tasks.today == reference
+    assert tasks.reference_date == reference
     assert timeline.today == reference
 
 
