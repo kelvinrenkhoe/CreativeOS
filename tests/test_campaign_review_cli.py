@@ -176,7 +176,7 @@ def test_review_never_invokes_provider_execution(tmp_path, monkeypatch) -> None:
         raise AssertionError("review must not invoke provider execution")
 
     monkeypatch.setattr(
-        "cli.campaign.CheckpointedCampaignRuntime.advance",
+        "api.campaign_runner.CheckpointedCampaignRuntime.advance",
         provider_call,
     )
 
