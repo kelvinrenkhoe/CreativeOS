@@ -10,6 +10,7 @@ from api.campaign_orchestrator import (
     POLICY_UNTIL_COMPLETE,
     CampaignOrchestratorAPI,
 )
+from api.persisted_campaign_orchestrator import PersistedCampaignOrchestratorAPI
 from cli import campaign as campaign_cli
 from core.config import ConfigurationError
 from services.in_memory_provider import InMemoryProviderExecutionAdapter
@@ -146,7 +147,8 @@ def campaign_run_command(
             until_blocked=until_blocked,
             until_complete=until_complete,
         )
-        result = CampaignOrchestratorAPI(_runner(project, adapters)).run(
+        orchestrator = CampaignOrchestratorAPI(_runner(project, adapters))
+        result = PersistedCampaignOrchestratorAPI.for_project(project, orchestrator).run(
             campaign_id,
             policy=policy,
             max_steps=max_steps,
