@@ -170,9 +170,7 @@ class CampaignTimelineAPI:
         try:
             return date.fromisoformat(manifest.release_date), None
         except (TypeError, ValueError):
-            return None, (
-                f"Invalid release date: {manifest.release_date}; expected YYYY-MM-DD"
-            )
+            return None, (f"Invalid release date: {manifest.release_date}; expected YYYY-MM-DD")
 
     @staticmethod
     def _phase(
