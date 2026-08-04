@@ -104,10 +104,7 @@ class CampaignRunnerAPI:
             if run.stage == "in-production" and unsupported:
                 required = ", ".join(
                     sorted(
-                        {
-                            f"{job.request.provider}/{job.request.media_type}"
-                            for job in unsupported
-                        }
+                        {f"{job.request.provider}/{job.request.media_type}" for job in unsupported}
                     )
                 )
                 return CampaignRunnerResult(
