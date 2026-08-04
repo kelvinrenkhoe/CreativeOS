@@ -154,7 +154,7 @@ def test_plan_command_is_registered() -> None:
 
     assert invocation.exit_code == 0
     assert "multi-day campaign execution plan" in invocation.stdout
-    assert "--days" in invocation.stdout
+    assert "Number of days to plan." in invocation.stdout
 
 
 def test_renderer_output_is_deterministic() -> None:
