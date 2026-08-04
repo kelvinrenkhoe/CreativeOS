@@ -105,7 +105,11 @@ class CampaignOrchestratorAPI:
                     campaign_id=campaign_id,
                 )
             )
-            current = self.runner.advance(campaign_id, now=now)
+            current = (
+                self.runner.advance(campaign_id, now=now)
+                if now is not None
+                else self.runner.advance(campaign_id)
+            )
             last_result = current
             events.append(self._result_event(current, step))
 
