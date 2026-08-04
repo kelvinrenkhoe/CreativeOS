@@ -57,9 +57,7 @@ def save_receipt(root: Path) -> None:
             ),
         ),
     )
-    JsonCampaignFixReceiptStore(
-        root / ".creativeos" / "campaign-fix-receipts"
-    ).save(report)
+    JsonCampaignFixReceiptStore(root / ".creativeos" / "campaign-fix-receipts").save(report)
 
 
 def test_rollback_plan_renders_latest_receipt(
