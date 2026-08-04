@@ -38,9 +38,7 @@ def rollback_command(
     """Execute the latest safe campaign fix rollback plan."""
     try:
         project = Project.discover()
-        receipt = JsonCampaignFixReceiptStore(project.root / RECEIPTS_PATH).load(
-            campaign_name
-        )
+        receipt = JsonCampaignFixReceiptStore(project.root / RECEIPTS_PATH).load(campaign_name)
         plan = CampaignFixRollbackPlanner().plan(receipt)
 
         if not dry_run and not yes:
