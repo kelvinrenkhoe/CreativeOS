@@ -72,9 +72,7 @@ class CampaignExecutionStatusAPI:
         except (OSError, PermissionError, TypeError, ValueError) as exc:
             return CampaignExecutionStatusResult(campaign_id=campaign_id, errors=(str(exc),))
 
-        jobs = tuple(
-            job for job in queue_state.queue.jobs if job.request.work_id == run.work_id
-        )
+        jobs = tuple(job for job in queue_state.queue.jobs if job.request.work_id == run.work_id)
         items = tuple(self._item(job) for job in jobs)
         warnings = () if items else ("no provider execution records found",)
         return CampaignExecutionStatusResult(
