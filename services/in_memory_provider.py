@@ -16,8 +16,7 @@ class InMemoryProviderExecutionAdapter:
     ) -> None:
         self._provider = self._required(provider, "provider").casefold()
         self._media_types = tuple(
-            self._required(media_type, "media_type").casefold()
-            for media_type in media_types
+            self._required(media_type, "media_type").casefold() for media_type in media_types
         )
         if not self._media_types:
             raise ValueError("media_types must not be empty")
