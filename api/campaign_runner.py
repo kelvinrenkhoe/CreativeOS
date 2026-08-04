@@ -94,7 +94,12 @@ class CampaignRunnerAPI:
             due = self.queue_service.ready(queue_state.queue, now=reference_time)
             due_for_run = tuple(job for job in due if job.request.work_id == run.work_id)
             unsupported = tuple(
-                job for job in due_for_run if not self._supports(job.request.provider, job.request.media_type)
+                job
+                for job in due_for_run
+                if not self._supports(
+                    job.request.provider,
+                    job.request.media_type,
+                )
             )
             if run.stage == "in-production" and unsupported:
                 required = ", ".join(
