@@ -7,6 +7,7 @@ from rich.console import Console
 
 from core.config import ConfigurationError
 from core.project import Project
+from models.campaign_fix_rollback_history import CampaignFixRollbackHistoryRecord
 from renderers.campaign_fix_rollback_execution import (
     CampaignFixRollbackExecutionRenderer,
 )
@@ -16,9 +17,14 @@ from services.campaign_fix_receipts import (
 )
 from services.campaign_fix_rollback import CampaignFixRollbackPlanner
 from services.campaign_fix_rollback_executor import CampaignFixRollbackExecutor
+from services.campaign_fix_rollback_history import (
+    CampaignFixRollbackHistoryError,
+    JsonCampaignFixRollbackHistoryStore,
+)
 
 console = Console()
 RECEIPTS_PATH = Path(".creativeos") / "campaign-fix-receipts"
+ROLLBACK_HISTORY_PATH = Path(".creativeos") / "campaign-fix-rollback-history"
 
 
 def rollback_command(
@@ -55,9 +61,19 @@ def rollback_command(
             plan,
             dry_run=dry_run,
         )
+        history_record = CampaignFixRollbackHistoryRecord.from_report(report)
+        JsonCampaignFixRollbackHistoryStore(project.root / ROLLBACK_HISTORY_PATH).append(
+            history_record
+        )
     except typer.Exit:
         raise
-    except (ConfigurationError, CampaignFixReceiptError, OSError, ValueError) as exc:
+    except (
+        ConfigurationError,
+        CampaignFixReceiptError,
+        CampaignFixRollbackHistoryError,
+        OSError,
+        ValueError,
+    ) as exc:
         console.print(f"[bold red]Error:[/bold red] {exc}")
         raise typer.Exit(code=1) from exc
 
