@@ -22,13 +22,14 @@ class StubRunnerAPI:
             )
         )
 
-    def advance(self, campaign_id):
+    def advance(self, campaign_id, *, now=None):
         return SimpleNamespace(
             campaign_id=campaign_id,
             stage="ready",
             action="execution-completed",
             request_id="request-1",
             paused=False,
+            uncertain=False,
             errors=(),
         )
 
