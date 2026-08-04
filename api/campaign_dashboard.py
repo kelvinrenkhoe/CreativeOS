@@ -62,9 +62,7 @@ class CampaignDashboardAPI:
             self._doctor_registry(),
         )
         self.scoring_service = scoring_service or CampaignScoringService()
-        self.recommendations_service = (
-            recommendations_service or CampaignRecommendationsService()
-        )
+        self.recommendations_service = recommendations_service or CampaignRecommendationsService()
 
     def summary(
         self,
