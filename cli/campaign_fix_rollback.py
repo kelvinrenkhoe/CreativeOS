@@ -24,9 +24,7 @@ def rollback_plan_command(
     """Display a read-only rollback plan for the latest campaign fix."""
     try:
         project = Project.discover()
-        receipt = JsonCampaignFixReceiptStore(
-            project.root / RECEIPTS_PATH
-        ).load(campaign_name)
+        receipt = JsonCampaignFixReceiptStore(project.root / RECEIPTS_PATH).load(campaign_name)
         plan = CampaignFixRollbackPlanner().plan(receipt)
     except (ConfigurationError, CampaignFixReceiptError, OSError, ValueError) as exc:
         console.print(f"[bold red]Error:[/bold red] {exc}")
