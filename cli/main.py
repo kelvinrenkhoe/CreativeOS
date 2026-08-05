@@ -19,6 +19,7 @@ from cli.index import app as index_app
 from cli.repository import search_command, stats_command
 from cli.song import app as song_app
 from cli.week_plan import app as week_plan_app
+from cli.worker import app as worker_app
 from core.config import ConfigurationError
 from core.project import Project
 from orchestrator import (
@@ -52,6 +53,7 @@ campaign_app.command("rollback-plan")(rollback_plan_command)
 campaign_app.command("rollback")(rollback_command)
 app.add_typer(song_app, name="song")
 app.add_typer(campaign_app, name="campaign")
+app.add_typer(worker_app, name="worker")
 app.add_typer(index_app, name="index")
 app.add_typer(ai_app, name="ai")
 app.command("search")(search_command)
