@@ -46,7 +46,7 @@ campaign_app.registered_commands = [
     command for command in campaign_app.registered_commands if command.name != "run"
 ]
 campaign_app.command("run")(campaign_run_command)
-campaign_app.command("plan")(campaign_plan_command)
+campaign_app.command("ai-plan")(campaign_plan_command)
 campaign_app.command("history")(campaign_history_command)
 campaign_app.add_typer(campaign_checkpoint_app, name="checkpoint")
 campaign_app.add_typer(week_plan_app, name="week")
