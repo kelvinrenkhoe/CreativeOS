@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
-import time
-from typing import Generic, TypeVar
+from typing import TypeVar
 
 T = TypeVar("T")
 
@@ -53,7 +53,7 @@ class RetryAttempt:
 
 
 @dataclass(frozen=True, slots=True)
-class RetryResult(Generic[T]):
+class RetryResult[T]:
     """Successful result plus complete attempt history."""
 
     value: T
