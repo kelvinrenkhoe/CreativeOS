@@ -95,9 +95,7 @@ class RuntimeRetryEngine:
             try:
                 value = operation()
             except RetryableRuntimeError as exc:
-                attempts.append(
-                    RetryAttempt(number, False, type(exc).__name__, str(exc), delay)
-                )
+                attempts.append(RetryAttempt(number, False, type(exc).__name__, str(exc), delay))
                 if number == self.policy.max_attempts:
                     raise RetryExhaustedError(tuple(attempts), exc) from exc
             except Exception:
