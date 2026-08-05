@@ -54,8 +54,14 @@ class AICampaignPlanService:
                     number=4,
                     objective="Sustain momentum and deepen connection",
                     tasks=(
-                        AICampaignTask("Performance content", "Share a live or stripped-back clip."),
-                        AICampaignTask("Thank-you post", "Celebrate listeners and early supporters."),
+                        AICampaignTask(
+                            "Performance content",
+                            "Share a live or stripped-back clip.",
+                        ),
+                        AICampaignTask(
+                            "Thank-you post",
+                            "Celebrate listeners and early supporters.",
+                        ),
                     ),
                 ),
             ),
