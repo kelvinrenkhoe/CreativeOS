@@ -31,6 +31,24 @@ def _campaign_checkpoints(
     return tuple(checkpoint for checkpoint in store.load() if checkpoint.campaign_id == campaign_id)
 
 
+def _checkpoint_table(checkpoint: RuntimeCheckpoint, *, title: str) -> Table:
+    table = Table(title=title, show_header=False, box=None, pad_edge=False)
+    table.add_column("Field", no_wrap=True)
+    table.add_column("Value")
+    table.add_row("Checkpoint ID", checkpoint.checkpoint_id)
+    table.add_row("Action Key", checkpoint.action_key)
+    table.add_row("Status", checkpoint.status)
+    table.add_row("Started", checkpoint.started_at.isoformat())
+    table.add_row(
+        "Completed",
+        checkpoint.completed_at.isoformat() if checkpoint.completed_at else "-",
+    )
+    table.add_row("Result Action", checkpoint.result_action or "-")
+    table.add_row("Stage", checkpoint.resulting_stage or "-")
+    table.add_row("Request ID", checkpoint.request_id or "-")
+    return table
+
+
 @app.command("status")
 def checkpoint_status_command(
     campaign_id: str = typer.Argument(..., help="Persisted campaign runtime ID."),
@@ -46,28 +64,13 @@ def checkpoint_status_command(
         console.print(f"No runtime checkpoints found for {campaign_id}.")
         return
 
-    table = Table(title=f"Campaign Runtime Checkpoints: {campaign_id}")
-    table.add_column("Checkpoint ID", no_wrap=True)
-    table.add_column("Action Key", no_wrap=True)
-    table.add_column("Status", no_wrap=True)
-    table.add_column("Started")
-    table.add_column("Completed")
-    table.add_column("Result Action", no_wrap=True)
-    table.add_column("Stage", no_wrap=True)
-    table.add_column("Request ID", no_wrap=True)
-
-    for checkpoint in checkpoints:
-        table.add_row(
-            checkpoint.checkpoint_id,
-            checkpoint.action_key,
-            checkpoint.status,
-            checkpoint.started_at.isoformat(),
-            checkpoint.completed_at.isoformat() if checkpoint.completed_at else "-",
-            checkpoint.result_action or "-",
-            checkpoint.resulting_stage or "-",
-            checkpoint.request_id or "-",
+    for index, checkpoint in enumerate(checkpoints, start=1):
+        console.print(
+            _checkpoint_table(
+                checkpoint,
+                title=f"Campaign Runtime Checkpoints: {campaign_id} ({index}/{len(checkpoints)})",
+            )
         )
-    console.print(table)
 
 
 @app.command("reconcile")
