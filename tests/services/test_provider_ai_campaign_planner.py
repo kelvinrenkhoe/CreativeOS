@@ -116,9 +116,9 @@ def test_invalid_duration_returns_plan_error() -> None:
 
 
 def test_provider_failure_returns_plan_error_without_raising() -> None:
-    plan = AICampaignPlanService(
-        StubProvider(error=TimeoutError("provider timed out"))
-    ).plan("No Lose Guard")
+    plan = AICampaignPlanService(StubProvider(error=TimeoutError("provider timed out"))).plan(
+        "No Lose Guard"
+    )
 
     assert plan.errors == ("AI campaign planner failed: provider timed out",)
 
