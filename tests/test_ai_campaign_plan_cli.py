@@ -10,12 +10,13 @@ runner = CliRunner()
 def test_campaign_plan_renders_summary_objectives_and_weeks() -> None:
     result = runner.invoke(
         app,
-        ["campaign", "ai-plan", "No Lose Guard"],
+        ["campaign", "ai-plan", "No Lose Guard", "--deterministic"],
         terminal_width=180,
     )
 
     assert result.exit_code == 0
     assert "AI Campaign Plan: No Lose Guard" in result.stdout
+    assert "deterministic" in result.stdout
     assert "28 days" in result.stdout
     assert "Increase release awareness" in result.stdout
     assert "Week 1" in result.stdout
@@ -25,7 +26,10 @@ def test_campaign_plan_renders_summary_objectives_and_weeks() -> None:
 
 
 def test_campaign_plan_rejects_blank_name() -> None:
-    result = runner.invoke(app, ["campaign", "ai-plan", "   "])
+    result = runner.invoke(
+        app,
+        ["campaign", "ai-plan", "   ", "--deterministic"],
+    )
 
     assert result.exit_code == 1
     assert "campaign_name must not be empty" in result.stdout
