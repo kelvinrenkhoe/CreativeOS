@@ -67,7 +67,7 @@ class JsonCampaignRuntimeLockStore:
             if reference_time - current.acquired_at <= self.stale_after:
                 raise CampaignRuntimeLockedError(
                     f"campaign {campaign_id} is locked by {current.owner_id}"
-                )
+                ) from None
             shutil.rmtree(lock_path)
             lock_path.mkdir()
 
@@ -118,7 +118,13 @@ class JsonCampaignRuntimeLockStore:
             ) from exc
 
     def _lock_path(self, campaign_id: str) -> Path:
-        if not campaign_id or campaign_id in {".", ".."} or "/" in campaign_id or "\\" in campaign_id:
+        unsafe = (
+            not campaign_id
+            or campaign_id in {".", ".."}
+            or "/" in campaign_id
+            or "\\" in campaign_id
+        )
+        if unsafe:
             raise ValueError("campaign_id must be a safe filename component")
         return self.directory / f"{campaign_id}.lock"
 
