@@ -28,11 +28,7 @@ def _campaign_checkpoints(
     store: JsonRuntimeCheckpointStore,
     campaign_id: str,
 ) -> tuple[RuntimeCheckpoint, ...]:
-    return tuple(
-        checkpoint
-        for checkpoint in store.load()
-        if checkpoint.campaign_id == campaign_id
-    )
+    return tuple(checkpoint for checkpoint in store.load() if checkpoint.campaign_id == campaign_id)
 
 
 @app.command("status")
@@ -107,9 +103,7 @@ def checkpoint_reconcile_command(
             if checkpoint.status == "uncertain"
         )
         if not uncertain:
-            raise RuntimeCheckpointError(
-                f"campaign {campaign_id} has no uncertain checkpoint"
-            )
+            raise RuntimeCheckpointError(f"campaign {campaign_id} has no uncertain checkpoint")
         if len(uncertain) > 1:
             raise RuntimeCheckpointError(
                 f"campaign {campaign_id} has multiple uncertain checkpoints"
@@ -126,6 +120,4 @@ def checkpoint_reconcile_command(
         console.print(f"[bold red]Error:[/bold red] {exc}")
         raise typer.Exit(code=1) from exc
 
-    console.print(
-        f"Checkpoint {updated.checkpoint_id} reconciled as {updated.status}."
-    )
+    console.print(f"Checkpoint {updated.checkpoint_id} reconciled as {updated.status}.")
