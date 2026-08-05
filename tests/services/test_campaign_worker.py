@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 
 from api.campaign_orchestrator import CampaignOrchestrationResult
-from services.campaign_worker import CampaignWorkerAPI, TERMINAL_STAGE
+from services.campaign_worker import TERMINAL_STAGE, CampaignWorkerAPI
 
 
 @dataclass(frozen=True)
