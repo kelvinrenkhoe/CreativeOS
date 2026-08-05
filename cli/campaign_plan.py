@@ -12,14 +12,15 @@ console = Console()
 def campaign_plan_command(
     campaign_name: str = typer.Argument(..., help="Campaign or release name."),
 ) -> None:
-    """Display a structured four-week campaign rollout plan."""
+    """Display a structured four-week AI campaign rollout plan."""
     try:
         plan = AICampaignPlannerAPI().plan(campaign_name)
     except ValueError as exc:
         console.print(f"[bold red]Error:[/bold red] {exc}")
         raise typer.Exit(code=1) from exc
 
-    summary = Table(title=f"AI Campaign Plan: {plan.campaign_name}", show_header=False)
+    console.print(f"[bold]AI Campaign Plan: {plan.campaign_name}[/bold]")
+    summary = Table(show_header=False)
     summary.add_row("Duration", f"{plan.duration_days} days")
     summary.add_row("Objectives", str(len(plan.objectives)))
     summary.add_row("Weeks", str(len(plan.weeks)))
