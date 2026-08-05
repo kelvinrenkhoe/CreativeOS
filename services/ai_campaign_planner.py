@@ -44,7 +44,7 @@ class AICampaignPlanService:
     def _prompt(campaign_name: str) -> str:
         return (
             "Create a practical 28-day marketing rollout for the campaign "
-            f'\"{campaign_name}\". Return one JSON object with exactly these fields: '
+            f'"{campaign_name}". Return one JSON object with exactly these fields: '
             '"campaign_name", "duration_days", "objectives", and "weeks". '
             '"objectives" must be a non-empty array of strings. "weeks" must contain '
             "four objects with integer number, non-empty objective, and a non-empty tasks "
