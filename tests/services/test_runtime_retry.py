@@ -3,9 +3,9 @@
 import pytest
 
 from services.runtime_retry import (
+    RetryableRuntimeError,
     RetryExhaustedError,
     RetryPolicy,
-    RetryableRuntimeError,
     RuntimeRetryEngine,
 )
 
