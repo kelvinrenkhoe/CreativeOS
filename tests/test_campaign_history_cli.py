@@ -34,9 +34,7 @@ def event(kind: str, *, step: int, run_id: str = "run-1"):
 
 
 def seed_history(root) -> None:
-    store = JsonOrchestrationEventStore(
-        root / ".creativeos" / "runtime" / "orchestration-events"
-    )
+    store = JsonOrchestrationEventStore(root / ".creativeos" / "runtime" / "orchestration-events")
     store.append(
         campaign_id="campaign-1",
         run_id="run-1",
