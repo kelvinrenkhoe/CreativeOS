@@ -25,7 +25,7 @@ def _render_history(
     table.add_column("Policy")
     table.add_column("Seq", justify="right")
     table.add_column("Step", justify="right")
-    table.add_column("Event")
+    table.add_column("Event", min_width=18, no_wrap=True)
     table.add_column("Stage")
     table.add_column("Action")
     table.add_column("Request ID")
