@@ -2,6 +2,7 @@
 
 import json
 
+from ai.prompts import PromptBuilder
 from services.ai_campaign_planner import AICampaignPlanService
 
 
@@ -60,6 +61,17 @@ def test_provider_plan_parses_valid_structured_output() -> None:
     assert tuple(item.title for item in plan.objectives) == ("Build awareness", "Grow saves")
     assert plan.weeks[0].tasks[0].title == "Announcement"
     assert plan.errors == ()
+
+
+def test_campaign_planner_builds_prompt_with_shared_framework() -> None:
+    prompt = AICampaignPlanService._prompt("No Lose Guard")
+
+    assert isinstance(prompt, PromptBuilder)
+    assert "## Instruction" in prompt.render()
+    assert "## Context" in prompt.render()
+    assert "## Constraints" in prompt.render()
+    assert 'Campaign: "No Lose Guard"' in prompt.render()
+    assert "Return valid JSON only" in prompt.system_prompt
 
 
 def test_provider_prompt_requires_json_only_and_campaign_name() -> None:
