@@ -86,9 +86,7 @@ def test_multiple_constraints_render_as_bullets() -> None:
 
 
 def test_whitespace_is_normalised() -> None:
-    builder = PromptBuilder().system("  You are   a strategist  ").instruction(
-        " Create   a plan "
-    )
+    builder = PromptBuilder().system("  You are   a strategist  ").instruction(" Create   a plan ")
 
     assert builder.system_prompt == "You are a strategist"
     assert "Create a plan" in builder.render()
