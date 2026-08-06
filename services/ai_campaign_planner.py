@@ -58,9 +58,7 @@ class AICampaignPlanService:
                 '"weeks" must contain four objects with integer "number", non-empty '
                 '"objective", and a non-empty "tasks" array.'
             )
-            .constraint(
-                'Each task must contain non-empty "title" and "description" strings.'
-            )
+            .constraint('Each task must contain non-empty "title" and "description" strings.')
             .constraint("Do not include Markdown or commentary.")
         )
 
