@@ -4,6 +4,7 @@ import json
 from collections.abc import Mapping
 from typing import Any
 
+from ai.prompts import PromptBuilder
 from ai.provider import AIProvider
 from services.ai_campaign_plan import (
     AICampaignObjective,
@@ -28,12 +29,10 @@ class AICampaignPlanService:
             return self._deterministic_plan(name)
 
         try:
+            prompt = self._prompt(name)
             response = self.provider.generate(
-                self._prompt(name),
-                system_prompt=(
-                    "You are an expert campaign strategist for independent creators. "
-                    "Return valid JSON only."
-                ),
+                prompt.render(),
+                system_prompt=prompt.system_prompt,
                 temperature=0.4,
             )
             return self._parse(name, response)
@@ -41,15 +40,28 @@ class AICampaignPlanService:
             return self._error_plan(name, f"AI campaign planner failed: {exc}")
 
     @staticmethod
-    def _prompt(campaign_name: str) -> str:
+    def _prompt(campaign_name: str) -> PromptBuilder:
         return (
-            "Create a practical 28-day marketing rollout for the campaign "
-            f'"{campaign_name}". Return one JSON object with exactly these fields: '
-            '"campaign_name", "duration_days", "objectives", and "weeks". '
-            '"objectives" must be a non-empty array of strings. "weeks" must contain '
-            "four objects with integer number, non-empty objective, and a non-empty tasks "
-            'array. Each task must contain non-empty "title" and "description" strings. '
-            "Do not include Markdown or commentary."
+            PromptBuilder()
+            .system(
+                "You are an expert campaign strategist for independent creators. "
+                "Return valid JSON only."
+            )
+            .instruction("Create a practical 28-day marketing rollout.")
+            .context(f'Campaign: "{campaign_name}"')
+            .constraint(
+                'Return one JSON object with exactly these fields: "campaign_name", '
+                '"duration_days", "objectives", and "weeks".'
+            )
+            .constraint('"objectives" must be a non-empty array of strings.')
+            .constraint(
+                '"weeks" must contain four objects with integer "number", non-empty '
+                '"objective", and a non-empty "tasks" array.'
+            )
+            .constraint(
+                'Each task must contain non-empty "title" and "description" strings.'
+            )
+            .constraint("Do not include Markdown or commentary.")
         )
 
     @classmethod
