@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from models.asset_intelligence import (
     AssetIntelligenceError,
+    AssetKind,
     AssetStatus,
     AssetType,
     CreativeAsset,
@@ -55,6 +56,7 @@ class AssetIntelligenceRegistry:
         *,
         campaign_id: str | None = None,
         asset_type: AssetType | None = None,
+        asset_kind: AssetKind | None = None,
         platform: str | None = None,
         status: AssetStatus | None = None,
         used: bool | None = None,
@@ -66,6 +68,7 @@ class AssetIntelligenceRegistry:
             for asset in self._assets
             if (campaign_id is None or asset.campaign_id == campaign_id)
             and (asset_type is None or asset.asset_type is asset_type)
+            and (asset_kind is None or asset.asset_kind is asset_kind)
             and (platform_key is None or asset.platform.casefold() == platform_key)
             and (status is None or asset.status is status)
             and (used is None or bool(asset.usages) is used)

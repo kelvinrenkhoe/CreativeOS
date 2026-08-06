@@ -11,7 +11,7 @@ class AssetIntelligenceError(ValueError):
 
 
 class AssetType(StrEnum):
-    """Supported creative asset categories."""
+    """Broad media categories used for storage and similarity analysis."""
 
     IMAGE = "image"
     VIDEO = "video"
@@ -21,6 +21,27 @@ class AssetType(StrEnum):
     STORYBOARD = "storyboard"
     VOICE_OVER = "voice_over"
     DOCUMENT = "document"
+
+
+class AssetKind(StrEnum):
+    """Specific marketing deliverables represented by a creative asset."""
+
+    GENERIC = "generic"
+    SOCIAL_CAPTION = "social_caption"
+    VIDEO_CONCEPT = "video_concept"
+    STORYBOARD = "storyboard"
+    SHOT_LIST = "shot_list"
+    HOOK = "hook"
+    SCRIPT = "script"
+    THUMBNAIL_PROMPT = "thumbnail_prompt"
+    IMAGE_PROMPT = "image_prompt"
+    SPOTIFY_CANVAS = "spotify_canvas"
+    PLAYLIST_PITCH = "playlist_pitch"
+    RADIO_PITCH = "radio_pitch"
+    PRESS_RELEASE = "press_release"
+    EMAIL_CAMPAIGN = "email_campaign"
+    BLOG_POST = "blog_post"
+    CONTENT_CALENDAR = "content_calendar"
 
 
 class AssetStatus(StrEnum):
@@ -59,6 +80,7 @@ class CreativeAsset:
     hook: str
     call_to_action: str
     platform: str
+    asset_kind: AssetKind = AssetKind.GENERIC
     file_path: str | None = None
     source_prompt: str | None = None
     campaign_week: int | None = None
@@ -80,6 +102,8 @@ class CreativeAsset:
             object.__setattr__(self, field_name, _required(getattr(self, field_name), field_name))
         if not isinstance(self.asset_type, AssetType):
             raise AssetIntelligenceError("asset_type must be an AssetType")
+        if not isinstance(self.asset_kind, AssetKind):
+            raise AssetIntelligenceError("asset_kind must be an AssetKind")
         if not isinstance(self.status, AssetStatus):
             raise AssetIntelligenceError("status must be an AssetStatus")
         if self.campaign_week is not None and self.campaign_week < 1:
@@ -94,6 +118,7 @@ class CreativeAsset:
         """Return stable normalized semantic tokens for similarity checks."""
         text = " ".join(
             (
+                self.asset_kind.value,
                 self.concept,
                 self.hook,
                 self.call_to_action,
