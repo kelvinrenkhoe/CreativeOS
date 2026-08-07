@@ -29,6 +29,8 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Top-level `creativeos today` Daily Brief combining campaign context, execution priorities, blockers, overdue work, and progress.
 - Execution CLI lifecycle commands for completing, blocking, unblocking, cancelling, and reopening campaign actions.
 - Execution CLI `add` command for creating validated campaign actions with priority, due date, channel, description, and dependencies.
+- Reusable execution templates with dependency-safe preview and bulk apply commands.
+- Generic `awareness-campaign` execution template as the first built-in plan.
 
 ### Changed
 
