@@ -110,11 +110,16 @@ def today(
         ValueError,
     ) as exc:
         _handle_error(exc)
-    console.print(f"[bold]Execution Context[/bold] {organization_id} / {project_id} / {campaign_id}")
+    console.print(
+        f"[bold]Execution Context[/bold] {organization_id} / {project_id} / {campaign_id}"
+    )
     _render_actions("Overdue", plan.overdue)
     _render_actions("Due Today", plan.today)
     _render_actions("Blocked", plan.blocked)
-    console.print(f"Progress: {plan.progress.completed}/{plan.progress.total} ({plan.progress.percent:.1f}%)")
+    console.print(
+        f"Progress: {plan.progress.completed}/{plan.progress.total} "
+        f"({plan.progress.percent:.1f}%)"
+    )
 
 
 @app.command("next")
