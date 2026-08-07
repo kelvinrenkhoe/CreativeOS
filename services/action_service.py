@@ -101,8 +101,7 @@ class ActionService:
         return tuple(
             action
             for action in self.repository.list()
-            if action.status in {"pending", "in-progress"}
-            and not self._unmet_dependencies(action)
+            if action.status in {"pending", "in-progress"} and not self._unmet_dependencies(action)
         )
 
     def today(self, on_date: date | None = None) -> tuple[Action, ...]:
