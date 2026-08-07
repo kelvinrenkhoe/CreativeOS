@@ -2,13 +2,14 @@
 
 import re
 from dataclasses import dataclass
+from datetime import date, timedelta
 from typing import Any
 
 from models.action import Action, ActionError
 
 _TEMPLATE_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 _VARIABLE_ID = re.compile(r"^[a-z][a-z0-9_]*$")
-_PLACEHOLDER = re.compile(r"{{\s*([a-z][a-z0-9_]*)\s*}}")
+_PLACEHOLDER = re.compile(r"{{\s*([a-z][a-z0-9_]*)(?:\s*([+-])\s*(\d+)d)?\s*}}")
 
 
 class ExecutionTemplateError(ValueError):
@@ -205,7 +206,7 @@ def _contains_placeholder(value: Any) -> bool:
 
 def _collect_placeholders(value: Any) -> set[str]:
     if isinstance(value, str):
-        return set(_PLACEHOLDER.findall(value))
+        return {match.group(1) for match in _PLACEHOLDER.finditer(value)}
     if isinstance(value, (list, tuple)):
         found: set[str] = set()
         for item in value:
@@ -224,9 +225,22 @@ def _render_value(value: Any, variables: dict[str, str]) -> Any:
 
         def replace(match: re.Match[str]) -> str:
             name = match.group(1)
+            operator = match.group(2)
+            days_text = match.group(3)
             if name not in variables:
                 raise ExecutionTemplateError(f"template variable {name!r} has no value")
-            return variables[name]
+            raw_value = variables[name]
+            if operator is None:
+                return raw_value
+            try:
+                anchor = date.fromisoformat(raw_value)
+            except ValueError as exc:
+                raise ExecutionTemplateError(
+                    f"template variable {name!r} must be an ISO date for relative scheduling"
+                ) from exc
+            days = int(days_text)
+            delta = timedelta(days=days if operator == "+" else -days)
+            return (anchor + delta).isoformat()
 
         return _PLACEHOLDER.sub(replace, value)
     if isinstance(value, list):
