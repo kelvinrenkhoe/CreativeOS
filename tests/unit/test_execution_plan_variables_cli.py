@@ -75,9 +75,9 @@ def test_preview_accepts_repeated_template_variables(tmp_path: Path, monkeypatch
     )
 
     assert result.exit_code == 0
-    assert "Publish to instagram" in result.stdout
     assert "2026-09-01" in result.stdout
     assert "instagram" in result.stdout
+    assert "No changes written." in result.stdout
     assert repository.list() == ()
 
 
