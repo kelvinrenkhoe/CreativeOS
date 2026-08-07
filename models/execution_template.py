@@ -163,9 +163,7 @@ class ExecutionTemplate:
         referenced = _collect_placeholders(self.action_specs)
         undeclared = sorted(referenced - declared)
         if undeclared:
-            raise ExecutionTemplateError(
-                f"undeclared template variables: {', '.join(undeclared)}"
-            )
+            raise ExecutionTemplateError(f"undeclared template variables: {', '.join(undeclared)}")
 
 
 def _parse_variable(name: str, definition: Any) -> TemplateVariable:
@@ -223,6 +221,7 @@ def _collect_placeholders(value: Any) -> set[str]:
 
 def _render_value(value: Any, variables: dict[str, str]) -> Any:
     if isinstance(value, str):
+
         def replace(match: re.Match[str]) -> str:
             name = match.group(1)
             if name not in variables:
