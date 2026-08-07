@@ -17,12 +17,8 @@ def make_campaign(tmp_path: Path) -> ActionRepository:
         "id: kre\nname: KRE\n", encoding="utf-8"
     )
     project_root = tmp_path / "organizations" / "kre" / "projects" / "campaign"
-    (project_root / "project.yaml").write_text(
-        "id: campaign\nname: Campaign\n", encoding="utf-8"
-    )
-    (campaign_root / "campaign.yaml").write_text(
-        "id: launch\nname: Launch\n", encoding="utf-8"
-    )
+    (project_root / "project.yaml").write_text("id: campaign\nname: Campaign\n", encoding="utf-8")
+    (campaign_root / "campaign.yaml").write_text("id: launch\nname: Launch\n", encoding="utf-8")
     return ActionRepository(tmp_path, "kre", "campaign", "launch")
 
 
