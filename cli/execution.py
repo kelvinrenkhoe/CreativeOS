@@ -1,7 +1,7 @@
 """Execution Engine commands for CreativeOS."""
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 import typer
 from rich.console import Console
