@@ -31,6 +31,8 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Execution CLI `add` command for creating validated campaign actions with priority, due date, channel, description, and dependencies.
 - Reusable execution templates with dependency-safe preview and bulk apply commands.
 - Generic `awareness-campaign` execution template as the first built-in plan.
+- Parameterised execution template variables with required/default values and `--var key=value` CLI overrides.
+- Generic `scheduled-awareness-campaign` template demonstrating reusable campaign date, channel, and audience inputs.
 
 ### Changed
 

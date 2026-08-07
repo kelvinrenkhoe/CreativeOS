@@ -27,17 +27,36 @@ def _template_service(
     return ExecutionTemplateService(repository_root, ActionService(repository))
 
 
+def _parse_variables(values: list[str] | None) -> dict[str, str]:
+    variables: dict[str, str] = {}
+    for value in values or ():
+        if "=" not in value:
+            raise ValueError("--var must use key=value format")
+        name, resolved = value.split("=", 1)
+        name = name.strip().casefold()
+        if not name or not resolved:
+            raise ValueError("--var must use non-empty key=value format")
+        if name in variables:
+            raise ValueError(f"template variable {name!r} was supplied more than once")
+        variables[name] = resolved
+    return variables
+
+
 def _render_plan(title: str, actions) -> None:
     table = Table(title=title)
     table.add_column("ID")
     table.add_column("Action")
     table.add_column("Priority")
+    table.add_column("Due")
+    table.add_column("Channel")
     table.add_column("Depends On")
     for action in actions:
         table.add_row(
             action.action_id,
             action.title,
             action.priority,
+            action.due_date.isoformat() if action.due_date else "-",
+            action.channel or "-",
             ", ".join(action.depends_on) or "-",
         )
     console.print(table)
@@ -54,10 +73,18 @@ def preview(
     organization_id: str = typer.Option(..., "--org", help="Organization identifier."),
     project_id: str = typer.Option(..., "--project", help="Project identifier."),
     campaign_id: str = typer.Option(..., "--campaign", help="Campaign identifier."),
+    variables: list[str] | None = typer.Option(  # noqa: B008
+        None,
+        "--var",
+        help="Template variable in key=value form; repeat for multiple values.",
+    ),
 ) -> None:
     """Validate and preview a template without writing campaign actions."""
     try:
-        plan = _template_service(organization_id, project_id, campaign_id).plan(template_id)
+        plan = _template_service(organization_id, project_id, campaign_id).plan(
+            template_id,
+            _parse_variables(variables),
+        )
     except (
         OrganizationLoadError,
         ProjectContextLoadError,
@@ -80,11 +107,16 @@ def apply(
     organization_id: str = typer.Option(..., "--org", help="Organization identifier."),
     project_id: str = typer.Option(..., "--project", help="Project identifier."),
     campaign_id: str = typer.Option(..., "--campaign", help="Campaign identifier."),
+    variables: list[str] | None = typer.Option(  # noqa: B008
+        None,
+        "--var",
+        help="Template variable in key=value form; repeat for multiple values.",
+    ),
 ) -> None:
-    """Validate and persist all actions from an execution template."""
+    """Validate, render, and persist all actions from an execution template."""
     try:
         service = _template_service(organization_id, project_id, campaign_id)
-        created = service.apply(template_id)
+        created = service.apply(template_id, _parse_variables(variables))
     except (
         OrganizationLoadError,
         ProjectContextLoadError,
