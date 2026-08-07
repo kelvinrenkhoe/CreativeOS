@@ -1,0 +1,38 @@
+id: launch-timeline
+name: Launch Timeline
+description: Generic launch plan scheduled around one anchor date.
+variables:
+  launch_date:
+    description: Primary launch or event date in YYYY-MM-DD format.
+    required: true
+  primary_channel:
+    description: Main publishing channel.
+    default: social
+  audience:
+    description: Intended campaign audience.
+    default: target audience
+actions:
+  - id: define-launch-message
+    title: Define launch message for {{ audience }}
+    priority: high
+    due_date: "{{ launch_date - 14d }}"
+  - id: prepare-launch-creative
+    title: Prepare launch creative for {{ primary_channel }}
+    priority: high
+    due_date: "{{ launch_date - 7d }}"
+    channel: "{{ primary_channel }}"
+    depends_on:
+      - define-launch-message
+  - id: publish-launch
+    title: Publish launch content to {{ primary_channel }}
+    priority: critical
+    due_date: "{{ launch_date }}"
+    channel: "{{ primary_channel }}"
+    depends_on:
+      - prepare-launch-creative
+  - id: review-launch-performance
+    title: Review launch performance
+    priority: normal
+    due_date: "{{ launch_date + 3d }}"
+    depends_on:
+      - publish-launch
