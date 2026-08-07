@@ -11,13 +11,7 @@ from services.execution_planner import ExecutionPlanner
 
 def make_planner(tmp_path: Path) -> tuple[ActionService, ExecutionPlanner]:
     campaign_root = (
-        tmp_path
-        / "organizations"
-        / "kre"
-        / "projects"
-        / "no-lose-guard"
-        / "campaigns"
-        / "launch"
+        tmp_path / "organizations" / "kre" / "projects" / "no-lose-guard" / "campaigns" / "launch"
     )
     campaign_root.mkdir(parents=True)
     (tmp_path / "organizations" / "kre" / "organization.yaml").write_text(
@@ -62,7 +56,7 @@ def test_plan_groups_actions_by_execution_state(tmp_path: Path) -> None:
     plan = planner.plan(date(2026, 8, 7))
 
     assert [action.action_id for action in plan.overdue] == ["overdue"]
-    assert [action.action_id for action in plan.today] == ["today", "blocked"]
+    assert [action.action_id for action in plan.today] == ["blocked", "today"]
     assert [action.action_id for action in plan.blocked] == ["blocked"]
     assert [action.action_id for action in plan.upcoming] == ["future"]
     assert [action.action_id for action in plan.ready] == ["overdue", "today", "future"]
