@@ -103,9 +103,7 @@ def test_execution_template_rejects_undeclared_milestone_reference() -> None:
             {
                 "id": "milestone-plan",
                 "name": "Milestone Plan",
-                "actions": [
-                    {"id": "publish", "title": "Publish", "due_date": "{{ launch }}"}
-                ],
+                "actions": [{"id": "publish", "title": "Publish", "due_date": "{{ launch }}"}],
             }
         )
 
@@ -119,9 +117,7 @@ def test_template_service_uses_campaign_milestones_automatically(tmp_path: Path)
         "id: kre\nname: KRE\n", encoding="utf-8"
     )
     project_root = tmp_path / "organizations" / "kre" / "projects" / "campaign"
-    (project_root / "project.yaml").write_text(
-        "id: campaign\nname: Campaign\n", encoding="utf-8"
-    )
+    (project_root / "project.yaml").write_text("id: campaign\nname: Campaign\n", encoding="utf-8")
     (campaign_root / "campaign.yaml").write_text(
         """id: launch
 name: Launch
@@ -163,12 +159,8 @@ def test_template_service_reports_missing_campaign_milestone(tmp_path: Path) -> 
         "id: kre\nname: KRE\n", encoding="utf-8"
     )
     project_root = tmp_path / "organizations" / "kre" / "projects" / "campaign"
-    (project_root / "project.yaml").write_text(
-        "id: campaign\nname: Campaign\n", encoding="utf-8"
-    )
-    (campaign_root / "campaign.yaml").write_text(
-        "id: launch\nname: Launch\n", encoding="utf-8"
-    )
+    (project_root / "project.yaml").write_text("id: campaign\nname: Campaign\n", encoding="utf-8")
+    (campaign_root / "campaign.yaml").write_text("id: launch\nname: Launch\n", encoding="utf-8")
     template_root = tmp_path / "templates" / "execution"
     template_root.mkdir(parents=True)
     (template_root / "milestone-plan.yaml").write_text(
