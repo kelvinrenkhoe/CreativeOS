@@ -88,7 +88,10 @@ class Action:
             raise ActionError("action.priority must be a string")
         if channel is not None and not isinstance(channel, str):
             raise ActionError("action.channel must be a string")
-        if not isinstance(depends_on, list) or not all(isinstance(item, str) for item in depends_on):
+        valid_dependencies = isinstance(depends_on, list) and all(
+            isinstance(item, str) for item in depends_on
+        )
+        if not valid_dependencies:
             raise ActionError("action.depends_on must be a list of strings")
 
         return cls(
