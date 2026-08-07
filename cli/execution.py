@@ -1,6 +1,7 @@
 """Execution Engine commands for CreativeOS."""
 
 from collections.abc import Callable
+from datetime import date
 from pathlib import Path
 
 import typer
@@ -59,6 +60,15 @@ def _render_actions(title: str, actions: tuple[Action, ...]) -> None:
 def _handle_error(exc: Exception) -> None:
     console.print(f"[bold red]Error:[/bold red] {exc}")
     raise typer.Exit(code=1) from exc
+
+
+def _parse_due_date(value: str | None) -> date | None:
+    if value is None:
+        return None
+    try:
+        return date.fromisoformat(value)
+    except ValueError as exc:
+        raise ValueError("--due must be an ISO date in YYYY-MM-DD format") from exc
 
 
 def _mutate_action(
@@ -191,6 +201,51 @@ def ready(
         _handle_error(exc)
 
     _render_actions("Ready Actions", actions)
+
+
+@app.command("add")
+def add_action(
+    action_id: str = typer.Argument(..., help="Stable action identifier."),
+    title: str = typer.Option(..., "--title", help="Action title."),
+    organization_id: str = typer.Option(..., "--org", help="Organization identifier."),
+    project_id: str = typer.Option(..., "--project", help="Project identifier."),
+    campaign_id: str = typer.Option(..., "--campaign", help="Campaign identifier."),
+    description: str = typer.Option("", "--description", help="Optional action description."),
+    priority: str = typer.Option("normal", "--priority", help="Action priority."),
+    due: str | None = typer.Option(None, "--due", help="Due date in YYYY-MM-DD format."),
+    channel: str | None = typer.Option(None, "--channel", help="Target marketing channel."),
+    depends_on: list[str] | None = typer.Option(  # noqa: B008
+        None,
+        "--depends-on",
+        help="Dependency action ID; repeat for multiple dependencies.",
+    ),
+) -> None:
+    """Create one validated action inside a campaign."""
+    try:
+        action = Action(
+            action_id=action_id,
+            title=title,
+            description=description,
+            priority=priority,
+            due_date=_parse_due_date(due),
+            channel=channel,
+            depends_on=tuple(depends_on or ()),
+        )
+        created = _service(organization_id, project_id, campaign_id).create(action)
+    except (
+        OrganizationLoadError,
+        ProjectContextLoadError,
+        CampaignContextLoadError,
+        ActionRepositoryError,
+        ActionServiceError,
+        ValueError,
+    ) as exc:
+        _handle_error(exc)
+
+    console.print(f"[bold green]Created[/bold green] {created.action_id}: {created.title}")
+    console.print(f"Priority: {created.priority}")
+    console.print(f"Due: {created.due_date.isoformat() if created.due_date else '-'}")
+    console.print(f"Channel: {created.channel or '-'}")
 
 
 @app.command("complete")

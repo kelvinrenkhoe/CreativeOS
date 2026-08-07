@@ -89,6 +89,104 @@ def test_execution_ready_excludes_dependency_blocked_work(tmp_path: Path, monkey
     assert "Publish Video" not in result.stdout
 
 
+def test_execution_add_creates_action_with_metadata(tmp_path: Path, monkeypatch) -> None:
+    repository = make_campaign(tmp_path)
+    repository.save(Action("render-video", "Render Video"))
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(
+        app,
+        [
+            "execution",
+            "add",
+            "publish-reel",
+            "--title",
+            "Publish Instagram Reel",
+            "--org",
+            "kre",
+            "--project",
+            "no-lose-guard",
+            "--campaign",
+            "launch",
+            "--description",
+            "Publish the approved launch reel.",
+            "--priority",
+            "high",
+            "--due",
+            "2026-09-01",
+            "--channel",
+            "instagram",
+            "--depends-on",
+            "render-video",
+        ],
+    )
+
+    created = repository.load("publish-reel")
+    assert result.exit_code == 0
+    assert "Created" in result.stdout
+    assert created.title == "Publish Instagram Reel"
+    assert created.description == "Publish the approved launch reel."
+    assert created.priority == "high"
+    assert created.due_date == date(2026, 9, 1)
+    assert created.channel == "instagram"
+    assert created.depends_on == ("render-video",)
+
+
+def test_execution_add_rejects_duplicate_action(tmp_path: Path, monkeypatch) -> None:
+    repository = make_campaign(tmp_path)
+    repository.save(Action("publish-reel", "Existing Reel"))
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(
+        app,
+        [*mutation_args("add", "publish-reel"), "--title", "Duplicate Reel"],
+    )
+
+    assert result.exit_code == 1
+    assert "already exists" in result.stdout
+    assert repository.load("publish-reel").title == "Existing Reel"
+
+
+def test_execution_add_rejects_unknown_dependency(tmp_path: Path, monkeypatch) -> None:
+    repository = make_campaign(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(
+        app,
+        [
+            *mutation_args("add", "publish-reel"),
+            "--title",
+            "Publish Reel",
+            "--depends-on",
+            "missing-render",
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "unknown dependencies" in result.stdout
+    assert repository.list() == ()
+
+
+def test_execution_add_rejects_invalid_due_date(tmp_path: Path, monkeypatch) -> None:
+    repository = make_campaign(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(
+        app,
+        [
+            *mutation_args("add", "publish-reel"),
+            "--title",
+            "Publish Reel",
+            "--due",
+            "01-09-2026",
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "YYYY-MM-DD" in result.stdout
+    assert repository.list() == ()
+
+
 def test_execution_complete_persists_status(tmp_path: Path, monkeypatch) -> None:
     repository = make_campaign(tmp_path)
     repository.save(Action("publish-reel", "Publish Reel"))
