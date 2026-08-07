@@ -24,6 +24,7 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Immutable campaign `Action` model for executable marketing work, including lifecycle status, priority, due dates, channels, and dependencies.
 - Campaign-scoped `ActionRepository` for safe YAML persistence, listing, loading, deletion, and campaign isolation.
 - `ActionService` business behaviour for lifecycle transitions, dependency readiness, due-date queries, validation, and campaign progress.
+- `ExecutionPlanner` for deterministic campaign execution plans and prioritized next-action selection.
 
 ### Changed
 
