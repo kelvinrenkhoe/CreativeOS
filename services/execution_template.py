@@ -62,8 +62,9 @@ class ExecutionTemplateService:
     ) -> ExecutionTemplatePlan:
         """Render and validate a template against campaign state without writing actions."""
         template = self.load(template_id)
+        campaign_milestones = self.action_service.repository.campaign.milestone_dates
         try:
-            rendered_actions = template.render_actions(variables)
+            rendered_actions = template.render_actions(variables, campaign_milestones)
         except ExecutionTemplateError as exc:
             raise ExecutionTemplateServiceError(str(exc)) from exc
 

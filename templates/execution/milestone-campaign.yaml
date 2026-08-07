@@ -1,0 +1,42 @@
+id: milestone-campaign
+name: Milestone Campaign
+description: Coordinate execution around content freeze, launch, and performance review milestones.
+milestones:
+  - content_freeze
+  - launch
+  - performance_review
+variables:
+  primary_channel:
+    description: Primary publishing channel.
+    default: social
+actions:
+  - id: finalize-assets
+    title: Finalize campaign assets
+    description: Lock approved creative and copy before the content freeze milestone.
+    priority: high
+    due_date: "{{ content_freeze }}"
+
+  - id: schedule-launch
+    title: Schedule {{ primary_channel }} launch content
+    description: Prepare the primary launch publication after assets are frozen.
+    priority: high
+    channel: "{{ primary_channel }}"
+    due_date: "{{ launch - 1d }}"
+    depends_on:
+      - finalize-assets
+
+  - id: publish-launch
+    title: Publish {{ primary_channel }} launch content
+    priority: critical
+    channel: "{{ primary_channel }}"
+    due_date: "{{ launch }}"
+    depends_on:
+      - schedule-launch
+
+  - id: review-performance
+    title: Review campaign performance
+    description: Review results at the campaign performance review milestone.
+    priority: normal
+    due_date: "{{ performance_review }}"
+    depends_on:
+      - publish-launch

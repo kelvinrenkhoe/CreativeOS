@@ -46,12 +46,14 @@ class ExecutionTemplate:
     description: str = ""
     actions: tuple[Action, ...] = ()
     variables: tuple[TemplateVariable, ...] = ()
+    milestones: tuple[str, ...] = ()
     action_specs: tuple[dict[str, Any], ...] = ()
 
     def __post_init__(self) -> None:
         template_id = self.template_id.strip().casefold()
         name = self.name.strip()
         description = self.description.strip()
+        milestones = tuple(milestone.strip().casefold() for milestone in self.milestones)
 
         if not _TEMPLATE_ID.fullmatch(template_id):
             raise ExecutionTemplateError("template_id must be a path-safe identifier")
@@ -63,10 +65,20 @@ class ExecutionTemplate:
         variable_names = [variable.name for variable in self.variables]
         if len(variable_names) != len(set(variable_names)):
             raise ExecutionTemplateError("template variable names must be unique")
+        if len(milestones) != len(set(milestones)):
+            raise ExecutionTemplateError("template milestone names must be unique")
+        if any(not _VARIABLE_ID.fullmatch(milestone) for milestone in milestones):
+            raise ExecutionTemplateError("template milestone names must be safe identifiers")
+        collisions = sorted(set(variable_names) & set(milestones))
+        if collisions:
+            raise ExecutionTemplateError(
+                f"template variables and milestones cannot share names: {', '.join(collisions)}"
+            )
 
         object.__setattr__(self, "template_id", template_id)
         object.__setattr__(self, "name", name)
         object.__setattr__(self, "description", description)
+        object.__setattr__(self, "milestones", milestones)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ExecutionTemplate":
@@ -79,6 +91,7 @@ class ExecutionTemplate:
         description = data.get("description", "")
         raw_actions = data.get("actions", [])
         raw_variables = data.get("variables", {})
+        raw_milestones = data.get("milestones", [])
 
         if not isinstance(template_id, str):
             raise ExecutionTemplateError("template.id is required")
@@ -90,6 +103,10 @@ class ExecutionTemplate:
             raise ExecutionTemplateError("template.actions must be a list")
         if not isinstance(raw_variables, dict):
             raise ExecutionTemplateError("template.variables must be a mapping")
+        if not isinstance(raw_milestones, list) or not all(
+            isinstance(item, str) for item in raw_milestones
+        ):
+            raise ExecutionTemplateError("template.milestones must be a list of strings")
 
         variables = tuple(
             _parse_variable(variable_name, definition)
@@ -113,23 +130,26 @@ class ExecutionTemplate:
             description=description,
             actions=actions,
             variables=variables,
+            milestones=tuple(raw_milestones),
             action_specs=action_specs,
         )
         template._validate_placeholders()
         return template
 
-    def render_actions(self, values: dict[str, str] | None = None) -> tuple[Action, ...]:
-        """Render parameterised action specs into validated Action objects."""
+    def render_actions(
+        self,
+        values: dict[str, str] | None = None,
+        milestones: dict[str, date] | None = None,
+    ) -> tuple[Action, ...]:
+        """Render variables and campaign milestones into validated Action objects."""
+        supplied_values = values or {}
+        resolved_variables = self._resolve_variables(supplied_values)
+        resolved_milestones = self._resolve_milestones(milestones or {})
+        resolved = {**resolved_variables, **resolved_milestones}
+
         if not self.action_specs:
-            if values:
-                unknown = sorted(set(values) - {variable.name for variable in self.variables})
-                if unknown:
-                    raise ExecutionTemplateError(
-                        f"unknown template variables: {', '.join(unknown)}"
-                    )
             return self.actions
 
-        resolved = self._resolve_variables(values or {})
         rendered_specs = tuple(_render_value(spec, resolved) for spec in self.action_specs)
         try:
             return tuple(Action.from_dict(spec) for spec in rendered_specs)
@@ -157,14 +177,22 @@ class ExecutionTemplate:
             )
         return resolved
 
+    def _resolve_milestones(self, available: dict[str, date]) -> dict[str, str]:
+        missing = sorted(set(self.milestones) - set(available))
+        if missing:
+            raise ExecutionTemplateError(
+                f"campaign is missing required milestones: {', '.join(missing)}"
+            )
+        return {name: available[name].isoformat() for name in self.milestones}
+
     def _validate_placeholders(self) -> None:
         if not self.action_specs:
             return
-        declared = {variable.name for variable in self.variables}
+        declared = {variable.name for variable in self.variables} | set(self.milestones)
         referenced = _collect_placeholders(self.action_specs)
         undeclared = sorted(referenced - declared)
         if undeclared:
-            raise ExecutionTemplateError(f"undeclared template variables: {', '.join(undeclared)}")
+            raise ExecutionTemplateError(f"undeclared template values: {', '.join(undeclared)}")
 
 
 def _parse_variable(name: str, definition: Any) -> TemplateVariable:
@@ -228,7 +256,7 @@ def _render_value(value: Any, variables: dict[str, str]) -> Any:
             operator = match.group(2)
             days_text = match.group(3)
             if name not in variables:
-                raise ExecutionTemplateError(f"template variable {name!r} has no value")
+                raise ExecutionTemplateError(f"template value {name!r} has no value")
             raw_value = variables[name]
             if operator is None:
                 return raw_value
@@ -236,7 +264,7 @@ def _render_value(value: Any, variables: dict[str, str]) -> Any:
                 anchor = date.fromisoformat(raw_value)
             except ValueError as exc:
                 raise ExecutionTemplateError(
-                    f"template variable {name!r} must be an ISO date for relative scheduling"
+                    f"template value {name!r} must be an ISO date for relative scheduling"
                 ) from exc
             days = int(days_text)
             delta = timedelta(days=days if operator == "+" else -days)
