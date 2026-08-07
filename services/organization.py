@@ -27,7 +27,10 @@ class OrganizationService:
             return ()
 
         organizations: list[Organization] = []
-        for directory in sorted(path for path in self.organizations_root.iterdir() if path.is_dir()):
+        directories = sorted(
+            path for path in self.organizations_root.iterdir() if path.is_dir()
+        )
+        for directory in directories:
             config_path = directory / ORGANIZATION_FILENAME
             if config_path.is_file():
                 organizations.append(self._load_file(config_path, expected_id=directory.name))
@@ -72,6 +75,7 @@ class OrganizationService:
 
         if organization.organization_id != expected_id:
             raise OrganizationLoadError(
-                f"organization id {organization.organization_id!r} does not match directory {expected_id!r}"
+                "organization id "
+                f"{organization.organization_id!r} does not match directory {expected_id!r}"
             )
         return organization
