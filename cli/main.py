@@ -16,6 +16,7 @@ from cli.campaign_fix_rollback_execute import rollback_command
 from cli.campaign_history import campaign_history_command
 from cli.campaign_plan import campaign_plan_command
 from cli.campaign_run import campaign_run_command
+from cli.daily_brief import today_command
 from cli.execution import app as execution_app
 from cli.index import app as index_app
 from cli.organization import app as organization_app
@@ -62,6 +63,7 @@ app.add_typer(index_app, name="index")
 app.add_typer(ai_app, name="ai")
 app.add_typer(organization_app, name="org")
 app.add_typer(execution_app, name="execution")
+app.command("today")(today_command)
 app.command("search")(search_command)
 app.command("stats")(stats_command)
 
