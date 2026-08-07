@@ -33,6 +33,8 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Generic `awareness-campaign` execution template as the first built-in plan.
 - Parameterised execution template variables with required/default values and `--var key=value` CLI overrides.
 - Generic `scheduled-awareness-campaign` template demonstrating reusable campaign date, channel, and audience inputs.
+- Relative template scheduling expressions such as `{{ launch_date - 14d }}` and `{{ launch_date + 3d }}`.
+- Generic `launch-timeline` execution template for pre-launch, launch-day, and post-launch scheduling from one anchor date.
 
 ### Changed
 
