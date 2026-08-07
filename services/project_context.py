@@ -50,8 +50,9 @@ class ProjectContextService:
 
         config_path = self.projects_root / requested / PROJECT_FILENAME
         if not config_path.is_file():
+            organization_id = self.organization.organization_id
             raise ProjectContextLoadError(
-                f"unknown project {requested!r} for organization {self.organization.organization_id!r}"
+                f"unknown project {requested!r} for organization {organization_id!r}"
             )
         return self._load_file(config_path, expected_id=requested)
 
@@ -60,7 +61,9 @@ class ProjectContextService:
         project = self.load(project_id)
         path = (self.projects_root / project.project_id).resolve()
         if path.parent != self.projects_root.resolve():
-            raise ProjectContextLoadError("project path escaped the organization projects directory")
+            raise ProjectContextLoadError(
+                "project path escaped the organization projects directory"
+            )
         return path
 
     def _load_file(self, config_path: Path, *, expected_id: str) -> ProjectContext:
