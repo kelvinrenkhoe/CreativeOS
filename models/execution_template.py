@@ -9,9 +9,7 @@ from models.action import Action, ActionError
 
 _TEMPLATE_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 _VARIABLE_ID = re.compile(r"^[a-z][a-z0-9_]*$")
-_PLACEHOLDER = re.compile(
-    r"{{\s*([a-z][a-z0-9_]*)(?:\s*([+-])\s*(\d+)d)?\s*}}"
-)
+_PLACEHOLDER = re.compile(r"{{\s*([a-z][a-z0-9_]*)(?:\s*([+-])\s*(\d+)d)?\s*}}")
 
 
 class ExecutionTemplateError(ValueError):
