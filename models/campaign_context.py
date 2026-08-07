@@ -6,6 +6,7 @@ from datetime import date
 from typing import Any
 
 _CAMPAIGN_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
+_MILESTONE_ID = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
 class CampaignContextError(ValueError):
@@ -24,6 +25,7 @@ class CampaignContext:
     start_date: date | None = None
     end_date: date | None = None
     channels: tuple[str, ...] = ()
+    milestones: tuple[tuple[str, date], ...] = ()
 
     def __post_init__(self) -> None:
         campaign_id = self.campaign_id.strip().casefold()
@@ -32,6 +34,7 @@ class CampaignContext:
         status = self.status.strip().casefold().replace(" ", "-")
         objective = self.objective.strip()
         channels = tuple(channel.strip().casefold() for channel in self.channels)
+        milestones = tuple((key.strip().casefold(), value) for key, value in self.milestones)
 
         if not _CAMPAIGN_ID.fullmatch(campaign_id):
             raise CampaignContextError(
@@ -48,12 +51,26 @@ class CampaignContext:
         if self.start_date and self.end_date and self.end_date < self.start_date:
             raise CampaignContextError("end_date cannot be before start_date")
 
+        milestone_names = [name for name, _ in milestones]
+        if len(milestone_names) != len(set(milestone_names)):
+            raise CampaignContextError("campaign milestone names must be unique")
+        if any(not _MILESTONE_ID.fullmatch(name) for name in milestone_names):
+            raise CampaignContextError(
+                "campaign milestone names must use lowercase letters, numbers, and underscores"
+            )
+
         object.__setattr__(self, "campaign_id", campaign_id)
         object.__setattr__(self, "name", name)
         object.__setattr__(self, "campaign_type", campaign_type)
         object.__setattr__(self, "status", status)
         object.__setattr__(self, "objective", objective)
         object.__setattr__(self, "channels", channels)
+        object.__setattr__(self, "milestones", milestones)
+
+    @property
+    def milestone_dates(self) -> dict[str, date]:
+        """Return campaign milestones keyed by stable milestone name."""
+        return dict(self.milestones)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "CampaignContext":
@@ -67,6 +84,7 @@ class CampaignContext:
         status = data.get("status", "draft")
         objective = data.get("objective", "")
         channels = data.get("channels", [])
+        raw_milestones = data.get("milestones", {})
 
         if not isinstance(campaign_id, str):
             raise CampaignContextError("campaign.id is required")
@@ -80,6 +98,16 @@ class CampaignContext:
             raise CampaignContextError("campaign.objective must be a string")
         if not isinstance(channels, list) or not all(isinstance(item, str) for item in channels):
             raise CampaignContextError("campaign.channels must be a list of strings")
+        if not isinstance(raw_milestones, dict):
+            raise CampaignContextError("campaign.milestones must be a mapping")
+
+        milestones = tuple(
+            (key, _parse_required_date(value, f"milestones.{key}"))
+            for key, value in raw_milestones.items()
+            if isinstance(key, str)
+        )
+        if len(milestones) != len(raw_milestones):
+            raise CampaignContextError("campaign milestone names must be strings")
 
         return cls(
             campaign_id=campaign_id,
@@ -90,7 +118,15 @@ class CampaignContext:
             start_date=_parse_optional_date(data.get("start_date"), "start_date"),
             end_date=_parse_optional_date(data.get("end_date"), "end_date"),
             channels=tuple(channels),
+            milestones=milestones,
         )
+
+
+def _parse_required_date(value: Any, field_name: str) -> date:
+    parsed = _parse_optional_date(value, field_name)
+    if parsed is None:
+        raise CampaignContextError(f"campaign.{field_name} must be an ISO date")
+    return parsed
 
 
 def _parse_optional_date(value: Any, field_name: str) -> date | None:
