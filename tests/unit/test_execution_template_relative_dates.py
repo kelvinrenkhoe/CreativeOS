@@ -53,9 +53,7 @@ def test_relative_date_offsets_render_around_anchor_date() -> None:
 def test_relative_date_offsets_support_overridden_channel() -> None:
     template = build_template()
 
-    actions = template.render_actions(
-        {"launch_date": "2026-09-01", "channel": "instagram"}
-    )
+    actions = template.render_actions({"launch_date": "2026-09-01", "channel": "instagram"})
 
     assert actions[0].title == "Prepare instagram creative"
     assert actions[0].channel == "instagram"
