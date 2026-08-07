@@ -18,6 +18,9 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Organization-scoped project contexts under `organizations/<organization>/projects/<project>`.
 - Safe project discovery, loading, validation, and path isolation.
 - Initial KRE `no-lose-guard` project context.
+- Project-scoped campaign contexts under `organizations/<organization>/projects/<project>/campaigns/<campaign>`.
+- Safe campaign discovery, loading, date validation, and path isolation.
+- Initial KRE `no-lose-guard` launch campaign context.
 
 ### Changed
 
