@@ -81,8 +81,7 @@ def today(
     _render_actions("Due Today", plan.today)
     _render_actions("Blocked", plan.blocked)
     console.print(
-        f"Progress: {plan.progress.completed}/{plan.progress.total} "
-        f"({plan.progress.percent:.1f}%)"
+        f"Progress: {plan.progress.completed}/{plan.progress.total} ({plan.progress.percent:.1f}%)"
     )
 
 
