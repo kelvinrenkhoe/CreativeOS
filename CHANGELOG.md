@@ -26,6 +26,7 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - `ActionService` business behaviour for lifecycle transitions, dependency readiness, due-date queries, validation, and campaign progress.
 - `ExecutionPlanner` for deterministic campaign execution plans and prioritized next-action selection.
 - Execution Engine CLI commands for today, next, overdue, and ready campaign work views.
+- Top-level `creativeos today` Daily Brief combining campaign context, execution priorities, blockers, overdue work, and progress.
 
 ### Changed
 
