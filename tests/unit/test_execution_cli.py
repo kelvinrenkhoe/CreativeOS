@@ -47,9 +47,7 @@ def context_args(command: str) -> list[str]:
 def test_execution_today_shows_context_due_work_and_progress(tmp_path: Path, monkeypatch) -> None:
     repository = make_campaign(tmp_path)
     repository.save(Action("publish-reel", "Publish Reel", due_date=date.today()))
-    repository.save(
-        Action("old-pitch", "Old Pitch", due_date=date.today() - timedelta(days=1))
-    )
+    repository.save(Action("old-pitch", "Old Pitch", due_date=date.today() - timedelta(days=1)))
     monkeypatch.chdir(tmp_path)
 
     result = runner.invoke(app, context_args("today"))
