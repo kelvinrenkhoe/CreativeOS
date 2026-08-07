@@ -1,0 +1,37 @@
+id: awareness-campaign
+name: Awareness Campaign
+description: Generic multi-channel awareness campaign execution plan.
+actions:
+  - id: define-message
+    title: Define campaign message
+    description: Confirm the core message, audience, and call to action.
+    priority: critical
+
+  - id: prepare-creative
+    title: Prepare campaign creative
+    description: Prepare the primary visual or video creative for the campaign.
+    priority: high
+    depends_on:
+      - define-message
+
+  - id: prepare-copy
+    title: Prepare campaign copy
+    description: Prepare reusable campaign copy for target channels.
+    priority: high
+    depends_on:
+      - define-message
+
+  - id: publish-primary-channel
+    title: Publish on primary channel
+    description: Publish the approved campaign creative and copy on the primary channel.
+    priority: high
+    depends_on:
+      - prepare-creative
+      - prepare-copy
+
+  - id: review-performance
+    title: Review campaign performance
+    description: Review early campaign performance and capture follow-up actions.
+    priority: normal
+    depends_on:
+      - publish-primary-channel
