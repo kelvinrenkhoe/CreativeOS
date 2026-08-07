@@ -27,9 +27,8 @@ class OrganizationService:
             return ()
 
         organizations: list[Organization] = []
-        directories = sorted(
-            path for path in self.organizations_root.iterdir() if path.is_dir()
-        )
+        entries = self.organizations_root.iterdir()
+        directories = sorted(path for path in entries if path.is_dir())
         for directory in directories:
             config_path = directory / ORGANIZATION_FILENAME
             if config_path.is_file():
