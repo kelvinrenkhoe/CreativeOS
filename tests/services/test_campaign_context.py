@@ -70,9 +70,18 @@ def test_service_loads_campaign_and_returns_safe_path(tmp_path: Path) -> None:
     campaign = service.load("launch")
 
     assert campaign.name == "Launch"
-    assert service.campaign_path("launch") == (
-        tmp_path / "organizations" / "kre" / "projects" / "no-lose-guard" / "campaigns" / "launch"
-    ).resolve()
+    assert (
+        service.campaign_path("launch")
+        == (
+            tmp_path
+            / "organizations"
+            / "kre"
+            / "projects"
+            / "no-lose-guard"
+            / "campaigns"
+            / "launch"
+        ).resolve()
+    )
 
 
 def test_service_rejects_campaign_path_traversal(tmp_path: Path) -> None:
