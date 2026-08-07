@@ -55,10 +55,6 @@ def _handle_error(exc: Exception) -> None:
     raise typer.Exit(code=1) from exc
 
 
-def _context_options() -> tuple[str, str, str]:
-    raise RuntimeError("Typer context options are declared directly on commands")
-
-
 @app.command("today")
 def today(
     organization_id: str = typer.Option(..., "--org", help="Organization identifier."),
