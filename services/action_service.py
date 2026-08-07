@@ -54,8 +54,9 @@ class ActionService:
             )
         unmet = self._unmet_dependencies(action)
         if unmet:
+            dependencies = ", ".join(unmet)
             raise ActionServiceError(
-                f"cannot complete action {action.action_id!r}; unmet dependencies: {', '.join(unmet)}"
+                f"cannot complete action {action.action_id!r}; unmet dependencies: {dependencies}"
             )
         return self._save_status(action, "completed")
 
