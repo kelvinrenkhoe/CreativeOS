@@ -43,19 +43,28 @@ class ExecutionTemplateService:
 
     def load(self, template_id: str) -> ExecutionTemplate:
         """Load one template by safe identifier."""
-        if not template_id or any(char not in "abcdefghijklmnopqrstuvwxyz0123456789-" for char in template_id):
-            raise ExecutionTemplateServiceError("template id must be a path-safe identifier")
+        allowed = "abcdefghijklmnopqrstuvwxyz0123456789-"
+        if not template_id or any(char not in allowed for char in template_id):
+            raise ExecutionTemplateServiceError(
+                "template id must be a path-safe identifier"
+            )
         path = (self.templates_root / f"{template_id}.yaml").resolve()
         if path.parent != self.templates_root:
-            raise ExecutionTemplateServiceError("template path escaped execution templates directory")
+            raise ExecutionTemplateServiceError(
+                "template path escaped execution templates directory"
+            )
         if not path.is_file():
-            raise ExecutionTemplateServiceError(f"unknown execution template {template_id!r}")
+            raise ExecutionTemplateServiceError(
+                f"unknown execution template {template_id!r}"
+            )
         return self._load_path(path, expected_id=template_id)
 
     def plan(self, template_id: str) -> ExecutionTemplatePlan:
         """Validate a template against campaign state without writing actions."""
         template = self.load(template_id)
-        existing_ids = {action.action_id for action in self.action_service.repository.list()}
+        existing_ids = {
+            action.action_id for action in self.action_service.repository.list()
+        }
         template_ids = {action.action_id for action in template.actions}
         conflicts = sorted(existing_ids & template_ids)
         if conflicts:
@@ -71,7 +80,8 @@ class ExecutionTemplateService:
             ]
             if missing:
                 raise ExecutionTemplateServiceError(
-                    f"action {action.action_id!r} has unknown dependencies: {', '.join(missing)}"
+                    f"action {action.action_id!r} has unknown dependencies: "
+                    f"{', '.join(missing)}"
                 )
 
         ordered = self._topological_order(template.actions, existing_ids)
@@ -102,7 +112,8 @@ class ExecutionTemplateService:
             raise ExecutionTemplateServiceError(str(exc)) from exc
         if template.template_id != expected_id:
             raise ExecutionTemplateServiceError(
-                f"template id {template.template_id!r} does not match filename {expected_id!r}"
+                f"template id {template.template_id!r} does not match filename "
+                f"{expected_id!r}"
             )
         return template
 
