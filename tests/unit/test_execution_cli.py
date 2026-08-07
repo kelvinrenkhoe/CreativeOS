@@ -44,6 +44,10 @@ def context_args(command: str) -> list[str]:
     ]
 
 
+def mutation_args(command: str, action_id: str) -> list[str]:
+    return ["execution", command, action_id, *context_args(command)[2:]]
+
+
 def test_execution_today_shows_context_due_work_and_progress(tmp_path: Path, monkeypatch) -> None:
     repository = make_campaign(tmp_path)
     repository.save(Action("publish-reel", "Publish Reel", due_date=date.today()))
@@ -83,6 +87,57 @@ def test_execution_ready_excludes_dependency_blocked_work(tmp_path: Path, monkey
     assert result.exit_code == 0
     assert "Render Video" in result.stdout
     assert "Publish Video" not in result.stdout
+
+
+def test_execution_complete_persists_status(tmp_path: Path, monkeypatch) -> None:
+    repository = make_campaign(tmp_path)
+    repository.save(Action("publish-reel", "Publish Reel"))
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(app, mutation_args("complete", "publish-reel"))
+
+    assert result.exit_code == 0
+    assert "Completed" in result.stdout
+    assert repository.load("publish-reel").status == "completed"
+
+
+def test_execution_block_and_unblock_persist_status(tmp_path: Path, monkeypatch) -> None:
+    repository = make_campaign(tmp_path)
+    repository.save(Action("radio-pitch", "Radio Pitch"))
+    monkeypatch.chdir(tmp_path)
+
+    blocked = runner.invoke(app, mutation_args("block", "radio-pitch"))
+    unblocked = runner.invoke(app, mutation_args("unblock", "radio-pitch"))
+
+    assert blocked.exit_code == 0
+    assert unblocked.exit_code == 0
+    assert repository.load("radio-pitch").status == "pending"
+
+
+def test_execution_cancel_and_reopen_persist_status(tmp_path: Path, monkeypatch) -> None:
+    repository = make_campaign(tmp_path)
+    repository.save(Action("playlist-pitch", "Playlist Pitch"))
+    monkeypatch.chdir(tmp_path)
+
+    cancelled = runner.invoke(app, mutation_args("cancel", "playlist-pitch"))
+    reopened = runner.invoke(app, mutation_args("reopen", "playlist-pitch"))
+
+    assert cancelled.exit_code == 0
+    assert reopened.exit_code == 0
+    assert repository.load("playlist-pitch").status == "pending"
+
+
+def test_execution_complete_reports_unmet_dependencies(tmp_path: Path, monkeypatch) -> None:
+    repository = make_campaign(tmp_path)
+    repository.save(Action("render", "Render Video"))
+    repository.save(Action("publish", "Publish Video", depends_on=("render",)))
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(app, mutation_args("complete", "publish"))
+
+    assert result.exit_code == 1
+    assert "unmet dependencies" in result.stdout
+    assert repository.load("publish").status == "pending"
 
 
 def test_execution_reports_invalid_context(tmp_path: Path, monkeypatch) -> None:
