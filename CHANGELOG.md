@@ -22,6 +22,7 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Safe campaign discovery, loading, date validation, and path isolation.
 - Initial KRE `no-lose-guard` launch campaign context.
 - Immutable campaign `Action` model for executable marketing work, including lifecycle status, priority, due dates, channels, and dependencies.
+- Campaign-scoped `ActionRepository` for safe YAML persistence, listing, loading, deletion, and campaign isolation.
 
 ### Changed
 
