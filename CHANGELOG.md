@@ -15,6 +15,9 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - MIT license text.
 - Organization CLI commands for listing, showing, and validating repository organizations.
 - Organization repository discovery from nested directories.
+- Organization-scoped project contexts under `organizations/<organization>/projects/<project>`.
+- Safe project discovery, loading, validation, and path isolation.
+- Initial KRE `no-lose-guard` project context.
 
 ### Changed
 
