@@ -55,18 +55,27 @@ class ExecutionTemplateService:
             raise ExecutionTemplateServiceError(f"unknown execution template {template_id!r}")
         return self._load_path(path, expected_id=template_id)
 
-    def plan(self, template_id: str) -> ExecutionTemplatePlan:
-        """Validate a template against campaign state without writing actions."""
+    def plan(
+        self,
+        template_id: str,
+        variables: dict[str, str] | None = None,
+    ) -> ExecutionTemplatePlan:
+        """Render and validate a template against campaign state without writing actions."""
         template = self.load(template_id)
+        try:
+            rendered_actions = template.render_actions(variables)
+        except ExecutionTemplateError as exc:
+            raise ExecutionTemplateServiceError(str(exc)) from exc
+
         existing_ids = {action.action_id for action in self.action_service.repository.list()}
-        template_ids = {action.action_id for action in template.actions}
+        template_ids = {action.action_id for action in rendered_actions}
         conflicts = sorted(existing_ids & template_ids)
         if conflicts:
             raise ExecutionTemplateServiceError(
                 f"campaign already contains template actions: {', '.join(conflicts)}"
             )
 
-        for action in template.actions:
+        for action in rendered_actions:
             missing = [
                 dependency
                 for dependency in action.depends_on
@@ -77,12 +86,16 @@ class ExecutionTemplateService:
                     f"action {action.action_id!r} has unknown dependencies: {', '.join(missing)}"
                 )
 
-        ordered = self._topological_order(template.actions, existing_ids)
+        ordered = self._topological_order(rendered_actions, existing_ids)
         return ExecutionTemplatePlan(template=template, actions=ordered)
 
-    def apply(self, template_id: str) -> tuple[Action, ...]:
-        """Apply a fully validated plan through ActionService creation rules."""
-        plan = self.plan(template_id)
+    def apply(
+        self,
+        template_id: str,
+        variables: dict[str, str] | None = None,
+    ) -> tuple[Action, ...]:
+        """Apply a fully validated rendered plan through ActionService creation rules."""
+        plan = self.plan(template_id, variables)
         created: list[Action] = []
         try:
             for action in plan.actions:
