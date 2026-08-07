@@ -21,6 +21,22 @@ class OrganizationService:
         self.repository_root = repository_root.resolve()
         self.organizations_root = self.repository_root / ORGANIZATIONS_DIRECTORY
 
+    @classmethod
+    def discover(cls, start_path: Path | None = None) -> "OrganizationService":
+        """Discover the nearest repository containing an organizations directory."""
+        current_path = (start_path or Path.cwd()).resolve()
+        if current_path.is_file():
+            current_path = current_path.parent
+
+        for path in (current_path, *current_path.parents):
+            if (path / ORGANIZATIONS_DIRECTORY).is_dir():
+                return cls(path)
+
+        raise OrganizationLoadError(
+            f"CreativeOS organizations directory not found. Expected "
+            f"{ORGANIZATIONS_DIRECTORY}/ in this directory or a parent directory."
+        )
+
     def list(self) -> tuple[Organization, ...]:
         """Return valid organizations in stable identifier order."""
         if not self.organizations_root.is_dir():
