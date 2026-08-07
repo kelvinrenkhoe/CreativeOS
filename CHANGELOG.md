@@ -28,6 +28,7 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Execution Engine CLI commands for today, next, overdue, and ready campaign work views.
 - Top-level `creativeos today` Daily Brief combining campaign context, execution priorities, blockers, overdue work, and progress.
 - Execution CLI lifecycle commands for completing, blocking, unblocking, cancelling, and reopening campaign actions.
+- Execution CLI `add` command for creating validated campaign actions with priority, due date, channel, description, and dependencies.
 
 ### Changed
 
