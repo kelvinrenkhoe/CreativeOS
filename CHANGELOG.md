@@ -35,6 +35,8 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Generic `scheduled-awareness-campaign` template demonstrating reusable campaign date, channel, and audience inputs.
 - Relative template scheduling expressions such as `{{ launch_date - 14d }}` and `{{ launch_date + 3d }}`.
 - Generic `launch-timeline` execution template for pre-launch, launch-day, and post-launch scheduling from one anchor date.
+- Named campaign milestones stored in campaign metadata and available as reusable execution-template date anchors.
+- Generic `milestone-campaign` template coordinating content freeze, launch, and performance review milestones.
 
 ### Changed
 
