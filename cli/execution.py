@@ -214,7 +214,7 @@ def add_action(
     priority: str = typer.Option("normal", "--priority", help="Action priority."),
     due: str | None = typer.Option(None, "--due", help="Due date in YYYY-MM-DD format."),
     channel: str | None = typer.Option(None, "--channel", help="Target marketing channel."),
-    depends_on: list[str] | None = typer.Option(
+    depends_on: list[str] | None = typer.Option(  # noqa: B008
         None,
         "--depends-on",
         help="Dependency action ID; repeat for multiple dependencies.",
