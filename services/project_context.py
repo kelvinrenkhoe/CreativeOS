@@ -82,7 +82,6 @@ class ProjectContextService:
 
         if project.project_id != expected_id:
             raise ProjectContextLoadError(
-                "project id "
-                f"{project.project_id!r} does not match directory {expected_id!r}"
+                f"project id {project.project_id!r} does not match directory {expected_id!r}"
             )
         return project
