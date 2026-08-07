@@ -13,6 +13,8 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Ruff linting and formatting configuration.
 - Contributor guide and development commands.
 - MIT license text.
+- Organization CLI commands for listing, showing, and validating repository organizations.
+- Organization repository discovery from nested directories.
 
 ### Changed
 
