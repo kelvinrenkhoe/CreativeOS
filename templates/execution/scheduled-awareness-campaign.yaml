@@ -1,0 +1,30 @@
+id: scheduled-awareness-campaign
+name: Scheduled Awareness Campaign
+description: Reusable awareness campaign plan parameterised by date, channel, and audience.
+variables:
+  campaign_date:
+    description: Primary campaign date in YYYY-MM-DD format.
+    required: true
+  primary_channel:
+    description: Primary publishing channel.
+    required: true
+  audience:
+    description: Intended campaign audience.
+    default: target audience
+actions:
+  - id: define-message
+    title: Define message for {{ audience }}
+    priority: high
+    due_date: "{{ campaign_date }}"
+  - id: prepare-creative
+    title: Prepare creative for {{ primary_channel }}
+    priority: high
+    due_date: "{{ campaign_date }}"
+    channel: "{{ primary_channel }}"
+    depends_on: [define-message]
+  - id: publish-primary-channel
+    title: Publish awareness content to {{ primary_channel }}
+    priority: critical
+    due_date: "{{ campaign_date }}"
+    channel: "{{ primary_channel }}"
+    depends_on: [prepare-creative]
