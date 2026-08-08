@@ -7,7 +7,16 @@ from pathlib import Path
 import yaml
 
 from models.campaign_context import CampaignContext
+from services.action_repository import ActionRepository
+from services.action_service import ActionService
 from services.campaign_context import CAMPAIGN_FILENAME, CampaignContextService
+from services.execution_template import (
+    ExecutionTemplatePlan,
+    ExecutionTemplateService,
+    ExecutionTemplateServiceError,
+)
+
+MUSIC_RELEASE_EXECUTION_TEMPLATE = "milestone-campaign"
 
 
 class CampaignStartError(ValueError):
@@ -21,6 +30,8 @@ class CampaignStartPlan:
     campaign: CampaignContext
     release_date: date
     destination: Path
+    recommended_template_id: str
+    template_variables: tuple[tuple[str, str], ...]
 
 
 class CampaignStartService:
@@ -32,8 +43,11 @@ class CampaignStartService:
         organization_id: str,
         project_id: str,
     ) -> None:
+        self.repository_root = repository_root.resolve()
+        self.organization_id = organization_id
+        self.project_id = project_id
         self.context_service = CampaignContextService(
-            repository_root,
+            self.repository_root,
             organization_id,
             project_id,
         )
@@ -75,6 +89,8 @@ class CampaignStartService:
             campaign=campaign,
             release_date=release_date,
             destination=destination,
+            recommended_template_id=MUSIC_RELEASE_EXECUTION_TEMPLATE,
+            template_variables=(("primary_channel", campaign.channels[0]),),
         )
 
     def apply(self, plan: CampaignStartPlan) -> CampaignContext:
@@ -103,6 +119,31 @@ class CampaignStartService:
             raise
 
         return self.context_service.load(plan.campaign.campaign_id)
+
+    def preview_execution(self, plan: CampaignStartPlan) -> ExecutionTemplatePlan:
+        """Preview the recommended execution template for a persisted campaign."""
+        if not plan.destination.is_dir():
+            raise CampaignStartError(
+                "campaign must be created before its execution plan can be previewed"
+            )
+
+        repository = ActionRepository(
+            self.repository_root,
+            self.organization_id,
+            self.project_id,
+            plan.campaign.campaign_id,
+        )
+        service = ExecutionTemplateService(
+            self.repository_root,
+            ActionService(repository),
+        )
+        try:
+            return service.plan(
+                plan.recommended_template_id,
+                dict(plan.template_variables),
+            )
+        except ExecutionTemplateServiceError as exc:
+            raise CampaignStartError(f"unable to preview recommended execution plan: {exc}") from exc
 
     @staticmethod
     def _to_dict(campaign: CampaignContext) -> dict[str, object]:
