@@ -6,6 +6,7 @@ from pathlib import Path
 
 import yaml
 
+from models.action import Action
 from models.campaign_context import CampaignContext
 from services.action_repository import ActionRepository
 from services.action_service import ActionService
@@ -122,9 +123,26 @@ class CampaignStartService:
 
     def preview_execution(self, plan: CampaignStartPlan) -> ExecutionTemplatePlan:
         """Preview the recommended execution template for a persisted campaign."""
+        return self._execution_service(plan).plan(
+            plan.recommended_template_id,
+            dict(plan.template_variables),
+        )
+
+    def apply_execution(self, plan: CampaignStartPlan) -> tuple[Action, ...]:
+        """Explicitly persist the previously recommended execution template."""
+        try:
+            return self._execution_service(plan).apply(
+                plan.recommended_template_id,
+                dict(plan.template_variables),
+            )
+        except ExecutionTemplateServiceError as exc:
+            message = f"unable to apply recommended execution plan: {exc}"
+            raise CampaignStartError(message) from exc
+
+    def _execution_service(self, plan: CampaignStartPlan) -> ExecutionTemplateService:
         if not plan.destination.is_dir():
             raise CampaignStartError(
-                "campaign must be created before its execution plan can be previewed"
+                "campaign must be created before its execution plan can be used"
             )
 
         repository = ActionRepository(
@@ -133,18 +151,10 @@ class CampaignStartService:
             self.project_id,
             plan.campaign.campaign_id,
         )
-        service = ExecutionTemplateService(
+        return ExecutionTemplateService(
             self.repository_root,
             ActionService(repository),
         )
-        try:
-            return service.plan(
-                plan.recommended_template_id,
-                dict(plan.template_variables),
-            )
-        except ExecutionTemplateServiceError as exc:
-            message = f"unable to preview recommended execution plan: {exc}"
-            raise CampaignStartError(message) from exc
 
     @staticmethod
     def _to_dict(campaign: CampaignContext) -> dict[str, object]:
