@@ -6,7 +6,7 @@ from rich.table import Table
 from rich.text import Text
 
 from models.action import Action
-from services.daily_brief import DailyBrief
+from services.daily_brief import DailyBrief, MilestoneStatus
 
 
 class DailyBriefRenderer:
@@ -18,6 +18,7 @@ class DailyBriefRenderer:
                 f"{brief.organization_id} / {brief.project_id} / {brief.campaign.name}\n"
                 f"{brief.brief_date.isoformat()}  •  status: {brief.campaign.status}"
             ),
+            self._milestone_table(brief.milestones),
             self._action_table("Today's Focus", brief.next_actions),
             self._action_table("Due Today", brief.today),
             self._action_table("Overdue", brief.overdue),
@@ -34,6 +35,32 @@ class DailyBriefRenderer:
             sections.append(Text(f"Recommended Next Step: {brief.recommended_next.title}"))
 
         return Panel(Group(*sections), title="CreativeOS Daily Brief")
+
+    @staticmethod
+    def _milestone_table(milestones: tuple[MilestoneStatus, ...]) -> Table:
+        table = Table(title="Campaign Milestones")
+        table.add_column("Milestone")
+        table.add_column("Date")
+        table.add_column("Timing")
+
+        for milestone in milestones:
+            if milestone.is_today:
+                timing = "Today"
+            elif milestone.is_overdue:
+                days = abs(milestone.days_from_brief)
+                timing = f"{days} day{'s' if days != 1 else ''} ago"
+            else:
+                days = milestone.days_from_brief
+                timing = f"in {days} day{'s' if days != 1 else ''}"
+            table.add_row(
+                milestone.name.replace("_", " ").title(),
+                milestone.milestone_date.isoformat(),
+                timing,
+            )
+
+        if not milestones:
+            table.add_row("-", "-", "None")
+        return table
 
     @staticmethod
     def _action_table(title: str, actions: tuple[Action, ...]) -> Table:
