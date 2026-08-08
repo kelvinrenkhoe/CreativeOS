@@ -35,7 +35,7 @@ def _parse_date(value: str) -> date:
     try:
         return date.fromisoformat(value)
     except ValueError as exc:
-        raise CampaignStartError("release date must use YYYY-MM-DD format") from exc
+        raise CampaignStartError("campaign anchor date must use YYYY-MM-DD format") from exc
 
 
 def _render_execution_preview(plan) -> None:
@@ -61,9 +61,18 @@ def _render_execution_preview(plan) -> None:
 def campaign_start_command(
     campaign_id: str = typer.Argument(..., help="Stable campaign identifier."),
     name: str = typer.Option(..., "--name", help="Campaign display name."),
-    release_date: str = typer.Option(..., "--release", help="Release date in YYYY-MM-DD format."),
     organization_id: str = typer.Option(..., "--org", help="Organization identifier."),
     project_id: str = typer.Option(..., "--project", help="Project identifier."),
+    anchor_date: str | None = typer.Option(
+        None,
+        "--anchor",
+        help="Domain planning anchor date in YYYY-MM-DD format.",
+    ),
+    release_date: str | None = typer.Option(
+        None,
+        "--release",
+        help="Legacy alias for --anchor used by music-release campaigns.",
+    ),
     domain_pack: str = typer.Option(
         DEFAULT_DOMAIN_PACK,
         "--domain-pack",
@@ -94,13 +103,20 @@ def campaign_start_command(
     if apply_execution and not apply:
         console.print("[bold red]Error:[/bold red] --apply-execution requires --apply")
         raise typer.Exit(code=1)
+    if anchor_date is not None and release_date is not None:
+        console.print("[bold red]Error:[/bold red] provide --anchor or --release, not both")
+        raise typer.Exit(code=1)
+    supplied_anchor = anchor_date if anchor_date is not None else release_date
+    if supplied_anchor is None:
+        console.print("[bold red]Error:[/bold red] --anchor is required")
+        raise typer.Exit(code=1)
 
     try:
         service = _service(organization_id, project_id)
         plan = service.plan(
             campaign_id,
             name,
-            _parse_date(release_date),
+            _parse_date(supplied_anchor),
             objective=objective,
             channels=tuple(channel),
             domain_pack_id=domain_pack,
@@ -116,7 +132,7 @@ def campaign_start_command(
     table.add_row("Campaign", campaign.name)
     table.add_row("ID", campaign.campaign_id)
     table.add_row("Domain pack", plan.domain_pack_id)
-    table.add_row("Release", plan.release_date.isoformat())
+    table.add_row(plan.anchor_name, plan.anchor_date.isoformat())
     table.add_row("Start", campaign.start_date.isoformat() if campaign.start_date else "-")
     table.add_row("End", campaign.end_date.isoformat() if campaign.end_date else "-")
     table.add_row("Channels", ", ".join(campaign.channels))
