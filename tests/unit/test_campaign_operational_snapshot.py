@@ -56,9 +56,7 @@ def test_snapshot_has_stable_versioned_machine_readable_shape() -> None:
 
 
 def test_snapshot_represents_ready_state_without_synthetic_focus() -> None:
-    snapshot = CampaignOperationalSnapshotService().build(
-        make_report(attention=False)
-    ).to_dict()
+    snapshot = CampaignOperationalSnapshotService().build(make_report(attention=False)).to_dict()
 
     assert snapshot["attention"] == ()
     assert snapshot["next_focus"] is None
