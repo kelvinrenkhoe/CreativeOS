@@ -41,6 +41,25 @@ def test_template_accepts_declared_domain_content_role() -> None:
     assert template.actions[0].content_role == "testimony"
 
 
+def test_template_accepts_company_specific_content_role() -> None:
+    template = ExecutionTemplate.from_dict(
+        {
+            "id": "company-campaign",
+            "name": "Company Campaign",
+            "content_roles": ["case-study", "product-demo"],
+            "actions": [
+                {
+                    "id": "publish-demo",
+                    "title": "Publish product demo",
+                    "content_role": "product-demo",
+                }
+            ],
+        }
+    )
+
+    assert template.actions[0].content_role == "product-demo"
+
+
 def test_template_rejects_undeclared_content_role() -> None:
     with pytest.raises(ExecutionTemplateError, match="undeclared template content roles"):
         ExecutionTemplate.from_dict(
