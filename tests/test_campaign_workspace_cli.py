@@ -71,7 +71,7 @@ def test_workspace_command_renders_operational_summary(monkeypatch) -> None:
     assert "Campaign Workspace" in result.stdout
     assert "Autumn Launch" in result.stdout
     assert "product-launch" in result.stdout
-    assert "50%" in result.stdout
+    assert "100%" in result.stdout
     assert "publish-video" in result.stdout
     assert "customer-proof" in result.stdout
     assert "launch-video-master" in result.stdout
