@@ -66,10 +66,16 @@ def test_daily_brief_orders_and_classifies_campaign_milestones(tmp_path: Path) -
     )
     brief = DailyBriefService(tmp_path, "kre", "no-lose-guard", "launch").build(date(2026, 8, 8))
     assert [milestone.name for milestone in brief.milestones] == [
-        "briefing", "content_freeze", "launch"
+        "briefing",
+        "content_freeze",
+        "launch",
     ]
     assert [milestone.days_from_brief for milestone in brief.milestones] == [-2, 0, 6]
-    assert [milestone.urgency for milestone in brief.milestones] == ["overdue", "today", "upcoming"]
+    assert [milestone.urgency for milestone in brief.milestones] == [
+        "overdue",
+        "today",
+        "upcoming",
+    ]
     assert brief.focus_milestone is not None
     assert brief.focus_milestone.name == "content_freeze"
 
@@ -81,7 +87,9 @@ def test_daily_brief_surfaces_ready_work_for_focus_milestone(tmp_path: Path) -> 
     repository.save(Action("artwork", "Finalise Artwork", milestone="content_freeze"))
     repository.save(Action("caption", "Approve Caption", milestone="content_freeze"))
     repository.save(Action("publish", "Publish Reel", milestone="launch"))
-    repository.save(Action("blocked", "Blocked Asset", status="blocked", milestone="content_freeze"))
+    repository.save(
+        Action("blocked", "Blocked Asset", status="blocked", milestone="content_freeze")
+    )
 
     brief = DailyBriefService(tmp_path, "kre", "no-lose-guard", "launch").build(date(2026, 8, 8))
 
