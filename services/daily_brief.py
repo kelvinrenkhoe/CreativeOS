@@ -69,6 +69,20 @@ class MilestoneHealth:
 
 
 @dataclass(frozen=True, slots=True)
+class MilestoneAttention:
+    """Concise explanation of milestone work that needs intervention."""
+
+    name: str
+    status: str
+    reason: str
+    days_from_brief: int
+    completed: int
+    total: int
+    pending: int
+    blocked: int
+
+
+@dataclass(frozen=True, slots=True)
 class DailyBrief:
     """Read-only daily execution summary for one campaign."""
 
@@ -84,6 +98,7 @@ class DailyBrief:
     milestones: tuple[MilestoneStatus, ...]
     milestone_progress: tuple[MilestoneProgress, ...]
     milestone_health: tuple[MilestoneHealth, ...]
+    milestone_attention: tuple[MilestoneAttention, ...]
     progress: ActionProgress
 
     @property
@@ -161,6 +176,11 @@ class DailyBriefService:
         )
         milestone_progress = self._milestone_progress(milestones, plan.ready)
         milestone_health = self._milestone_health(milestones, milestone_progress)
+        milestone_attention = self._milestone_attention(
+            milestones,
+            milestone_progress,
+            milestone_health,
+        )
         return DailyBrief(
             organization_id=self.organization_id,
             project_id=self.project_id,
@@ -174,6 +194,7 @@ class DailyBriefService:
             milestones=milestones,
             milestone_progress=milestone_progress,
             milestone_health=milestone_health,
+            milestone_attention=milestone_attention,
             progress=plan.progress,
         )
 
@@ -243,3 +264,43 @@ class DailyBriefService:
             health.append(MilestoneHealth(milestone.name, status, reason))
 
         return tuple(health)
+
+    @staticmethod
+    def _milestone_attention(
+        milestones: tuple[MilestoneStatus, ...],
+        progress: tuple[MilestoneProgress, ...],
+        health: tuple[MilestoneHealth, ...],
+    ) -> tuple[MilestoneAttention, ...]:
+        progress_by_name = {item.name: item for item in progress}
+        health_by_name = {item.name: item for item in health}
+        attention: list[MilestoneAttention] = []
+
+        for milestone in milestones:
+            milestone_health = health_by_name[milestone.name]
+            if milestone_health.status not in {"at-risk", "watch"}:
+                continue
+            summary = progress_by_name[milestone.name]
+            attention.append(
+                MilestoneAttention(
+                    name=milestone.name,
+                    status=milestone_health.status,
+                    reason=milestone_health.reason,
+                    days_from_brief=milestone.days_from_brief,
+                    completed=summary.completed,
+                    total=summary.total,
+                    pending=summary.pending,
+                    blocked=summary.blocked,
+                )
+            )
+
+        status_rank = {"at-risk": 0, "watch": 1}
+        return tuple(
+            sorted(
+                attention,
+                key=lambda item: (
+                    status_rank[item.status],
+                    item.days_from_brief,
+                    item.name,
+                ),
+            )
+        )
