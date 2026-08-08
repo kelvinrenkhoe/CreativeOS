@@ -89,9 +89,7 @@ class CampaignWorkspaceService:
 
         blocked = tuple(action.action_id for action in actions if action.status == "blocked")
         pending = tuple(
-            action.action_id
-            for action in actions
-            if action.status in ("pending", "in-progress")
+            action.action_id for action in actions if action.status in ("pending", "in-progress")
         )
         completed = sum(action.status == "completed" for action in actions)
         content_gaps = tuple(
