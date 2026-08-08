@@ -40,6 +40,13 @@ actions:
       - publish-launch
 """
 
+DOMAIN_PACK = """id: music-release
+name: Music Release
+templates:
+  - milestone-campaign
+default_template: milestone-campaign
+"""
+
 
 def make_workspace(tmp_path: Path) -> None:
     project_root = tmp_path / "organizations" / "kre" / "projects" / "no-lose-guard"
@@ -55,6 +62,9 @@ def make_workspace(tmp_path: Path) -> None:
     templates = tmp_path / "templates" / "execution"
     templates.mkdir(parents=True)
     (templates / "milestone-campaign.yaml").write_text(TEMPLATE, encoding="utf-8")
+    packs = tmp_path / "templates" / "domain-packs"
+    packs.mkdir(parents=True)
+    (packs / "music-release.yaml").write_text(DOMAIN_PACK, encoding="utf-8")
 
 
 def test_campaign_start_recommends_milestone_execution_template(tmp_path: Path) -> None:
