@@ -48,6 +48,7 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Milestone attention summaries explaining at-risk and watch conditions, exception counts, and progress without changing action priority.
 - Deterministic milestone intervention suggestions for attention-worthy work, kept advisory and separate from execution priority.
 - Campaign-level decision summaries that consolidate milestone health, attention, and intervention signals without changing execution order.
+- Preview-first `campaign start` workflow for milestone-ready music-release campaigns scoped to an organization project.
 
 ### Changed
 
