@@ -10,6 +10,7 @@ from services.daily_brief import (
     DailyBrief,
     MilestoneAttention,
     MilestoneHealth,
+    MilestoneIntervention,
     MilestoneProgress,
     MilestoneStatus,
 )
@@ -26,6 +27,7 @@ class DailyBriefRenderer:
             ),
             self._milestone_focus(brief.focus_milestone, brief.focus_milestone_health),
             self._attention_summary(brief.milestone_attention),
+            self._intervention_summary(brief.milestone_interventions),
             self._action_table("Focus Milestone Work", brief.focus_milestone_actions),
             self._milestone_progress_table(brief.milestone_progress, brief.milestone_health),
             self._milestone_table(brief.milestones),
@@ -92,6 +94,18 @@ class DailyBriefRenderer:
 
         if not attention:
             table.add_row("-", "clear", "No milestone intervention required.", "none", "-")
+        return table
+
+    @staticmethod
+    def _intervention_summary(interventions: tuple[MilestoneIntervention, ...]) -> Table:
+        table = Table(title="Suggested Interventions")
+        table.add_column("Milestone")
+        table.add_column("Health")
+        table.add_column("Suggestion")
+        for item in interventions:
+            table.add_row(item.name.replace("_", " ").title(), item.status, item.suggestion)
+        if not interventions:
+            table.add_row("-", "clear", "No intervention suggested.")
         return table
 
     @staticmethod
