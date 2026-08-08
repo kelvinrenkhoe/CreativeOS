@@ -8,7 +8,11 @@ from rich.console import Console
 from rich.table import Table
 
 from services.campaign_context import CampaignContextLoadError
-from services.campaign_start import CampaignStartError, CampaignStartService
+from services.campaign_start import (
+    DEFAULT_DOMAIN_PACK,
+    CampaignStartError,
+    CampaignStartService,
+)
 from services.organization import OrganizationLoadError, OrganizationService
 from services.project_context import ProjectContextLoadError
 
@@ -60,6 +64,11 @@ def campaign_start_command(
     release_date: str = typer.Option(..., "--release", help="Release date in YYYY-MM-DD format."),
     organization_id: str = typer.Option(..., "--org", help="Organization identifier."),
     project_id: str = typer.Option(..., "--project", help="Project identifier."),
+    domain_pack: str = typer.Option(
+        DEFAULT_DOMAIN_PACK,
+        "--domain-pack",
+        help="Registered domain pack used to resolve campaign execution defaults.",
+    ),
     objective: str = typer.Option(
         "Build awareness and coordinate release execution.",
         "--objective",
@@ -81,7 +90,7 @@ def campaign_start_command(
         help="Explicitly create the recommended actions after campaign creation and preview.",
     ),
 ) -> None:
-    """Preview or create a milestone-ready music-release campaign."""
+    """Preview or create a domain-pack-backed campaign."""
     if apply_execution and not apply:
         console.print("[bold red]Error:[/bold red] --apply-execution requires --apply")
         raise typer.Exit(code=1)
@@ -94,17 +103,19 @@ def campaign_start_command(
             _parse_date(release_date),
             objective=objective,
             channels=tuple(channel),
+            domain_pack_id=domain_pack,
         )
     except CLI_ERRORS as exc:
         console.print(f"[bold red]Error:[/bold red] {exc}")
         raise typer.Exit(code=1) from exc
 
     campaign = plan.campaign
-    table = Table(title="Music Release Campaign Start")
+    table = Table(title="Campaign Start")
     table.add_column("Field")
     table.add_column("Value")
     table.add_row("Campaign", campaign.name)
     table.add_row("ID", campaign.campaign_id)
+    table.add_row("Domain pack", plan.domain_pack_id)
     table.add_row("Release", plan.release_date.isoformat())
     table.add_row("Start", campaign.start_date.isoformat() if campaign.start_date else "-")
     table.add_row("End", campaign.end_date.isoformat() if campaign.end_date else "-")
