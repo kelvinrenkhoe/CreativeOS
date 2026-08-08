@@ -71,9 +71,7 @@ def test_milestone_health_covers_all_states() -> None:
 def test_daily_brief_exposes_focus_milestone_health(tmp_path: Path) -> None:
     repository = make_campaign(tmp_path)
     repository.save(Action("artwork", "Finalise Artwork", milestone="content_freeze"))
-    repository.save(
-        Action("blocked", "Fix Artwork", status="blocked", milestone="content_freeze")
-    )
+    repository.save(Action("blocked", "Fix Artwork", status="blocked", milestone="content_freeze"))
 
     brief = DailyBriefService(tmp_path, "kre", "no-lose-guard", "launch").build(date(2026, 8, 8))
 
@@ -86,9 +84,7 @@ def test_daily_brief_exposes_focus_milestone_health(tmp_path: Path) -> None:
 def test_today_command_renders_milestone_health(tmp_path: Path, monkeypatch) -> None:
     repository = make_campaign(tmp_path)
     repository.save(Action("artwork", "Finalise Artwork", milestone="content_freeze"))
-    repository.save(
-        Action("blocked", "Fix Artwork", status="blocked", milestone="content_freeze")
-    )
+    repository.save(Action("blocked", "Fix Artwork", status="blocked", milestone="content_freeze"))
     monkeypatch.chdir(tmp_path)
 
     result = runner.invoke(
