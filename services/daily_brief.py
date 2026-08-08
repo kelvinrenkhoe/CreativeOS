@@ -83,6 +83,15 @@ class MilestoneAttention:
 
 
 @dataclass(frozen=True, slots=True)
+class MilestoneIntervention:
+    """Advisory intervention derived from milestone attention state."""
+
+    name: str
+    status: str
+    suggestion: str
+
+
+@dataclass(frozen=True, slots=True)
 class DailyBrief:
     """Read-only daily execution summary for one campaign."""
 
@@ -99,6 +108,7 @@ class DailyBrief:
     milestone_progress: tuple[MilestoneProgress, ...]
     milestone_health: tuple[MilestoneHealth, ...]
     milestone_attention: tuple[MilestoneAttention, ...]
+    milestone_interventions: tuple[MilestoneIntervention, ...]
     progress: ActionProgress
 
     @property
@@ -181,6 +191,7 @@ class DailyBriefService:
             milestone_progress,
             milestone_health,
         )
+        milestone_interventions = self._milestone_interventions(milestone_attention)
         return DailyBrief(
             organization_id=self.organization_id,
             project_id=self.project_id,
@@ -195,6 +206,7 @@ class DailyBriefService:
             milestone_progress=milestone_progress,
             milestone_health=milestone_health,
             milestone_attention=milestone_attention,
+            milestone_interventions=milestone_interventions,
             progress=plan.progress,
         )
 
@@ -304,3 +316,30 @@ class DailyBriefService:
                 ),
             )
         )
+
+    @staticmethod
+    def _milestone_interventions(
+        attention: tuple[MilestoneAttention, ...],
+    ) -> tuple[MilestoneIntervention, ...]:
+        interventions: list[MilestoneIntervention] = []
+        for item in attention:
+            if item.blocked and item.pending:
+                suggestion = "Resolve blocked work, then review dependency-waiting actions."
+            elif item.blocked:
+                suggestion = "Resolve blocked milestone work before the deadline becomes critical."
+            elif item.pending:
+                suggestion = (
+                    "Review dependency-waiting actions and unblock the earliest prerequisite."
+                )
+            elif item.days_from_brief < 0:
+                suggestion = (
+                    "Review incomplete overdue work and decide what must be completed or deferred."
+                )
+            elif item.days_from_brief <= 3:
+                suggestion = "Prioritise remaining milestone work before the imminent deadline."
+            else:
+                suggestion = (
+                    "Review remaining milestone work while there is still scheduling flexibility."
+                )
+            interventions.append(MilestoneIntervention(item.name, item.status, suggestion))
+        return tuple(interventions)
