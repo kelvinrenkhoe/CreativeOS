@@ -99,6 +99,14 @@ def test_phased_music_release_plan_varies_content_roles(tmp_path: Path) -> None:
     plan = service.plan("milestone-campaign", {"primary_channel": "instagram"})
     actions = {action.action_id: action for action in plan.actions}
 
+    assert plan.template.content_roles == (
+        "story",
+        "teaser",
+        "performance",
+        "release-day",
+        "social-proof",
+        "follow-up",
+    )
     assert actions["publish-story"].content_role == "story"
     assert actions["publish-teaser"].content_role == "teaser"
     assert actions["publish-performance"].content_role == "performance"
