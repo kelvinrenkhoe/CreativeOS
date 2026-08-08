@@ -6,7 +6,6 @@ from .campaign_attention import CampaignAttentionService
 from .campaign_next_focus import CampaignNextFocusService
 from .campaign_workspace import CampaignWorkspaceReport
 
-
 SNAPSHOT_SCHEMA_VERSION = "1"
 
 
