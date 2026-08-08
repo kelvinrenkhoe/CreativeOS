@@ -12,7 +12,16 @@ def test_campaign_decision_uses_highest_priority_attention() -> None:
         MilestoneHealth("review", "watch", "deadline is within seven days with incomplete work"),
     )
     attention = (
-        MilestoneAttention("launch", "at-risk", "deadline passed with incomplete work", -1, 1, 3, 1, 1),
+        MilestoneAttention(
+            "launch",
+            "at-risk",
+            "deadline passed with incomplete work",
+            -1,
+            1,
+            3,
+            1,
+            1,
+        ),
         MilestoneAttention(
             "review",
             "watch",
