@@ -134,10 +134,9 @@ def campaign_start_command(
         execution_plan = service.preview_execution(plan)
     except CampaignStartError as exc:
         console.print(
-            "[bold yellow]Campaign created, but execution preview failed:[/bold yellow] "
-            f"{exc}"
+            f"[bold yellow]Campaign created, but execution preview unavailable:[/bold yellow] {exc}"
         )
-        raise typer.Exit(code=1) from exc
+        return
 
     console.print(f"[bold]Recommended template[/bold] {execution_plan.template.name}")
     _render_execution_preview(execution_plan)
