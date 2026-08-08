@@ -21,7 +21,7 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Project-scoped campaign contexts under `organizations/<organization>/projects/<project>/campaigns/<campaign>`.
 - Safe campaign discovery, loading, date validation, and path isolation.
 - Initial KRE `no-lose-guard` launch campaign context.
-- Immutable campaign `Action` model for executable marketing work, including lifecycle status, priority, due dates, channels, and dependencies.
+- Immutable campaign `Action` model for executable marketing work, including lifecycle status, priority, due dates, channels, dependencies, milestones, and generic content-role metadata.
 - Campaign-scoped `ActionRepository` for safe YAML persistence, listing, loading, deletion, and campaign isolation.
 - `ActionService` business behaviour for lifecycle transitions, dependency readiness, due-date queries, validation, and campaign progress.
 - `ExecutionPlanner` for deterministic campaign execution plans and prioritized next-action selection.
@@ -52,6 +52,7 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Recommended milestone-aware execution-plan preview after creating a music-release campaign, without writing actions.
 - Explicit `--apply-execution` handoff for deliberately persisting the reviewed recommended campaign actions.
 - Phased music-release execution plan spanning rollout definition, content production, pre-release teaser, launch, post-release follow-up, and performance review.
+- Template-defined content-role vocabularies so music, church, company, client, and creator workflows can use domain-specific roles without hard-coding them into the CreativeOS core.
 
 ### Changed
 
