@@ -1,10 +1,71 @@
-"""Immutable models for unified campaign creative context."""
+"""Immutable models for campaign and content creative context."""
 
 from dataclasses import dataclass
+from typing import Any
 
 
 class CreativeBriefError(ValueError):
     """Reject invalid or inconsistent creative brief input."""
+
+
+@dataclass(frozen=True, slots=True)
+class ContentCreativeBrief:
+    """Generic production intent for one campaign content item."""
+
+    objective: str
+    audience: str
+    key_message: str
+    call_to_action: str = ""
+    production_notes: str = ""
+    approval_expectations: str = ""
+
+    def __post_init__(self) -> None:
+        for field_name in ("objective", "audience", "key_message"):
+            value = getattr(self, field_name)
+            if not isinstance(value, str) or not value.strip():
+                raise CreativeBriefError(f"{field_name} must be a non-empty string")
+            object.__setattr__(self, field_name, value.strip())
+
+        for field_name in (
+            "call_to_action",
+            "production_notes",
+            "approval_expectations",
+        ):
+            value = getattr(self, field_name)
+            if not isinstance(value, str):
+                raise CreativeBriefError(f"{field_name} must be a string")
+            object.__setattr__(self, field_name, value.strip())
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ContentCreativeBrief":
+        """Build a content brief from parsed configuration data."""
+        if not isinstance(data, dict):
+            raise CreativeBriefError("creative_brief must be a mapping")
+        return cls(
+            objective=_string_value(data, "objective", required=True),
+            audience=_string_value(data, "audience", required=True),
+            key_message=_string_value(data, "key_message", required=True),
+            call_to_action=_string_value(data, "call_to_action"),
+            production_notes=_string_value(data, "production_notes"),
+            approval_expectations=_string_value(data, "approval_expectations"),
+        )
+
+    def to_dict(self) -> dict[str, str]:
+        """Return compact serializable brief metadata."""
+        data = {
+            "objective": self.objective,
+            "audience": self.audience,
+            "key_message": self.key_message,
+        }
+        for field_name in (
+            "call_to_action",
+            "production_notes",
+            "approval_expectations",
+        ):
+            value = getattr(self, field_name)
+            if value:
+                data[field_name] = value
+        return data
 
 
 @dataclass(frozen=True, slots=True)
@@ -138,3 +199,12 @@ class CreativeBrief:
                 recovery,
             )
         )
+
+
+def _string_value(data: dict[str, Any], name: str, *, required: bool = False) -> str:
+    value = data.get(name)
+    if value is None and not required:
+        return ""
+    if not isinstance(value, str):
+        raise CreativeBriefError(f"creative_brief.{name} must be a string")
+    return value
