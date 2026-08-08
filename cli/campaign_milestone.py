@@ -11,6 +11,7 @@ from services.campaign_milestone import (
     CampaignMilestoneServiceError,
 )
 from services.organization import OrganizationLoadError, OrganizationService
+from services.project_context import ProjectContextLoadError
 
 app = typer.Typer(help="Inspect and manage campaign milestone dates.", no_args_is_help=True)
 console = Console()
@@ -31,6 +32,15 @@ def _handle_error(exc: Exception) -> None:
     raise typer.Exit(code=1) from exc
 
 
+def _errors() -> tuple[type[Exception], ...]:
+    return (
+        OrganizationLoadError,
+        ProjectContextLoadError,
+        CampaignMilestoneServiceError,
+        ValueError,
+    )
+
+
 @app.command("list")
 def list_milestones(
     organization_id: str = typer.Option(..., "--org", help="Organization identifier."),
@@ -40,7 +50,7 @@ def list_milestones(
     """List named milestone dates for one campaign."""
     try:
         milestones = _service(organization_id, project_id, campaign_id).list()
-    except (OrganizationLoadError, CampaignMilestoneServiceError, ValueError) as exc:
+    except _errors() as exc:
         _handle_error(exc)
 
     table = Table(title="Campaign Milestones")
@@ -64,13 +74,13 @@ def set_milestone(
     """Create or update one campaign milestone."""
     try:
         campaign = _service(organization_id, project_id, campaign_id).set(name, value)
-    except (OrganizationLoadError, CampaignMilestoneServiceError, ValueError) as exc:
+    except _errors() as exc:
         _handle_error(exc)
 
-    milestone_date = campaign.milestone_dates[name.strip().casefold()]
+    milestone_name = name.strip().casefold()
+    milestone_date = campaign.milestone_dates[milestone_name]
     console.print(
-        f"[bold green]Set milestone[/bold green] {name.strip().casefold()}: "
-        f"{milestone_date.isoformat()}"
+        f"[bold green]Set milestone[/bold green] {milestone_name}: {milestone_date.isoformat()}"
     )
 
 
@@ -84,7 +94,7 @@ def remove_milestone(
     """Remove one campaign milestone."""
     try:
         _service(organization_id, project_id, campaign_id).remove(name)
-    except (OrganizationLoadError, CampaignMilestoneServiceError, ValueError) as exc:
+    except _errors() as exc:
         _handle_error(exc)
 
     console.print(f"[bold green]Removed milestone[/bold green] {name}")
