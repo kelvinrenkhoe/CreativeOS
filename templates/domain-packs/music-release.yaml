@@ -1,0 +1,6 @@
+id: music-release
+name: Music Release
+description: Campaign configuration for a phased music release.
+templates:
+  - milestone-campaign
+default_template: milestone-campaign
