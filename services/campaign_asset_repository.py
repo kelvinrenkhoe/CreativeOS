@@ -55,14 +55,33 @@ class CampaignAssetRepository:
 
     def save(self, asset: CampaignAsset) -> Path:
         """Create one new campaign asset record without overwriting existing state."""
+        path = self._path_for(asset)
+        if path.exists():
+            raise CampaignAssetRepositoryError(f"campaign asset already exists: {asset.asset_id}")
+        self._write(path, asset)
+        return path
+
+    def replace(self, asset: CampaignAsset) -> Path:
+        """Replace one existing asset record while preserving its stable identifier."""
+        path = self._path_for(asset)
+        if not path.is_file():
+            raise CampaignAssetRepositoryError(f"unknown campaign asset {asset.asset_id!r}")
+        current = self._load_path(path, expected_id=asset.asset_id)
+        if current.asset_id != asset.asset_id:
+            raise CampaignAssetRepositoryError("asset replacement cannot change asset_id")
+        self._write(path, asset)
+        return path
+
+    def _path_for(self, asset: CampaignAsset) -> Path:
         if not isinstance(asset, CampaignAsset):
             raise CampaignAssetRepositoryError("asset must be a CampaignAsset")
         self.assets_root.mkdir(parents=True, exist_ok=True)
         path = (self.assets_root / f"{asset.asset_id}.yaml").resolve()
         if path.parent != self.assets_root:
             raise CampaignAssetRepositoryError("asset path escaped campaign assets directory")
-        if path.exists():
-            raise CampaignAssetRepositoryError(f"campaign asset already exists: {asset.asset_id}")
+        return path
+
+    def _write(self, path: Path, asset: CampaignAsset) -> None:
         try:
             path.write_text(
                 yaml.safe_dump(asset.to_dict(), sort_keys=False),
@@ -70,7 +89,6 @@ class CampaignAssetRepository:
             )
         except OSError as exc:
             raise CampaignAssetRepositoryError(f"unable to write {path}: {exc}") from exc
-        return path
 
     def _load_path(self, path: Path, *, expected_id: str) -> CampaignAsset:
         try:
