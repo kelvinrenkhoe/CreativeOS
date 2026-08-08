@@ -6,6 +6,13 @@ milestones:
   - content_freeze
   - launch
   - performance_review
+content_roles:
+  - story
+  - teaser
+  - performance
+  - release-day
+  - social-proof
+  - follow-up
 variables:
   primary_channel:
     description: Primary publishing channel.
