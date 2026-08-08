@@ -6,7 +6,7 @@ from rich.table import Table
 from rich.text import Text
 
 from models.action import Action
-from services.daily_brief import DailyBrief, MilestoneStatus
+from services.daily_brief import DailyBrief, MilestoneProgress, MilestoneStatus
 
 
 class DailyBriefRenderer:
@@ -20,6 +20,7 @@ class DailyBriefRenderer:
             ),
             self._milestone_focus(brief.focus_milestone),
             self._action_table("Focus Milestone Work", brief.focus_milestone_actions),
+            self._milestone_progress_table(brief.milestone_progress),
             self._milestone_table(brief.milestones),
             self._action_table("Today's Focus", brief.next_actions),
             self._action_table("Due Today", brief.today),
@@ -54,6 +55,32 @@ class DailyBriefRenderer:
             timing = f"in {days} day{'s' if days != 1 else ''}"
 
         return Text(f"Milestone Focus: {label} — {timing} [{milestone.urgency}]")
+
+    @staticmethod
+    def _milestone_progress_table(progress: tuple[MilestoneProgress, ...]) -> Table:
+        table = Table(title="Milestone Progress")
+        table.add_column("Milestone")
+        table.add_column("Done")
+        table.add_column("Ready")
+        table.add_column("Pending")
+        table.add_column("Blocked")
+        table.add_column("Total")
+        table.add_column("Progress")
+
+        for item in progress:
+            table.add_row(
+                item.name.replace("_", " ").title(),
+                str(item.completed),
+                str(item.ready),
+                str(item.pending),
+                str(item.blocked),
+                str(item.total),
+                f"{item.percent:.1f}%",
+            )
+
+        if not progress:
+            table.add_row("-", "0", "0", "0", "0", "0", "0.0%")
+        return table
 
     @staticmethod
     def _milestone_table(milestones: tuple[MilestoneStatus, ...]) -> Table:

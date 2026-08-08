@@ -42,6 +42,24 @@ class MilestoneStatus:
 
 
 @dataclass(frozen=True, slots=True)
+class MilestoneProgress:
+    """Read-only action progress for one campaign milestone."""
+
+    name: str
+    total: int
+    completed: int
+    ready: int
+    pending: int
+    blocked: int
+
+    @property
+    def percent(self) -> float:
+        if self.total == 0:
+            return 0.0
+        return round((self.completed / self.total) * 100, 1)
+
+
+@dataclass(frozen=True, slots=True)
 class DailyBrief:
     """Read-only daily execution summary for one campaign."""
 
@@ -55,6 +73,7 @@ class DailyBrief:
     ready: tuple[Action, ...]
     next_actions: tuple[Action, ...]
     milestones: tuple[MilestoneStatus, ...]
+    milestone_progress: tuple[MilestoneProgress, ...]
     progress: ActionProgress
 
     @property
@@ -123,6 +142,7 @@ class DailyBriefService:
                 key=lambda item: (item.milestone_date, item.name),
             )
         )
+        milestone_progress = self._milestone_progress(milestones, plan.ready)
         return DailyBrief(
             organization_id=self.organization_id,
             project_id=self.project_id,
@@ -134,5 +154,38 @@ class DailyBriefService:
             ready=plan.ready,
             next_actions=next_actions,
             milestones=milestones,
+            milestone_progress=milestone_progress,
             progress=plan.progress,
         )
+
+    def _milestone_progress(
+        self,
+        milestones: tuple[MilestoneStatus, ...],
+        ready_actions: tuple[Action, ...],
+    ) -> tuple[MilestoneProgress, ...]:
+        actions = tuple(
+            action
+            for action in self.planner.action_service.repository.list()
+            if action.status != "cancelled"
+        )
+        ready_ids = {action.action_id for action in ready_actions}
+        summaries: list[MilestoneProgress] = []
+
+        for milestone in milestones:
+            linked = tuple(action for action in actions if action.milestone == milestone.name)
+            completed = sum(action.status == "completed" for action in linked)
+            blocked = sum(action.status == "blocked" for action in linked)
+            ready = sum(action.action_id in ready_ids for action in linked)
+            pending = len(linked) - completed - blocked - ready
+            summaries.append(
+                MilestoneProgress(
+                    name=milestone.name,
+                    total=len(linked),
+                    completed=completed,
+                    ready=ready,
+                    pending=pending,
+                    blocked=blocked,
+                )
+            )
+
+        return tuple(summaries)

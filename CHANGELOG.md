@@ -43,6 +43,7 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Milestone-linked campaign actions and Daily Brief focus-milestone work views.
 - Execution templates that automatically assign generated actions to their relevant campaign milestones.
 - Milestone-aware execution plan preview output showing each generated action's target milestone before apply.
+- Milestone progress summaries showing completed, ready, pending, blocked, total, and completion percentage for linked campaign work.
 
 ### Changed
 
