@@ -1,6 +1,6 @@
 """Read-only sequencing recommendations for campaign content inventories."""
 
-from models.content_inventory_report import ContentInventoryReport
+from models.content_inventory_report import ContentInventoryReport, ContentVariationGroup
 from models.content_sequence_recommendation import (
     ContentSequenceRecommendation,
     ContentSequenceRecommendationReport,
@@ -35,20 +35,20 @@ def recommend_from_report(report: ContentInventoryReport) -> ContentSequenceReco
                 ContentSequenceRecommendation(
                     recommendation_id=f"complete-{field_name}",
                     summary=(
-                        f"Complete {field_name} metadata before sequencing so variation can be assessed."
+                        f"Complete {field_name} metadata before sequencing so "
+                        "variation can be assessed."
                     ),
                     content_ids=content_ids,
                 )
             )
 
     for index, group in enumerate(report.repeated_groups, start=1):
-        dimensions = _variation_dimensions(group)
         recommendations.append(
             ContentSequenceRecommendation(
                 recommendation_id=f"vary-repeated-signature-{index}",
                 summary=(
                     "Vary at least one content dimension across these items: "
-                    + ", ".join(dimensions)
+                    + ", ".join(_variation_dimensions(group))
                     + "."
                 ),
                 content_ids=group.content_ids,
@@ -58,6 +58,6 @@ def recommend_from_report(report: ContentInventoryReport) -> ContentSequenceReco
     return ContentSequenceRecommendationReport(recommendations=tuple(recommendations))
 
 
-def _variation_dimensions(group) -> tuple[str, ...]:
-    dimensions = ["role", "format", "channel", "call-to-action"]
-    return tuple(dimensions)
+def _variation_dimensions(group: ContentVariationGroup) -> tuple[str, ...]:
+    """Return the dimensions that can be varied for a repeated signature."""
+    return ("role", "format", "channel", "call-to-action")
