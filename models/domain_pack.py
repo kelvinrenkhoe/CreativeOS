@@ -4,6 +4,8 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
+from models.planning_profile import PlanningProfile, PlanningProfileError
+
 _IDENTIFIER = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 
 
@@ -13,13 +15,14 @@ class DomainPackError(ValueError):
 
 @dataclass(frozen=True, slots=True)
 class DomainPack:
-    """Reusable domain configuration that points to campaign execution templates."""
+    """Reusable domain configuration for campaign planning and execution."""
 
     pack_id: str
     name: str
     description: str = ""
     template_ids: tuple[str, ...] = ()
     default_template_id: str | None = None
+    planning_profile: PlanningProfile | None = None
 
     def __post_init__(self) -> None:
         pack_id = _identifier(self.pack_id, "pack_id")
@@ -38,6 +41,10 @@ class DomainPack:
             raise DomainPackError("name must be a non-empty string")
         if default_template_id is not None and default_template_id not in template_ids:
             raise DomainPackError("default_template_id must reference a declared template")
+        if self.planning_profile is not None and not isinstance(
+            self.planning_profile, PlanningProfile
+        ):
+            raise DomainPackError("planning_profile must be a PlanningProfile")
 
         object.__setattr__(self, "pack_id", pack_id)
         object.__setattr__(self, "name", name)
@@ -56,6 +63,7 @@ class DomainPack:
         description = data.get("description", "")
         template_ids = data.get("templates", [])
         default_template_id = data.get("default_template")
+        raw_planning = data.get("planning")
 
         if not isinstance(pack_id, str):
             raise DomainPackError("domain_pack.id is required")
@@ -70,12 +78,20 @@ class DomainPack:
         if default_template_id is not None and not isinstance(default_template_id, str):
             raise DomainPackError("domain_pack.default_template must be a string")
 
+        try:
+            planning_profile = (
+                None if raw_planning is None else PlanningProfile.from_dict(raw_planning)
+            )
+        except PlanningProfileError as exc:
+            raise DomainPackError(f"invalid domain_pack.planning: {exc}") from exc
+
         return cls(
             pack_id=pack_id,
             name=name,
             description=description,
             template_ids=tuple(template_ids),
             default_template_id=default_template_id,
+            planning_profile=planning_profile,
         )
 
 
