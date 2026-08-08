@@ -1,7 +1,8 @@
 id: milestone-campaign
 name: Milestone Campaign
-description: Coordinate execution around content freeze, launch, and performance review milestones.
+description: Coordinate a phased music release from campaign start through performance review.
 milestones:
+  - campaign_start
   - content_freeze
   - launch
   - performance_review
@@ -10,22 +11,68 @@ variables:
     description: Primary publishing channel.
     default: social
 actions:
+  - id: define-rollout-brief
+    title: Define release rollout brief
+    description: Confirm the release objective, audience, messaging, and primary channel.
+    priority: high
+    due_date: "{{ campaign_start }}"
+    milestone: campaign_start
+
+  - id: plan-content-sequence
+    title: Plan pre-release content sequence
+    description: Map teaser, story, performance, and release content before production is locked.
+    priority: high
+    due_date: "{{ content_freeze - 5d }}"
+    milestone: content_freeze
+    depends_on:
+      - define-rollout-brief
+
+  - id: produce-release-assets
+    title: Produce release campaign assets
+    description: Prepare approved artwork, short-form video, copy, links, and platform assets.
+    priority: high
+    due_date: "{{ content_freeze - 2d }}"
+    milestone: content_freeze
+    depends_on:
+      - plan-content-sequence
+
   - id: finalize-assets
     title: Finalize campaign assets
     description: Lock approved creative and copy before the content freeze milestone.
     priority: high
     due_date: "{{ content_freeze }}"
     milestone: content_freeze
+    depends_on:
+      - produce-release-assets
+
+  - id: schedule-teaser
+    title: Schedule {{ primary_channel }} pre-release teaser
+    description: Prepare the first approved teaser after campaign assets are frozen.
+    priority: high
+    channel: "{{ primary_channel }}"
+    due_date: "{{ launch - 5d }}"
+    milestone: launch
+    depends_on:
+      - finalize-assets
+
+  - id: publish-teaser
+    title: Publish {{ primary_channel }} pre-release teaser
+    priority: high
+    channel: "{{ primary_channel }}"
+    due_date: "{{ launch - 4d }}"
+    milestone: launch
+    depends_on:
+      - schedule-teaser
 
   - id: schedule-launch
     title: Schedule {{ primary_channel }} launch content
-    description: Prepare the primary launch publication after assets are frozen.
+    description: Prepare the primary launch publication and release call to action.
     priority: high
     channel: "{{ primary_channel }}"
     due_date: "{{ launch - 1d }}"
     milestone: launch
     depends_on:
-      - finalize-assets
+      - publish-teaser
 
   - id: publish-launch
     title: Publish {{ primary_channel }} launch content
@@ -36,6 +83,25 @@ actions:
     depends_on:
       - schedule-launch
 
+  - id: publish-follow-up
+    title: Publish {{ primary_channel }} post-release follow-up
+    description: Sustain release momentum with follow-up content after launch day.
+    priority: high
+    channel: "{{ primary_channel }}"
+    due_date: "{{ launch + 3d }}"
+    milestone: performance_review
+    depends_on:
+      - publish-launch
+
+  - id: collect-performance-signals
+    title: Collect early campaign performance signals
+    description: Gather early execution and audience signals ahead of the performance review.
+    priority: normal
+    due_date: "{{ performance_review - 1d }}"
+    milestone: performance_review
+    depends_on:
+      - publish-follow-up
+
   - id: review-performance
     title: Review campaign performance
     description: Review results at the campaign performance review milestone.
@@ -43,4 +109,4 @@ actions:
     due_date: "{{ performance_review }}"
     milestone: performance_review
     depends_on:
-      - publish-launch
+      - collect-performance-signals
