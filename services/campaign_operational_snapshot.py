@@ -1,12 +1,10 @@
 """Stable machine-readable snapshot of campaign operational state."""
 
-from dataclasses import asdict, dataclass
-from typing import Any
+from dataclasses import dataclass
 
 from services.campaign_attention import CampaignAttentionService
+from services.campaign_next_focus import CampaignNextFocusService
 from services.campaign_workspace import CampaignWorkspaceReport
-
-from .campaign_next_focus import CampaignNextFocusService
 
 
 SNAPSHOT_SCHEMA_VERSION = "1"
@@ -17,15 +15,22 @@ class CampaignOperationalSnapshot:
     """Serializable operational contract for API, reporting, and integrations."""
 
     schema_version: str
-    campaign: dict[str, Any]
-    execution: dict[str, Any]
-    assets: dict[str, Any]
-    attention: tuple[dict[str, Any], ...]
-    next_focus: dict[str, Any] | None
+    campaign: dict[str, object]
+    execution: dict[str, object]
+    assets: dict[str, object]
+    attention: tuple[dict[str, object], ...]
+    next_focus: dict[str, object] | None
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, object]:
         """Return a JSON-compatible representation with a stable top-level shape."""
-        return asdict(self)
+        return {
+            "schema_version": self.schema_version,
+            "campaign": self.campaign,
+            "execution": self.execution,
+            "assets": self.assets,
+            "attention": self.attention,
+            "next_focus": self.next_focus,
+        }
 
 
 class CampaignOperationalSnapshotService:
