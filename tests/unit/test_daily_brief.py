@@ -43,6 +43,7 @@ def test_daily_brief_is_empty_for_campaign_without_actions(tmp_path: Path) -> No
     assert brief.blocked == ()
     assert brief.next_actions == ()
     assert brief.milestones == ()
+    assert brief.focus_milestone is None
     assert brief.recommended_next is None
     assert brief.progress.total == 0
 
@@ -77,9 +78,39 @@ def test_daily_brief_orders_and_classifies_campaign_milestones(tmp_path: Path) -
         "launch",
     ]
     assert [milestone.days_from_brief for milestone in brief.milestones] == [-2, 0, 6]
-    assert brief.milestones[0].is_overdue
-    assert brief.milestones[1].is_today
-    assert not brief.milestones[2].is_overdue
+    assert [milestone.urgency for milestone in brief.milestones] == [
+        "overdue",
+        "today",
+        "upcoming",
+    ]
+    assert brief.focus_milestone is not None
+    assert brief.focus_milestone.name == "content_freeze"
+
+
+def test_daily_brief_focuses_nearest_future_milestone(tmp_path: Path) -> None:
+    make_campaign(
+        tmp_path,
+        milestones="  launch: 2026-08-15\n  content_freeze: 2026-08-10\n",
+    )
+
+    brief = DailyBriefService(tmp_path, "kre", "no-lose-guard", "launch").build(date(2026, 8, 8))
+
+    assert brief.focus_milestone is not None
+    assert brief.focus_milestone.name == "content_freeze"
+    assert brief.focus_milestone.urgency == "imminent"
+
+
+def test_daily_brief_focuses_latest_overdue_when_all_milestones_are_past(tmp_path: Path) -> None:
+    make_campaign(
+        tmp_path,
+        milestones="  briefing: 2026-08-01\n  content_freeze: 2026-08-07\n",
+    )
+
+    brief = DailyBriefService(tmp_path, "kre", "no-lose-guard", "launch").build(date(2026, 8, 8))
+
+    assert brief.focus_milestone is not None
+    assert brief.focus_milestone.name == "content_freeze"
+    assert brief.focus_milestone.urgency == "overdue"
 
 
 def test_today_command_renders_daily_brief(tmp_path: Path, monkeypatch) -> None:
@@ -106,9 +137,11 @@ def test_today_command_renders_daily_brief(tmp_path: Path, monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert "CreativeOS Daily Brief" in result.stdout
+    assert "Milestone Focus" in result.stdout
     assert "Campaign Milestones" in result.stdout
     assert "Content Freeze" in result.stdout
     assert "Today" in result.stdout
+    assert "today" in result.stdout
     assert "Launch" in result.stdout
     assert "in 7 days" in result.stdout
     assert "Publish Reel" in result.stdout

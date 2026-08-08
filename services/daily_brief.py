@@ -28,6 +28,19 @@ class MilestoneStatus:
     def is_overdue(self) -> bool:
         return self.days_from_brief < 0
 
+    @property
+    def urgency(self) -> str:
+        """Return a deterministic urgency label for this milestone."""
+        if self.is_overdue:
+            return "overdue"
+        if self.is_today:
+            return "today"
+        if self.days_from_brief <= 3:
+            return "imminent"
+        if self.days_from_brief <= 7:
+            return "upcoming"
+        return "later"
+
 
 @dataclass(frozen=True, slots=True)
 class DailyBrief:
@@ -48,6 +61,16 @@ class DailyBrief:
     @property
     def recommended_next(self) -> Action | None:
         return self.next_actions[0] if self.next_actions else None
+
+    @property
+    def focus_milestone(self) -> MilestoneStatus | None:
+        """Return the nearest current/future milestone, or latest overdue milestone."""
+        current_or_future = tuple(
+            milestone for milestone in self.milestones if milestone.days_from_brief >= 0
+        )
+        if current_or_future:
+            return current_or_future[0]
+        return self.milestones[-1] if self.milestones else None
 
 
 class DailyBriefService:
