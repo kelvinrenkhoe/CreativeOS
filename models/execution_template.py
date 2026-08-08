@@ -9,7 +9,7 @@ from models.action import Action, ActionError
 
 _TEMPLATE_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 _VARIABLE_ID = re.compile(r"^[a-z][a-z0-9_]*$")
-_CONTENT_ROLE_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
+_METADATA_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 _PLACEHOLDER = re.compile(r"{{\s*([a-z][a-z0-9_]*)(?:\s*([+-])\s*(\d+)d)?\s*}}")
 
 
@@ -49,6 +49,7 @@ class ExecutionTemplate:
     variables: tuple[TemplateVariable, ...] = ()
     milestones: tuple[str, ...] = ()
     content_roles: tuple[str, ...] = ()
+    content_formats: tuple[str, ...] = ()
     action_specs: tuple[dict[str, Any], ...] = ()
 
     def __post_init__(self) -> None:
@@ -56,7 +57,13 @@ class ExecutionTemplate:
         name = self.name.strip()
         description = self.description.strip()
         milestones = tuple(milestone.strip().casefold() for milestone in self.milestones)
-        content_roles = tuple(_normalize_content_role(role) for role in self.content_roles)
+        content_roles = tuple(
+            _normalize_metadata(role, "content roles") for role in self.content_roles
+        )
+        content_formats = tuple(
+            _normalize_metadata(content_format, "content formats")
+            for content_format in self.content_formats
+        )
 
         if not _TEMPLATE_ID.fullmatch(template_id):
             raise ExecutionTemplateError("template_id must be a path-safe identifier")
@@ -74,6 +81,8 @@ class ExecutionTemplate:
             raise ExecutionTemplateError("template milestone names must be safe identifiers")
         if len(content_roles) != len(set(content_roles)):
             raise ExecutionTemplateError("template content roles must be unique")
+        if len(content_formats) != len(set(content_formats)):
+            raise ExecutionTemplateError("template content formats must be unique")
         collisions = sorted(set(variable_names) & set(milestones))
         if collisions:
             raise ExecutionTemplateError(
@@ -85,7 +94,8 @@ class ExecutionTemplate:
         object.__setattr__(self, "description", description)
         object.__setattr__(self, "milestones", milestones)
         object.__setattr__(self, "content_roles", content_roles)
-        self._validate_content_roles(self.actions)
+        object.__setattr__(self, "content_formats", content_formats)
+        self._validate_metadata(self.actions)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ExecutionTemplate":
@@ -100,6 +110,7 @@ class ExecutionTemplate:
         raw_variables = data.get("variables", {})
         raw_milestones = data.get("milestones", [])
         raw_content_roles = data.get("content_roles", [])
+        raw_content_formats = data.get("content_formats", [])
 
         if not isinstance(template_id, str):
             raise ExecutionTemplateError("template.id is required")
@@ -111,14 +122,9 @@ class ExecutionTemplate:
             raise ExecutionTemplateError("template.actions must be a list")
         if not isinstance(raw_variables, dict):
             raise ExecutionTemplateError("template.variables must be a mapping")
-        if not isinstance(raw_milestones, list) or not all(
-            isinstance(item, str) for item in raw_milestones
-        ):
-            raise ExecutionTemplateError("template.milestones must be a list of strings")
-        if not isinstance(raw_content_roles, list) or not all(
-            isinstance(item, str) for item in raw_content_roles
-        ):
-            raise ExecutionTemplateError("template.content_roles must be a list of strings")
+        _validate_string_list(raw_milestones, "milestones")
+        _validate_string_list(raw_content_roles, "content_roles")
+        _validate_string_list(raw_content_formats, "content_formats")
 
         variables = tuple(
             _parse_variable(variable_name, definition)
@@ -144,6 +150,7 @@ class ExecutionTemplate:
             variables=variables,
             milestones=tuple(raw_milestones),
             content_roles=tuple(raw_content_roles),
+            content_formats=tuple(raw_content_formats),
             action_specs=action_specs,
         )
         template._validate_placeholders()
@@ -168,7 +175,7 @@ class ExecutionTemplate:
             actions = tuple(Action.from_dict(spec) for spec in rendered_specs)
         except ActionError as exc:
             raise ExecutionTemplateError(f"invalid rendered template action: {exc}") from exc
-        self._validate_content_roles(actions)
+        self._validate_metadata(actions)
         return actions
 
     def _resolve_variables(self, supplied: dict[str, str]) -> dict[str, str]:
@@ -209,13 +216,26 @@ class ExecutionTemplate:
         if undeclared:
             raise ExecutionTemplateError(f"undeclared template values: {', '.join(undeclared)}")
 
-    def _validate_content_roles(self, actions: tuple[Action, ...]) -> None:
-        used = {action.content_role for action in actions if action.content_role is not None}
-        undeclared = sorted(used - set(self.content_roles))
-        if undeclared:
+    def _validate_metadata(self, actions: tuple[Action, ...]) -> None:
+        used_roles = {action.content_role for action in actions if action.content_role is not None}
+        used_formats = {
+            action.content_format for action in actions if action.content_format is not None
+        }
+        undeclared_roles = sorted(used_roles - set(self.content_roles))
+        undeclared_formats = sorted(used_formats - set(self.content_formats))
+        if undeclared_roles:
             raise ExecutionTemplateError(
-                f"undeclared template content roles: {', '.join(undeclared)}"
+                f"undeclared template content roles: {', '.join(undeclared_roles)}"
             )
+        if undeclared_formats:
+            raise ExecutionTemplateError(
+                f"undeclared template content formats: {', '.join(undeclared_formats)}"
+            )
+
+
+def _validate_string_list(value: Any, field_name: str) -> None:
+    if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+        raise ExecutionTemplateError(f"template.{field_name} must be a list of strings")
 
 
 def _parse_variable(name: str, definition: Any) -> TemplateVariable:
@@ -307,8 +327,8 @@ def _copy_action_spec(value: Any) -> dict[str, Any]:
     return dict(value)
 
 
-def _normalize_content_role(value: str) -> str:
+def _normalize_metadata(value: str, label: str) -> str:
     normalized = value.strip().casefold().replace("_", "-").replace(" ", "-")
-    if not _CONTENT_ROLE_ID.fullmatch(normalized):
-        raise ExecutionTemplateError("template content roles must be safe identifiers")
+    if not _METADATA_ID.fullmatch(normalized):
+        raise ExecutionTemplateError(f"template {label} must be safe identifiers")
     return normalized

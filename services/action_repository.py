@@ -139,4 +139,6 @@ class ActionRepository:
             data["milestone"] = action.milestone
         if action.content_role is not None:
             data["content_role"] = action.content_role
+        if action.content_format is not None:
+            data["content_format"] = action.content_format
         return data
