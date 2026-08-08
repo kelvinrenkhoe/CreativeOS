@@ -11,6 +11,10 @@ runner = CliRunner()
 TEMPLATE = """id: milestone-campaign
 name: Milestone Campaign
 description: Test milestone-aware release execution.
+milestones:
+  - content_freeze
+  - launch
+  - performance_review
 variables:
   primary_channel:
     default: social
