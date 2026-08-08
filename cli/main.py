@@ -17,6 +17,7 @@ from cli.campaign_history import campaign_history_command
 from cli.campaign_milestone import app as campaign_milestone_app
 from cli.campaign_plan import campaign_plan_command
 from cli.campaign_run import campaign_run_command
+from cli.campaign_start import campaign_start_command
 from cli.daily_brief import today_command
 from cli.execution import app as execution_app
 from cli.index import app as index_app
@@ -50,6 +51,7 @@ campaign_app.registered_commands = [
     command for command in campaign_app.registered_commands if command.name != "run"
 ]
 campaign_app.command("run")(campaign_run_command)
+campaign_app.command("start")(campaign_start_command)
 campaign_app.command("ai-plan")(campaign_plan_command)
 campaign_app.command("history")(campaign_history_command)
 campaign_app.add_typer(campaign_checkpoint_app, name="checkpoint")
