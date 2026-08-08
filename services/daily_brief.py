@@ -92,6 +92,16 @@ class MilestoneIntervention:
 
 
 @dataclass(frozen=True, slots=True)
+class CampaignDecisionSummary:
+    """Campaign-level decision support derived from milestone intelligence."""
+
+    status: str
+    milestone: str | None
+    reason: str
+    suggestion: str
+
+
+@dataclass(frozen=True, slots=True)
 class DailyBrief:
     """Read-only daily execution summary for one campaign."""
 
@@ -109,6 +119,7 @@ class DailyBrief:
     milestone_health: tuple[MilestoneHealth, ...]
     milestone_attention: tuple[MilestoneAttention, ...]
     milestone_interventions: tuple[MilestoneIntervention, ...]
+    campaign_decision: CampaignDecisionSummary
     progress: ActionProgress
 
     @property
@@ -192,6 +203,11 @@ class DailyBriefService:
             milestone_health,
         )
         milestone_interventions = self._milestone_interventions(milestone_attention)
+        campaign_decision = self._campaign_decision(
+            milestone_health,
+            milestone_attention,
+            milestone_interventions,
+        )
         return DailyBrief(
             organization_id=self.organization_id,
             project_id=self.project_id,
@@ -207,6 +223,7 @@ class DailyBriefService:
             milestone_health=milestone_health,
             milestone_attention=milestone_attention,
             milestone_interventions=milestone_interventions,
+            campaign_decision=campaign_decision,
             progress=plan.progress,
         )
 
@@ -343,3 +360,39 @@ class DailyBriefService:
                 )
             interventions.append(MilestoneIntervention(item.name, item.status, suggestion))
         return tuple(interventions)
+
+    @staticmethod
+    def _campaign_decision(
+        health: tuple[MilestoneHealth, ...],
+        attention: tuple[MilestoneAttention, ...],
+        interventions: tuple[MilestoneIntervention, ...],
+    ) -> CampaignDecisionSummary:
+        if attention:
+            priority = attention[0]
+            intervention_by_name = {item.name: item for item in interventions}
+            suggestion = intervention_by_name[priority.name].suggestion
+            status = "at-risk" if priority.status == "at-risk" else "watch"
+            return CampaignDecisionSummary(status, priority.name, priority.reason, suggestion)
+
+        if health and all(item.status == "complete" for item in health):
+            return CampaignDecisionSummary(
+                "complete",
+                None,
+                "all tracked milestones are complete",
+                "No campaign intervention required.",
+            )
+
+        if health and all(item.status in {"complete", "on-track"} for item in health):
+            return CampaignDecisionSummary(
+                "on-track",
+                None,
+                "no tracked milestone currently requires intervention",
+                "Continue with the existing execution plan.",
+            )
+
+        return CampaignDecisionSummary(
+            "untracked",
+            None,
+            "campaign milestones do not yet provide enough tracked execution signal",
+            "Link executable campaign actions to milestones to enable decision support.",
+        )
