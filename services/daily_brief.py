@@ -13,6 +13,23 @@ from services.execution_planner import ExecutionPlanner
 
 
 @dataclass(frozen=True, slots=True)
+class MilestoneStatus:
+    """One campaign milestone relative to the Daily Brief date."""
+
+    name: str
+    milestone_date: date
+    days_from_brief: int
+
+    @property
+    def is_today(self) -> bool:
+        return self.days_from_brief == 0
+
+    @property
+    def is_overdue(self) -> bool:
+        return self.days_from_brief < 0
+
+
+@dataclass(frozen=True, slots=True)
 class DailyBrief:
     """Read-only daily execution summary for one campaign."""
 
@@ -25,6 +42,7 @@ class DailyBrief:
     blocked: tuple[Action, ...]
     ready: tuple[Action, ...]
     next_actions: tuple[Action, ...]
+    milestones: tuple[MilestoneStatus, ...]
     progress: ActionProgress
 
     @property
@@ -64,6 +82,19 @@ class DailyBriefService:
         target = on_date or date.today()
         plan = self.planner.plan(target)
         next_actions = self.planner.next(target, limit=next_limit)
+        milestones = tuple(
+            sorted(
+                (
+                    MilestoneStatus(
+                        name=name,
+                        milestone_date=milestone_date,
+                        days_from_brief=(milestone_date - target).days,
+                    )
+                    for name, milestone_date in self.campaign.milestones
+                ),
+                key=lambda item: (item.milestone_date, item.name),
+            )
+        )
         return DailyBrief(
             organization_id=self.organization_id,
             project_id=self.project_id,
@@ -74,5 +105,6 @@ class DailyBriefService:
             blocked=plan.blocked,
             ready=plan.ready,
             next_actions=next_actions,
+            milestones=milestones,
             progress=plan.progress,
         )
