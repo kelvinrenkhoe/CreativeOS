@@ -77,9 +77,7 @@ class CampaignStartService:
             raise CampaignStartError(f"unable to resolve domain pack: {exc}") from exc
 
         if pack.planning_profile is None:
-            raise CampaignStartError(
-                f"domain pack {pack.pack_id!r} has no planning profile"
-            )
+            raise CampaignStartError(f"domain pack {pack.pack_id!r} has no planning profile")
         start_date, end_date, milestones = pack.planning_profile.resolve(release_date)
 
         campaign = CampaignContext(
