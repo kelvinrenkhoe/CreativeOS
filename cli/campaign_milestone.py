@@ -15,6 +15,12 @@ from services.project_context import ProjectContextLoadError
 
 app = typer.Typer(help="Inspect and manage campaign milestone dates.", no_args_is_help=True)
 console = Console()
+CLI_ERRORS = (
+    OrganizationLoadError,
+    ProjectContextLoadError,
+    CampaignMilestoneServiceError,
+    ValueError,
+)
 
 
 def _service(organization_id: str, project_id: str, campaign_id: str) -> CampaignMilestoneService:
@@ -32,15 +38,6 @@ def _handle_error(exc: Exception) -> None:
     raise typer.Exit(code=1) from exc
 
 
-def _errors() -> tuple[type[Exception], ...]:
-    return (
-        OrganizationLoadError,
-        ProjectContextLoadError,
-        CampaignMilestoneServiceError,
-        ValueError,
-    )
-
-
 @app.command("list")
 def list_milestones(
     organization_id: str = typer.Option(..., "--org", help="Organization identifier."),
@@ -50,7 +47,7 @@ def list_milestones(
     """List named milestone dates for one campaign."""
     try:
         milestones = _service(organization_id, project_id, campaign_id).list()
-    except _errors() as exc:
+    except CLI_ERRORS as exc:
         _handle_error(exc)
 
     table = Table(title="Campaign Milestones")
@@ -74,7 +71,7 @@ def set_milestone(
     """Create or update one campaign milestone."""
     try:
         campaign = _service(organization_id, project_id, campaign_id).set(name, value)
-    except _errors() as exc:
+    except CLI_ERRORS as exc:
         _handle_error(exc)
 
     milestone_name = name.strip().casefold()
@@ -94,7 +91,7 @@ def remove_milestone(
     """Remove one campaign milestone."""
     try:
         _service(organization_id, project_id, campaign_id).remove(name)
-    except _errors() as exc:
+    except CLI_ERRORS as exc:
         _handle_error(exc)
 
     console.print(f"[bold green]Removed milestone[/bold green] {name}")
