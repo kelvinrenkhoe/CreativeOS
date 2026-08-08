@@ -7,11 +7,9 @@ from typing import Any
 
 _ACTION_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 _MILESTONE_ID = re.compile(r"^[a-z][a-z0-9_]*$")
+_CONTENT_ROLE_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 _ALLOWED_STATUSES = frozenset({"pending", "in-progress", "blocked", "completed", "cancelled"})
 _ALLOWED_PRIORITIES = frozenset({"low", "normal", "high", "critical"})
-_ALLOWED_CONTENT_ROLES = frozenset(
-    {"teaser", "story", "performance", "social-proof", "release-day", "follow-up"}
-)
 
 
 class ActionError(ValueError):
@@ -45,9 +43,7 @@ class Action:
         )
         milestone = None if self.milestone is None else _normalize_milestone(self.milestone)
         content_role = (
-            None
-            if self.content_role is None
-            else self.content_role.strip().casefold().replace("_", "-").replace(" ", "-")
+            None if self.content_role is None else _normalize_content_role(self.content_role)
         )
 
         if not title:
@@ -58,9 +54,6 @@ class Action:
         if priority not in _ALLOWED_PRIORITIES:
             allowed = ", ".join(sorted(_ALLOWED_PRIORITIES))
             raise ActionError(f"priority must be one of: {allowed}")
-        if content_role is not None and content_role not in _ALLOWED_CONTENT_ROLES:
-            allowed = ", ".join(sorted(_ALLOWED_CONTENT_ROLES))
-            raise ActionError(f"content_role must be one of: {allowed}")
         if action_id in depends_on:
             raise ActionError("action cannot depend on itself")
 
@@ -144,6 +137,13 @@ def _normalize_milestone(value: str) -> str:
     normalized = value.strip().casefold()
     if not _MILESTONE_ID.fullmatch(normalized):
         raise ActionError("milestone must be a safe campaign milestone identifier")
+    return normalized
+
+
+def _normalize_content_role(value: str) -> str:
+    normalized = value.strip().casefold().replace("_", "-").replace(" ", "-")
+    if not _CONTENT_ROLE_ID.fullmatch(normalized):
+        raise ActionError("content_role must be a safe content role identifier")
     return normalized
 
 
