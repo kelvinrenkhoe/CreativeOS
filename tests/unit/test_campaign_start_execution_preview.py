@@ -45,6 +45,15 @@ name: Music Release
 templates:
   - milestone-campaign
 default_template: milestone-campaign
+planning:
+  anchor: release_date
+  start_offset_days: -21
+  end_offset_days: 7
+  milestones:
+    campaign_start: -21
+    content_freeze: -7
+    launch: 0
+    performance_review: 7
 """
 
 
