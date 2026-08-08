@@ -25,7 +25,11 @@ class ActionRepository:
         project_id: str,
         campaign_id: str,
     ) -> None:
-        self.campaign_service = CampaignContextService(repository_root, organization_id, project_id)
+        self.campaign_service = CampaignContextService(
+            repository_root,
+            organization_id,
+            project_id,
+        )
         self.campaign = self.campaign_service.load(campaign_id)
         self.campaign_root = self.campaign_service.campaign_path(campaign_id)
         self.actions_root = self.campaign_root / ACTIONS_DIRECTORY
@@ -34,6 +38,7 @@ class ActionRepository:
         """Return all valid campaign actions in stable identifier order."""
         if not self.actions_root.is_dir():
             return ()
+
         actions: list[Action] = []
         for config_path in sorted(self.actions_root.glob(f"*{ACTION_SUFFIX}")):
             if config_path.is_file():
@@ -46,7 +51,9 @@ class ActionRepository:
         config_path = self.actions_root / f"{requested}{ACTION_SUFFIX}"
         if not config_path.is_file():
             campaign_id = self.campaign.campaign_id
-            raise ActionRepositoryError(f"unknown action {requested!r} for campaign {campaign_id!r}")
+            raise ActionRepositoryError(
+                f"unknown action {requested!r} for campaign {campaign_id!r}"
+            )
         return self._load_file(config_path, expected_id=requested)
 
     def save(self, action: Action) -> Path:
@@ -54,12 +61,17 @@ class ActionRepository:
         config_path = self.action_path(action.action_id)
         self.actions_root.mkdir(parents=True, exist_ok=True)
         temporary_path = config_path.with_suffix(f"{ACTION_SUFFIX}.tmp")
+
         try:
-            temporary_path.write_text(yaml.safe_dump(self._to_dict(action), sort_keys=False), encoding="utf-8")
+            temporary_path.write_text(
+                yaml.safe_dump(self._to_dict(action), sort_keys=False),
+                encoding="utf-8",
+            )
             temporary_path.replace(config_path)
         except OSError as exc:
             temporary_path.unlink(missing_ok=True)
             raise ActionRepositoryError(f"unable to write {config_path}: {exc}") from exc
+
         return config_path
 
     def delete(self, action_id: str) -> None:
@@ -95,17 +107,26 @@ class ActionRepository:
             raise ActionRepositoryError(f"unable to read {config_path}: {exc}") from exc
         except yaml.YAMLError as exc:
             raise ActionRepositoryError(f"invalid YAML in {config_path}: {exc}") from exc
+
         try:
             action = Action.from_dict(raw)
         except ActionError as exc:
             raise ActionRepositoryError(f"invalid action configuration: {exc}") from exc
+
         if action.action_id != expected_id:
-            raise ActionRepositoryError(f"action id {action.action_id!r} does not match filename {expected_id!r}")
+            raise ActionRepositoryError(
+                f"action id {action.action_id!r} does not match filename {expected_id!r}"
+            )
         return action
 
     @staticmethod
     def _to_dict(action: Action) -> dict[str, object]:
-        data: dict[str, object] = {"id": action.action_id, "title": action.title, "status": action.status, "priority": action.priority}
+        data: dict[str, object] = {
+            "id": action.action_id,
+            "title": action.title,
+            "status": action.status,
+            "priority": action.priority,
+        }
         if action.description:
             data["description"] = action.description
         if action.due_date is not None:
