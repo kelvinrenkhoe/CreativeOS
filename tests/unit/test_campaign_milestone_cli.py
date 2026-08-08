@@ -1,4 +1,3 @@
-from datetime import date
 from pathlib import Path
 
 import yaml
@@ -81,8 +80,8 @@ def test_milestone_set_adds_date_and_preserves_campaign_metadata(
     assert raw["objective"] == "Promote release"
     assert raw["channels"] == ["instagram"]
     assert raw["milestones"] == {
-        "launch": date(2026, 9, 1),
-        "content_freeze": date(2026, 8, 25),
+        "launch": "2026-09-01",
+        "content_freeze": "2026-08-25",
     }
 
 
@@ -94,7 +93,7 @@ def test_milestone_set_updates_existing_date(tmp_path: Path, monkeypatch) -> Non
 
     assert result.exit_code == 0
     raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-    assert raw["milestones"]["launch"] == date(2026, 9, 2)
+    assert raw["milestones"]["launch"] == "2026-09-02"
 
 
 def test_milestone_set_normalizes_identifier_case(tmp_path: Path, monkeypatch) -> None:
@@ -105,7 +104,7 @@ def test_milestone_set_normalizes_identifier_case(tmp_path: Path, monkeypatch) -
 
     assert result.exit_code == 0
     raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-    assert raw["milestones"]["performance_review"] == date(2026, 9, 8)
+    assert raw["milestones"]["performance_review"] == "2026-09-08"
     assert "Performance_Review" not in raw["milestones"]
 
 
@@ -142,7 +141,7 @@ def test_milestone_remove_deletes_only_requested_date(tmp_path: Path, monkeypatc
 
     assert result.exit_code == 0
     raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-    assert raw["milestones"] == {"launch": date(2026, 9, 1)}
+    assert raw["milestones"] == {"launch": "2026-09-01"}
 
 
 def test_milestone_remove_unknown_name_is_safe(tmp_path: Path, monkeypatch) -> None:
