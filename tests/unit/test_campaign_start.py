@@ -21,9 +21,27 @@ def make_project(tmp_path: Path) -> None:
         "id: no-lose-guard\nname: No Lose Guard\ntype: song\n",
         encoding="utf-8",
     )
+    packs_root = tmp_path / "templates" / "domain-packs"
+    templates_root = tmp_path / "templates" / "execution"
+    packs_root.mkdir(parents=True)
+    templates_root.mkdir(parents=True)
+    (packs_root / "music-release.yaml").write_text(
+        "id: music-release\n"
+        "name: Music Release\n"
+        "templates:\n"
+        "  - milestone-campaign\n"
+        "default_template: milestone-campaign\n",
+        encoding="utf-8",
+    )
+    (templates_root / "milestone-campaign.yaml").write_text(
+        "id: milestone-campaign\n"
+        "name: Milestone Campaign\n"
+        "actions: []\n",
+        encoding="utf-8",
+    )
 
 
-def test_campaign_start_plan_derives_music_release_milestones(tmp_path: Path) -> None:
+def test_campaign_start_plan_resolves_music_release_domain_pack(tmp_path: Path) -> None:
     make_project(tmp_path)
     service = CampaignStartService(tmp_path, "kre", "no-lose-guard")
 
@@ -35,6 +53,8 @@ def test_campaign_start_plan_derives_music_release_milestones(tmp_path: Path) ->
         channels=("instagram", "tiktok", "spotify"),
     )
 
+    assert plan.domain_pack_id == "music-release"
+    assert plan.recommended_template_id == "milestone-campaign"
     assert plan.campaign.campaign_type == "music-release"
     assert plan.campaign.status == "draft"
     assert plan.campaign.start_date == date(2026, 8, 11)
@@ -46,6 +66,25 @@ def test_campaign_start_plan_derives_music_release_milestones(tmp_path: Path) ->
         "performance_review": date(2026, 9, 8),
     }
     assert not plan.destination.exists()
+
+
+def test_campaign_start_rejects_unknown_domain_pack(tmp_path: Path) -> None:
+    make_project(tmp_path)
+    service = CampaignStartService(tmp_path, "kre", "no-lose-guard")
+
+    try:
+        service.plan(
+            "launch",
+            "Launch",
+            date(2026, 9, 1),
+            objective="Build awareness.",
+            channels=("instagram",),
+            domain_pack_id="unknown-pack",
+        )
+    except CampaignStartError as exc:
+        assert "unable to resolve domain pack" in str(exc)
+    else:
+        raise AssertionError("expected CampaignStartError")
 
 
 def test_campaign_start_requires_at_least_one_channel(tmp_path: Path) -> None:
@@ -111,7 +150,8 @@ def test_campaign_start_cli_previews_without_writing(tmp_path: Path, monkeypatch
     )
 
     assert result.exit_code == 0
-    assert "Music Release Campaign Start" in result.stdout
+    assert "Campaign Start" in result.stdout
+    assert "music-release" in result.stdout
     assert "Planned Milestones" in result.stdout
     assert "2026-09-01" in result.stdout
     assert "No changes written" in result.stdout
