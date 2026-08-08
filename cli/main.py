@@ -14,6 +14,7 @@ from cli.campaign_fix import fix_command
 from cli.campaign_fix_rollback import rollback_plan_command
 from cli.campaign_fix_rollback_execute import rollback_command
 from cli.campaign_history import campaign_history_command
+from cli.campaign_milestone import app as campaign_milestone_app
 from cli.campaign_plan import campaign_plan_command
 from cli.campaign_run import campaign_run_command
 from cli.daily_brief import today_command
@@ -52,6 +53,7 @@ campaign_app.command("run")(campaign_run_command)
 campaign_app.command("ai-plan")(campaign_plan_command)
 campaign_app.command("history")(campaign_history_command)
 campaign_app.add_typer(campaign_checkpoint_app, name="checkpoint")
+campaign_app.add_typer(campaign_milestone_app, name="milestone")
 campaign_app.add_typer(week_plan_app, name="week")
 campaign_app.command("fix")(fix_command)
 campaign_app.command("rollback-plan")(rollback_plan_command)
