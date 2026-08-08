@@ -35,7 +35,14 @@ class DomainPackRegistry:
 
     def load(self, pack_id: str) -> DomainPack:
         """Load one domain pack by path-safe identifier."""
-        normalized = DomainPack(pack_id=pack_id, name="validation-placeholder").pack_id
+        try:
+            normalized = DomainPack(
+                pack_id=pack_id,
+                name="validation-placeholder",
+            ).pack_id
+        except DomainPackError as exc:
+            raise DomainPackRegistryError(str(exc)) from exc
+
         path = (self.packs_root / f"{normalized}.yaml").resolve()
         if path.parent != self.packs_root:
             raise DomainPackRegistryError("domain pack path escaped registry directory")
@@ -47,7 +54,9 @@ class DomainPackRegistry:
         """Resolve a pack's explicitly declared default execution template."""
         pack = self.load(pack_id)
         if pack.default_template_id is None:
-            raise DomainPackRegistryError(f"domain pack {pack.pack_id!r} has no default template")
+            raise DomainPackRegistryError(
+                f"domain pack {pack.pack_id!r} has no default template"
+            )
         return pack.default_template_id
 
     def _load_path(self, path: Path, *, expected_id: str) -> DomainPack:
@@ -80,9 +89,11 @@ class DomainPackRegistry:
                 template = ExecutionTemplate.from_dict(raw)
             except (OSError, yaml.YAMLError, ExecutionTemplateError) as exc:
                 raise DomainPackRegistryError(
-                    f"domain pack {pack.pack_id!r} references invalid template {template_id!r}: {exc}"
+                    f"domain pack {pack.pack_id!r} references invalid template "
+                    f"{template_id!r}: {exc}"
                 ) from exc
             if template.template_id != template_id:
                 raise DomainPackRegistryError(
-                    f"template id {template.template_id!r} does not match filename {template_id!r}"
+                    f"template id {template.template_id!r} does not match filename "
+                    f"{template_id!r}"
                 )
