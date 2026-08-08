@@ -31,7 +31,10 @@ class CampaignAttentionService:
                     item_id=action_id,
                     kind="blocked-action",
                     priority=1,
-                    reason="Execution is blocked and cannot progress until this action is resolved.",
+                    reason=(
+                        "Execution is blocked and cannot progress until this action "
+                        "is resolved."
+                    ),
                 )
             )
 
@@ -51,7 +54,10 @@ class CampaignAttentionService:
                     item_id=content_id,
                     kind="content-metadata",
                     priority=3,
-                    reason="Content metadata is incomplete and reduces production or sequencing readiness.",
+                    reason=(
+                        "Content metadata is incomplete and reduces production or "
+                        "sequencing readiness."
+                    ),
                 )
             )
 
