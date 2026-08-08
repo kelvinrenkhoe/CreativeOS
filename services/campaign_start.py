@@ -1,7 +1,7 @@
 """Safe campaign-start planning for organization project campaigns."""
 
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 
 import yaml
@@ -76,21 +76,22 @@ class CampaignStartService:
         except DomainPackRegistryError as exc:
             raise CampaignStartError(f"unable to resolve domain pack: {exc}") from exc
 
+        if pack.planning_profile is None:
+            raise CampaignStartError(
+                f"domain pack {pack.pack_id!r} has no planning profile"
+            )
+        start_date, end_date, milestones = pack.planning_profile.resolve(release_date)
+
         campaign = CampaignContext(
             campaign_id=campaign_id,
             name=name,
             campaign_type=pack.pack_id,
             status="draft",
             objective=objective,
-            start_date=release_date - timedelta(days=21),
-            end_date=release_date + timedelta(days=7),
+            start_date=start_date,
+            end_date=end_date,
             channels=channels,
-            milestones=(
-                ("campaign_start", release_date - timedelta(days=21)),
-                ("content_freeze", release_date - timedelta(days=7)),
-                ("launch", release_date),
-                ("performance_review", release_date + timedelta(days=7)),
-            ),
+            milestones=milestones,
         )
         destination = self.context_service.campaigns_root / campaign.campaign_id
         if destination.exists():
