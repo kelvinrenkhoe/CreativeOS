@@ -9,6 +9,7 @@ from models.action import Action, ActionError
 
 _TEMPLATE_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 _VARIABLE_ID = re.compile(r"^[a-z][a-z0-9_]*$")
+_CONTENT_ROLE_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 _PLACEHOLDER = re.compile(r"{{\s*([a-z][a-z0-9_]*)(?:\s*([+-])\s*(\d+)d)?\s*}}")
 
 
@@ -47,6 +48,7 @@ class ExecutionTemplate:
     actions: tuple[Action, ...] = ()
     variables: tuple[TemplateVariable, ...] = ()
     milestones: tuple[str, ...] = ()
+    content_roles: tuple[str, ...] = ()
     action_specs: tuple[dict[str, Any], ...] = ()
 
     def __post_init__(self) -> None:
@@ -54,6 +56,7 @@ class ExecutionTemplate:
         name = self.name.strip()
         description = self.description.strip()
         milestones = tuple(milestone.strip().casefold() for milestone in self.milestones)
+        content_roles = tuple(_normalize_content_role(role) for role in self.content_roles)
 
         if not _TEMPLATE_ID.fullmatch(template_id):
             raise ExecutionTemplateError("template_id must be a path-safe identifier")
@@ -69,6 +72,8 @@ class ExecutionTemplate:
             raise ExecutionTemplateError("template milestone names must be unique")
         if any(not _VARIABLE_ID.fullmatch(milestone) for milestone in milestones):
             raise ExecutionTemplateError("template milestone names must be safe identifiers")
+        if len(content_roles) != len(set(content_roles)):
+            raise ExecutionTemplateError("template content roles must be unique")
         collisions = sorted(set(variable_names) & set(milestones))
         if collisions:
             raise ExecutionTemplateError(
@@ -79,6 +84,8 @@ class ExecutionTemplate:
         object.__setattr__(self, "name", name)
         object.__setattr__(self, "description", description)
         object.__setattr__(self, "milestones", milestones)
+        object.__setattr__(self, "content_roles", content_roles)
+        self._validate_content_roles(self.actions)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ExecutionTemplate":
@@ -92,6 +99,7 @@ class ExecutionTemplate:
         raw_actions = data.get("actions", [])
         raw_variables = data.get("variables", {})
         raw_milestones = data.get("milestones", [])
+        raw_content_roles = data.get("content_roles", [])
 
         if not isinstance(template_id, str):
             raise ExecutionTemplateError("template.id is required")
@@ -107,6 +115,10 @@ class ExecutionTemplate:
             isinstance(item, str) for item in raw_milestones
         ):
             raise ExecutionTemplateError("template.milestones must be a list of strings")
+        if not isinstance(raw_content_roles, list) or not all(
+            isinstance(item, str) for item in raw_content_roles
+        ):
+            raise ExecutionTemplateError("template.content_roles must be a list of strings")
 
         variables = tuple(
             _parse_variable(variable_name, definition)
@@ -131,6 +143,7 @@ class ExecutionTemplate:
             actions=actions,
             variables=variables,
             milestones=tuple(raw_milestones),
+            content_roles=tuple(raw_content_roles),
             action_specs=action_specs,
         )
         template._validate_placeholders()
@@ -152,9 +165,11 @@ class ExecutionTemplate:
 
         rendered_specs = tuple(_render_value(spec, resolved) for spec in self.action_specs)
         try:
-            return tuple(Action.from_dict(spec) for spec in rendered_specs)
+            actions = tuple(Action.from_dict(spec) for spec in rendered_specs)
         except ActionError as exc:
             raise ExecutionTemplateError(f"invalid rendered template action: {exc}") from exc
+        self._validate_content_roles(actions)
+        return actions
 
     def _resolve_variables(self, supplied: dict[str, str]) -> dict[str, str]:
         known = {variable.name: variable for variable in self.variables}
@@ -193,6 +208,14 @@ class ExecutionTemplate:
         undeclared = sorted(referenced - declared)
         if undeclared:
             raise ExecutionTemplateError(f"undeclared template values: {', '.join(undeclared)}")
+
+    def _validate_content_roles(self, actions: tuple[Action, ...]) -> None:
+        used = {action.content_role for action in actions if action.content_role is not None}
+        undeclared = sorted(used - set(self.content_roles))
+        if undeclared:
+            raise ExecutionTemplateError(
+                f"undeclared template content roles: {', '.join(undeclared)}"
+            )
 
 
 def _parse_variable(name: str, definition: Any) -> TemplateVariable:
@@ -282,3 +305,10 @@ def _copy_action_spec(value: Any) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ExecutionTemplateError("template action entries must be mappings")
     return dict(value)
+
+
+def _normalize_content_role(value: str) -> str:
+    normalized = value.strip().casefold().replace("_", "-").replace(" ", "-")
+    if not _CONTENT_ROLE_ID.fullmatch(normalized):
+        raise ExecutionTemplateError("template content roles must be safe identifiers")
+    return normalized

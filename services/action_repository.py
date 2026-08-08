@@ -137,4 +137,6 @@ class ActionRepository:
             data["depends_on"] = list(action.depends_on)
         if action.milestone is not None:
             data["milestone"] = action.milestone
+        if action.content_role is not None:
+            data["content_role"] = action.content_role
         return data

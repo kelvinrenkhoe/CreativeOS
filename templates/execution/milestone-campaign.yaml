@@ -6,6 +6,13 @@ milestones:
   - content_freeze
   - launch
   - performance_review
+content_roles:
+  - story
+  - teaser
+  - performance
+  - release-day
+  - social-proof
+  - follow-up
 variables:
   primary_channel:
     description: Primary publishing channel.
@@ -45,53 +52,81 @@ actions:
     depends_on:
       - produce-release-assets
 
-  - id: schedule-teaser
-    title: Schedule {{ primary_channel }} pre-release teaser
-    description: Prepare the first approved teaser after campaign assets are frozen.
+  - id: publish-story
+    title: Publish {{ primary_channel }} release story
+    description: Introduce the meaning, motivation, or human story behind the release.
     priority: high
     channel: "{{ primary_channel }}"
-    due_date: "{{ launch - 5d }}"
+    content_role: story
+    due_date: "{{ launch - 6d }}"
     milestone: launch
     depends_on:
       - finalize-assets
 
   - id: publish-teaser
     title: Publish {{ primary_channel }} pre-release teaser
+    description: Create curiosity with a concise preview of the release without repeating the story content.
     priority: high
     channel: "{{ primary_channel }}"
+    content_role: teaser
     due_date: "{{ launch - 4d }}"
     milestone: launch
     depends_on:
-      - schedule-teaser
+      - publish-story
+
+  - id: publish-performance
+    title: Publish {{ primary_channel }} performance content
+    description: Show the artist performing or embodying a strong song moment before release day.
+    priority: high
+    channel: "{{ primary_channel }}"
+    content_role: performance
+    due_date: "{{ launch - 2d }}"
+    milestone: launch
+    depends_on:
+      - publish-teaser
 
   - id: schedule-launch
     title: Schedule {{ primary_channel }} launch content
     description: Prepare the primary launch publication and release call to action.
     priority: high
     channel: "{{ primary_channel }}"
+    content_role: release-day
     due_date: "{{ launch - 1d }}"
     milestone: launch
     depends_on:
-      - publish-teaser
+      - publish-performance
 
   - id: publish-launch
     title: Publish {{ primary_channel }} launch content
     priority: critical
     channel: "{{ primary_channel }}"
+    content_role: release-day
     due_date: "{{ launch }}"
     milestone: launch
     depends_on:
       - schedule-launch
 
-  - id: publish-follow-up
-    title: Publish {{ primary_channel }} post-release follow-up
-    description: Sustain release momentum with follow-up content after launch day.
+  - id: publish-social-proof
+    title: Publish {{ primary_channel }} social proof
+    description: Reinforce momentum with a genuine listener, supporter, playlist, radio, or audience signal.
     priority: high
     channel: "{{ primary_channel }}"
-    due_date: "{{ launch + 3d }}"
+    content_role: social-proof
+    due_date: "{{ launch + 2d }}"
     milestone: performance_review
     depends_on:
       - publish-launch
+
+  - id: publish-follow-up
+    title: Publish {{ primary_channel }} post-release follow-up
+    description: Sustain release momentum with a fresh follow-up angle rather than repeating launch-day content.
+    priority: high
+    channel: "{{ primary_channel }}"
+    content_role: follow-up
+    due_date: "{{ launch + 4d }}"
+    milestone: performance_review
+    depends_on:
+      - publish-social-proof
 
   - id: collect-performance-signals
     title: Collect early campaign performance signals

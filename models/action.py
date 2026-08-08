@@ -7,6 +7,7 @@ from typing import Any
 
 _ACTION_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 _MILESTONE_ID = re.compile(r"^[a-z][a-z0-9_]*$")
+_CONTENT_ROLE_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 _ALLOWED_STATUSES = frozenset({"pending", "in-progress", "blocked", "completed", "cancelled"})
 _ALLOWED_PRIORITIES = frozenset({"low", "normal", "high", "critical"})
 
@@ -28,6 +29,7 @@ class Action:
     channel: str | None = None
     depends_on: tuple[str, ...] = ()
     milestone: str | None = None
+    content_role: str | None = None
 
     def __post_init__(self) -> None:
         action_id = _normalize_identifier(self.action_id, "action_id")
@@ -40,6 +42,9 @@ class Action:
             dict.fromkeys(_normalize_identifier(item, "depends_on") for item in self.depends_on)
         )
         milestone = None if self.milestone is None else _normalize_milestone(self.milestone)
+        content_role = (
+            None if self.content_role is None else _normalize_content_role(self.content_role)
+        )
 
         if not title:
             raise ActionError("title must be a non-empty string")
@@ -60,6 +65,7 @@ class Action:
         object.__setattr__(self, "channel", channel)
         object.__setattr__(self, "depends_on", depends_on)
         object.__setattr__(self, "milestone", milestone)
+        object.__setattr__(self, "content_role", content_role)
 
     @property
     def completed(self) -> bool:
@@ -80,6 +86,7 @@ class Action:
         channel = data.get("channel")
         depends_on = data.get("depends_on", [])
         milestone = data.get("milestone")
+        content_role = data.get("content_role")
 
         if not isinstance(action_id, str):
             raise ActionError("action.id is required")
@@ -95,6 +102,8 @@ class Action:
             raise ActionError("action.channel must be a string")
         if milestone is not None and not isinstance(milestone, str):
             raise ActionError("action.milestone must be a string")
+        if content_role is not None and not isinstance(content_role, str):
+            raise ActionError("action.content_role must be a string")
         valid_dependencies = isinstance(depends_on, list) and all(
             isinstance(item, str) for item in depends_on
         )
@@ -111,6 +120,7 @@ class Action:
             channel=channel,
             depends_on=tuple(depends_on),
             milestone=milestone,
+            content_role=content_role,
         )
 
 
@@ -127,6 +137,13 @@ def _normalize_milestone(value: str) -> str:
     normalized = value.strip().casefold()
     if not _MILESTONE_ID.fullmatch(normalized):
         raise ActionError("milestone must be a safe campaign milestone identifier")
+    return normalized
+
+
+def _normalize_content_role(value: str) -> str:
+    normalized = value.strip().casefold().replace("_", "-").replace(" ", "-")
+    if not _CONTENT_ROLE_ID.fullmatch(normalized):
+        raise ActionError("content_role must be a safe content role identifier")
     return normalized
 
 
