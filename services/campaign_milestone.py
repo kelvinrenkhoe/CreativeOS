@@ -44,6 +44,7 @@ class CampaignMilestoneService:
 
     def set(self, name: str, value: str | date) -> CampaignContext:
         """Create or update one campaign milestone."""
+        milestone_name = self._normalize_name(name)
         raw = self._load_raw()
         milestones = raw.get("milestones", {})
         if milestones is None:
@@ -51,8 +52,11 @@ class CampaignMilestoneService:
         if not isinstance(milestones, dict):
             raise CampaignMilestoneServiceError("campaign.milestones must be a mapping")
 
-        milestones = dict(milestones)
-        milestones[name] = value.isoformat() if isinstance(value, date) else value
+        milestones = {
+            self._normalize_name(str(key)): milestone_value
+            for key, milestone_value in milestones.items()
+        }
+        milestones[milestone_name] = value.isoformat() if isinstance(value, date) else value
         raw["milestones"] = milestones
         campaign = self._validate(raw)
         self._write(raw)
@@ -61,15 +65,22 @@ class CampaignMilestoneService:
 
     def remove(self, name: str) -> CampaignContext:
         """Remove one existing campaign milestone."""
+        milestone_name = self._normalize_name(name)
         raw = self._load_raw()
         milestones = raw.get("milestones", {})
         if not isinstance(milestones, dict):
             raise CampaignMilestoneServiceError("campaign.milestones must be a mapping")
-        if name not in milestones:
-            raise CampaignMilestoneServiceError(f"unknown campaign milestone {name!r}")
 
-        milestones = dict(milestones)
-        del milestones[name]
+        milestones = {
+            self._normalize_name(str(key)): milestone_value
+            for key, milestone_value in milestones.items()
+        }
+        if milestone_name not in milestones:
+            raise CampaignMilestoneServiceError(
+                f"unknown campaign milestone {milestone_name!r}"
+            )
+
+        del milestones[milestone_name]
         if milestones:
             raw["milestones"] = milestones
         else:
@@ -105,6 +116,19 @@ class CampaignMilestoneService:
             return CampaignContext.from_dict(raw)
         except CampaignContextError as exc:
             raise CampaignMilestoneServiceError(str(exc)) from exc
+
+    @staticmethod
+    def _normalize_name(name: str) -> str:
+        normalized = name.strip().casefold()
+        try:
+            CampaignContext(
+                campaign_id="validation",
+                name="validation",
+                milestones=((normalized, date.today()),),
+            )
+        except CampaignContextError as exc:
+            raise CampaignMilestoneServiceError(str(exc)) from exc
+        return normalized
 
     def _write(self, raw: dict[str, object]) -> None:
         temporary_path = self.config_path.with_suffix(".yaml.tmp")
