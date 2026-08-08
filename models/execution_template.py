@@ -86,8 +86,7 @@ class ExecutionTemplate:
         collisions = sorted(set(variable_names) & set(milestones))
         if collisions:
             raise ExecutionTemplateError(
-                "template variables and milestones cannot share names: "
-                f"{', '.join(collisions)}"
+                f"template variables and milestones cannot share names: {', '.join(collisions)}"
             )
 
         object.__setattr__(self, "template_id", template_id)
@@ -230,8 +229,7 @@ class ExecutionTemplate:
             )
         if undeclared_formats:
             raise ExecutionTemplateError(
-                "undeclared template content formats: "
-                f"{', '.join(undeclared_formats)}"
+                f"undeclared template content formats: {', '.join(undeclared_formats)}"
             )
 
 
