@@ -6,7 +6,13 @@ from rich.table import Table
 from rich.text import Text
 
 from models.action import Action
-from services.daily_brief import DailyBrief, MilestoneHealth, MilestoneProgress, MilestoneStatus
+from services.daily_brief import (
+    DailyBrief,
+    MilestoneAttention,
+    MilestoneHealth,
+    MilestoneProgress,
+    MilestoneStatus,
+)
 
 
 class DailyBriefRenderer:
@@ -19,6 +25,7 @@ class DailyBriefRenderer:
                 f"{brief.brief_date.isoformat()}  •  status: {brief.campaign.status}"
             ),
             self._milestone_focus(brief.focus_milestone, brief.focus_milestone_health),
+            self._attention_summary(brief.milestone_attention),
             self._action_table("Focus Milestone Work", brief.focus_milestone_actions),
             self._milestone_progress_table(brief.milestone_progress, brief.milestone_health),
             self._milestone_table(brief.milestones),
@@ -59,6 +66,33 @@ class DailyBriefRenderer:
         health_label = health.status if health is not None else "untracked"
 
         return Text(f"Milestone Focus: {label} — {timing} [{milestone.urgency} | {health_label}]")
+
+    @staticmethod
+    def _attention_summary(attention: tuple[MilestoneAttention, ...]) -> Table:
+        table = Table(title="Attention Required")
+        table.add_column("Milestone")
+        table.add_column("Health")
+        table.add_column("Reason")
+        table.add_column("Exceptions")
+        table.add_column("Progress")
+
+        for item in attention:
+            exceptions: list[str] = []
+            if item.blocked:
+                exceptions.append(f"{item.blocked} blocked")
+            if item.pending:
+                exceptions.append(f"{item.pending} pending")
+            table.add_row(
+                item.name.replace("_", " ").title(),
+                item.status,
+                item.reason,
+                ", ".join(exceptions) if exceptions else "none",
+                f"{item.completed}/{item.total}",
+            )
+
+        if not attention:
+            table.add_row("-", "clear", "No milestone intervention required.", "none", "-")
+        return table
 
     @staticmethod
     def _milestone_progress_table(
