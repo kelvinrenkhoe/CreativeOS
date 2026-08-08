@@ -60,6 +60,15 @@ class MilestoneProgress:
 
 
 @dataclass(frozen=True, slots=True)
+class MilestoneHealth:
+    """Deterministic milestone health derived from deadline and progress."""
+
+    name: str
+    status: str
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
 class DailyBrief:
     """Read-only daily execution summary for one campaign."""
 
@@ -74,6 +83,7 @@ class DailyBrief:
     next_actions: tuple[Action, ...]
     milestones: tuple[MilestoneStatus, ...]
     milestone_progress: tuple[MilestoneProgress, ...]
+    milestone_health: tuple[MilestoneHealth, ...]
     progress: ActionProgress
 
     @property
@@ -96,6 +106,13 @@ class DailyBrief:
         if focus is None:
             return ()
         return tuple(action for action in self.ready if action.milestone == focus.name)
+
+    @property
+    def focus_milestone_health(self) -> MilestoneHealth | None:
+        focus = self.focus_milestone
+        if focus is None:
+            return None
+        return next((item for item in self.milestone_health if item.name == focus.name), None)
 
 
 class DailyBriefService:
@@ -143,6 +160,7 @@ class DailyBriefService:
             )
         )
         milestone_progress = self._milestone_progress(milestones, plan.ready)
+        milestone_health = self._milestone_health(milestones, milestone_progress)
         return DailyBrief(
             organization_id=self.organization_id,
             project_id=self.project_id,
@@ -155,6 +173,7 @@ class DailyBriefService:
             next_actions=next_actions,
             milestones=milestones,
             milestone_progress=milestone_progress,
+            milestone_health=milestone_health,
             progress=plan.progress,
         )
 
@@ -189,3 +208,38 @@ class DailyBriefService:
             )
 
         return tuple(summaries)
+
+    @staticmethod
+    def _milestone_health(
+        milestones: tuple[MilestoneStatus, ...],
+        progress: tuple[MilestoneProgress, ...],
+    ) -> tuple[MilestoneHealth, ...]:
+        progress_by_name = {item.name: item for item in progress}
+        health: list[MilestoneHealth] = []
+
+        for milestone in milestones:
+            summary = progress_by_name[milestone.name]
+            if summary.total == 0:
+                status = "untracked"
+                reason = "no linked actions"
+            elif summary.completed == summary.total:
+                status = "complete"
+                reason = "all linked actions completed"
+            elif milestone.is_overdue:
+                status = "at-risk"
+                reason = "deadline passed with incomplete work"
+            elif milestone.days_from_brief <= 3 and (summary.blocked or summary.pending):
+                status = "at-risk"
+                reason = "deadline is near with blocked or dependency-waiting work"
+            elif milestone.days_from_brief <= 7:
+                status = "watch"
+                reason = "deadline is within seven days with incomplete work"
+            elif summary.blocked:
+                status = "watch"
+                reason = "linked work is blocked"
+            else:
+                status = "on-track"
+                reason = "remaining work is not currently deadline-constrained"
+            health.append(MilestoneHealth(milestone.name, status, reason))
+
+        return tuple(health)

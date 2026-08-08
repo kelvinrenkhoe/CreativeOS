@@ -6,7 +6,7 @@ from rich.table import Table
 from rich.text import Text
 
 from models.action import Action
-from services.daily_brief import DailyBrief, MilestoneProgress, MilestoneStatus
+from services.daily_brief import DailyBrief, MilestoneHealth, MilestoneProgress, MilestoneStatus
 
 
 class DailyBriefRenderer:
@@ -18,9 +18,9 @@ class DailyBriefRenderer:
                 f"{brief.organization_id} / {brief.project_id} / {brief.campaign.name}\n"
                 f"{brief.brief_date.isoformat()}  •  status: {brief.campaign.status}"
             ),
-            self._milestone_focus(brief.focus_milestone),
+            self._milestone_focus(brief.focus_milestone, brief.focus_milestone_health),
             self._action_table("Focus Milestone Work", brief.focus_milestone_actions),
-            self._milestone_progress_table(brief.milestone_progress),
+            self._milestone_progress_table(brief.milestone_progress, brief.milestone_health),
             self._milestone_table(brief.milestones),
             self._action_table("Today's Focus", brief.next_actions),
             self._action_table("Due Today", brief.today),
@@ -40,7 +40,10 @@ class DailyBriefRenderer:
         return Panel(Group(*sections), title="CreativeOS Daily Brief")
 
     @staticmethod
-    def _milestone_focus(milestone: MilestoneStatus | None) -> Text:
+    def _milestone_focus(
+        milestone: MilestoneStatus | None,
+        health: MilestoneHealth | None,
+    ) -> Text:
         if milestone is None:
             return Text("Milestone Focus: No campaign milestone configured.")
 
@@ -53,11 +56,15 @@ class DailyBriefRenderer:
         else:
             days = milestone.days_from_brief
             timing = f"in {days} day{'s' if days != 1 else ''}"
+        health_label = health.status if health is not None else "untracked"
 
-        return Text(f"Milestone Focus: {label} — {timing} [{milestone.urgency}]")
+        return Text(f"Milestone Focus: {label} — {timing} [{milestone.urgency} | {health_label}]")
 
     @staticmethod
-    def _milestone_progress_table(progress: tuple[MilestoneProgress, ...]) -> Table:
+    def _milestone_progress_table(
+        progress: tuple[MilestoneProgress, ...],
+        health: tuple[MilestoneHealth, ...],
+    ) -> Table:
         table = Table(title="Milestone Progress")
         table.add_column("Milestone")
         table.add_column("Done")
@@ -66,6 +73,8 @@ class DailyBriefRenderer:
         table.add_column("Blocked")
         table.add_column("Total")
         table.add_column("Progress")
+        table.add_column("Health")
+        health_by_name = {item.name: item.status for item in health}
 
         for item in progress:
             table.add_row(
@@ -76,10 +85,11 @@ class DailyBriefRenderer:
                 str(item.blocked),
                 str(item.total),
                 f"{item.percent:.1f}%",
+                health_by_name.get(item.name, "untracked"),
             )
 
         if not progress:
-            table.add_row("-", "0", "0", "0", "0", "0", "0.0%")
+            table.add_row("-", "0", "0", "0", "0", "0", "0.0%", "-")
         return table
 
     @staticmethod
