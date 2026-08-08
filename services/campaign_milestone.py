@@ -53,10 +53,10 @@ class CampaignMilestoneService:
             raise CampaignMilestoneServiceError("campaign.milestones must be a mapping")
 
         milestones = {
-            self._normalize_name(str(key)): milestone_value
+            self._normalize_name(str(key)): self._serialize_date(milestone_value)
             for key, milestone_value in milestones.items()
         }
-        milestones[milestone_name] = value.isoformat() if isinstance(value, date) else value
+        milestones[milestone_name] = self._serialize_date(value)
         raw["milestones"] = milestones
         campaign = self._validate(raw)
         self._write(raw)
@@ -72,7 +72,7 @@ class CampaignMilestoneService:
             raise CampaignMilestoneServiceError("campaign.milestones must be a mapping")
 
         milestones = {
-            self._normalize_name(str(key)): milestone_value
+            self._normalize_name(str(key)): self._serialize_date(milestone_value)
             for key, milestone_value in milestones.items()
         }
         if milestone_name not in milestones:
@@ -124,11 +124,19 @@ class CampaignMilestoneService:
             CampaignContext(
                 campaign_id="validation",
                 name="validation",
-                milestones=((normalized, date.today()),),
+                milestones=((normalized, date(2000, 1, 1)),),
             )
         except CampaignContextError as exc:
             raise CampaignMilestoneServiceError(str(exc)) from exc
         return normalized
+
+    @staticmethod
+    def _serialize_date(value: object) -> str:
+        if isinstance(value, date):
+            return value.isoformat()
+        if isinstance(value, str):
+            return value
+        raise CampaignMilestoneServiceError("campaign milestone dates must be ISO dates")
 
     def _write(self, raw: dict[str, object]) -> None:
         temporary_path = self.config_path.with_suffix(".yaml.tmp")
