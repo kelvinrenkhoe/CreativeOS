@@ -48,12 +48,8 @@ def test_campaign_decision_uses_highest_priority_attention() -> None:
 
 def test_campaign_decision_reports_watch_state() -> None:
     health = (MilestoneHealth("launch", "watch", "linked work is blocked"),)
-    attention = (
-        MilestoneAttention("launch", "watch", "linked work is blocked", 10, 0, 2, 0, 1),
-    )
-    interventions = (
-        MilestoneIntervention("launch", "watch", "Resolve blocked milestone work."),
-    )
+    attention = (MilestoneAttention("launch", "watch", "linked work is blocked", 10, 0, 2, 0, 1),)
+    interventions = (MilestoneIntervention("launch", "watch", "Resolve blocked milestone work."),)
 
     decision = DailyBriefService._campaign_decision(health, attention, interventions)
 
