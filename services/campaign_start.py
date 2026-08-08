@@ -30,11 +30,17 @@ class CampaignStartPlan:
     """Previewable campaign context prepared for creation."""
 
     campaign: CampaignContext
-    release_date: date
+    anchor_date: date
+    anchor_name: str
     destination: Path
     domain_pack_id: str
     recommended_template_id: str
     template_variables: tuple[tuple[str, str], ...]
+
+    @property
+    def release_date(self) -> date:
+        """Return the planning anchor through the legacy music-release API name."""
+        return self.anchor_date
 
 
 class CampaignStartService:
@@ -60,15 +66,21 @@ class CampaignStartService:
         self,
         campaign_id: str,
         name: str,
-        release_date: date,
+        anchor_date: date | None = None,
         *,
         objective: str,
         channels: tuple[str, ...],
         domain_pack_id: str = DEFAULT_DOMAIN_PACK,
+        release_date: date | None = None,
     ) -> CampaignStartPlan:
         """Return a deterministic campaign plan without writing files."""
         if not channels:
             raise CampaignStartError("at least one campaign channel is required")
+        if anchor_date is not None and release_date is not None:
+            raise CampaignStartError("provide anchor_date or release_date, not both")
+        resolved_anchor = anchor_date if anchor_date is not None else release_date
+        if resolved_anchor is None:
+            raise CampaignStartError("campaign planning anchor date is required")
 
         try:
             pack = self.domain_packs.load(domain_pack_id)
@@ -78,7 +90,7 @@ class CampaignStartService:
 
         if pack.planning_profile is None:
             raise CampaignStartError(f"domain pack {pack.pack_id!r} has no planning profile")
-        start_date, end_date, milestones = pack.planning_profile.resolve(release_date)
+        start_date, end_date, milestones = pack.planning_profile.resolve(resolved_anchor)
 
         campaign = CampaignContext(
             campaign_id=campaign_id,
@@ -97,7 +109,8 @@ class CampaignStartService:
 
         return CampaignStartPlan(
             campaign=campaign,
-            release_date=release_date,
+            anchor_date=resolved_anchor,
+            anchor_name=pack.planning_profile.anchor_name,
             destination=destination,
             domain_pack_id=pack.pack_id,
             recommended_template_id=template_id,
