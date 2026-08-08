@@ -11,10 +11,18 @@ from services.content_inventory import ContentInventoryRepository
 
 
 def make_campaign(tmp_path: Path) -> None:
-    campaign_root = (
-        tmp_path / "organizations" / "acme" / "projects" / "launch" / "campaigns" / "autumn-launch"
-    )
+    organization_root = tmp_path / "organizations" / "acme"
+    project_root = organization_root / "projects" / "launch"
+    campaign_root = project_root / "campaigns" / "autumn-launch"
     campaign_root.mkdir(parents=True)
+    (organization_root / "organization.yaml").write_text(
+        "id: acme\nname: Acme\n",
+        encoding="utf-8",
+    )
+    (project_root / "project.yaml").write_text(
+        "id: launch\nname: Launch\ntype: product\n",
+        encoding="utf-8",
+    )
     (campaign_root / "campaign.yaml").write_text(
         "id: autumn-launch\n"
         "name: Autumn Launch\n"
