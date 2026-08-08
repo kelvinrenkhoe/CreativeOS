@@ -18,6 +18,7 @@ class DailyBriefRenderer:
                 f"{brief.organization_id} / {brief.project_id} / {brief.campaign.name}\n"
                 f"{brief.brief_date.isoformat()}  •  status: {brief.campaign.status}"
             ),
+            self._milestone_focus(brief.focus_milestone),
             self._milestone_table(brief.milestones),
             self._action_table("Today's Focus", brief.next_actions),
             self._action_table("Due Today", brief.today),
@@ -37,11 +38,29 @@ class DailyBriefRenderer:
         return Panel(Group(*sections), title="CreativeOS Daily Brief")
 
     @staticmethod
+    def _milestone_focus(milestone: MilestoneStatus | None) -> Text:
+        if milestone is None:
+            return Text("Milestone Focus: No campaign milestone configured.")
+
+        label = milestone.name.replace("_", " ").title()
+        if milestone.is_today:
+            timing = "today"
+        elif milestone.is_overdue:
+            days = abs(milestone.days_from_brief)
+            timing = f"{days} day{'s' if days != 1 else ''} overdue"
+        else:
+            days = milestone.days_from_brief
+            timing = f"in {days} day{'s' if days != 1 else ''}"
+
+        return Text(f"Milestone Focus: {label} — {timing} [{milestone.urgency}]")
+
+    @staticmethod
     def _milestone_table(milestones: tuple[MilestoneStatus, ...]) -> Table:
         table = Table(title="Campaign Milestones")
         table.add_column("Milestone")
         table.add_column("Date")
         table.add_column("Timing")
+        table.add_column("Urgency")
 
         for milestone in milestones:
             if milestone.is_today:
@@ -56,10 +75,11 @@ class DailyBriefRenderer:
                 milestone.name.replace("_", " ").title(),
                 milestone.milestone_date.isoformat(),
                 timing,
+                milestone.urgency,
             )
 
         if not milestones:
-            table.add_row("-", "-", "None")
+            table.add_row("-", "-", "None", "-")
         return table
 
     @staticmethod
