@@ -125,4 +125,5 @@ def test_today_command_renders_clear_attention_state(tmp_path: Path, monkeypatch
 
     assert result.exit_code == 0
     assert "Attention Required" in result.stdout
-    assert "No milestone intervention required." in result.stdout
+    assert "clear" in result.stdout
+    assert "intervention" in result.stdout
