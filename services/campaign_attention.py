@@ -32,8 +32,7 @@ class CampaignAttentionService:
                     kind="blocked-action",
                     priority=1,
                     reason=(
-                        "Execution is blocked and cannot progress until this action "
-                        "is resolved."
+                        "Execution is blocked and cannot progress until this action is resolved."
                     ),
                 )
             )
