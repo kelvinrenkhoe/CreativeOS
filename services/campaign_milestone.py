@@ -76,9 +76,7 @@ class CampaignMilestoneService:
             for key, milestone_value in milestones.items()
         }
         if milestone_name not in milestones:
-            raise CampaignMilestoneServiceError(
-                f"unknown campaign milestone {milestone_name!r}"
-            )
+            raise CampaignMilestoneServiceError(f"unknown campaign milestone {milestone_name!r}")
 
         del milestones[milestone_name]
         if milestones:
