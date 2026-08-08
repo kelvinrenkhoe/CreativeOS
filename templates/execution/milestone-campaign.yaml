@@ -15,6 +15,7 @@ actions:
     description: Lock approved creative and copy before the content freeze milestone.
     priority: high
     due_date: "{{ content_freeze }}"
+    milestone: content_freeze
 
   - id: schedule-launch
     title: Schedule {{ primary_channel }} launch content
@@ -22,6 +23,7 @@ actions:
     priority: high
     channel: "{{ primary_channel }}"
     due_date: "{{ launch - 1d }}"
+    milestone: launch
     depends_on:
       - finalize-assets
 
@@ -30,6 +32,7 @@ actions:
     priority: critical
     channel: "{{ primary_channel }}"
     due_date: "{{ launch }}"
+    milestone: launch
     depends_on:
       - schedule-launch
 
@@ -38,5 +41,6 @@ actions:
     description: Review results at the campaign performance review milestone.
     priority: normal
     due_date: "{{ performance_review }}"
+    milestone: performance_review
     depends_on:
       - publish-launch

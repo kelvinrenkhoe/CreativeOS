@@ -40,6 +40,8 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Campaign milestone CLI commands for listing, setting, and removing validated milestone dates without hand-editing campaign YAML.
 - Milestone-aware Daily Brief showing campaign milestones as upcoming, due today, or overdue relative to the brief date.
 - Milestone focus and urgency labels in the Daily Brief, highlighting the nearest current or future milestone while preserving action-priority rules.
+- Milestone-linked campaign actions and Daily Brief focus-milestone work views.
+- Execution templates that automatically assign generated actions to their relevant campaign milestones.
 
 ### Changed
 
