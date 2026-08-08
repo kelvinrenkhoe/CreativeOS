@@ -7,6 +7,7 @@ from rich.text import Text
 
 from models.action import Action
 from services.daily_brief import (
+    CampaignDecisionSummary,
     DailyBrief,
     MilestoneAttention,
     MilestoneHealth,
@@ -25,6 +26,7 @@ class DailyBriefRenderer:
                 f"{brief.organization_id} / {brief.project_id} / {brief.campaign.name}\n"
                 f"{brief.brief_date.isoformat()}  •  status: {brief.campaign.status}"
             ),
+            self._decision_summary(brief.campaign_decision),
             self._milestone_focus(brief.focus_milestone, brief.focus_milestone_health),
             self._attention_summary(brief.milestone_attention),
             self._intervention_summary(brief.milestone_interventions),
@@ -47,6 +49,21 @@ class DailyBriefRenderer:
             sections.append(Text(f"Recommended Next Step: {brief.recommended_next.title}"))
 
         return Panel(Group(*sections), title="CreativeOS Daily Brief")
+
+    @staticmethod
+    def _decision_summary(decision: CampaignDecisionSummary) -> Table:
+        table = Table(title="Campaign Decision Summary")
+        table.add_column("Status")
+        table.add_column("Priority Milestone")
+        table.add_column("Reason")
+        table.add_column("Recommended Intervention")
+        table.add_row(
+            decision.status,
+            decision.milestone.replace("_", " ").title() if decision.milestone else "-",
+            decision.reason,
+            decision.suggestion,
+        )
+        return table
 
     @staticmethod
     def _milestone_focus(
