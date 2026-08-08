@@ -85,7 +85,9 @@ def test_daily_brief_summarises_progress_for_each_milestone(tmp_path: Path) -> N
     repository = make_campaign(
         tmp_path, milestones="  content_freeze: 2026-08-10\n  launch: 2026-08-15\n"
     )
-    repository.save(Action("done", "Approved Artwork", status="completed", milestone="content_freeze"))
+    repository.save(
+        Action("done", "Approved Artwork", status="completed", milestone="content_freeze")
+    )
     repository.save(Action("ready", "Approve Caption", milestone="content_freeze"))
     repository.save(
         Action("blocked", "Fix Artwork", status="blocked", milestone="content_freeze")
@@ -94,7 +96,9 @@ def test_daily_brief_summarises_progress_for_each_milestone(tmp_path: Path) -> N
         Action("waiting", "Package Assets", milestone="content_freeze", depends_on=("done-later",))
     )
     repository.save(Action("done-later", "Prepare Masters", milestone="launch"))
-    repository.save(Action("cancelled", "Old Asset", status="cancelled", milestone="content_freeze"))
+    repository.save(
+        Action("cancelled", "Old Asset", status="cancelled", milestone="content_freeze")
+    )
 
     brief = DailyBriefService(tmp_path, "kre", "no-lose-guard", "launch").build(date(2026, 8, 8))
 
