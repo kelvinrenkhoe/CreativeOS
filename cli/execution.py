@@ -193,6 +193,9 @@ def add_action(
     priority: str = typer.Option("normal", "--priority", help="Action priority."),
     due: str | None = typer.Option(None, "--due", help="Due date in YYYY-MM-DD format."),
     channel: str | None = typer.Option(None, "--channel", help="Target marketing channel."),
+    milestone: str | None = typer.Option(
+        None, "--milestone", help="Campaign milestone this action contributes to."
+    ),
     depends_on: list[str] | None = typer.Option(  # noqa: B008
         None, "--depends-on", help="Dependency action ID; repeat for multiple dependencies."
     ),
@@ -206,6 +209,7 @@ def add_action(
             due_date=_parse_due_date(due),
             channel=channel,
             depends_on=tuple(depends_on or ()),
+            milestone=milestone,
         )
         created = _service(organization_id, project_id, campaign_id).create(action)
     except (
@@ -221,6 +225,7 @@ def add_action(
     console.print(f"Priority: {created.priority}")
     console.print(f"Due: {created.due_date.isoformat() if created.due_date else '-'}")
     console.print(f"Channel: {created.channel or '-'}")
+    console.print(f"Milestone: {created.milestone or '-'}")
 
 
 @app.command("complete")

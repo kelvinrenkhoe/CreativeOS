@@ -30,7 +30,6 @@ class MilestoneStatus:
 
     @property
     def urgency(self) -> str:
-        """Return a deterministic urgency label for this milestone."""
         if self.is_overdue:
             return "overdue"
         if self.is_today:
@@ -64,13 +63,20 @@ class DailyBrief:
 
     @property
     def focus_milestone(self) -> MilestoneStatus | None:
-        """Return the nearest current/future milestone, or latest overdue milestone."""
         current_or_future = tuple(
             milestone for milestone in self.milestones if milestone.days_from_brief >= 0
         )
         if current_or_future:
             return current_or_future[0]
         return self.milestones[-1] if self.milestones else None
+
+    @property
+    def focus_milestone_actions(self) -> tuple[Action, ...]:
+        """Return ready actions explicitly linked to the focused milestone."""
+        focus = self.focus_milestone
+        if focus is None:
+            return ()
+        return tuple(action for action in self.ready if action.milestone == focus.name)
 
 
 class DailyBriefService:
@@ -101,7 +107,6 @@ class DailyBriefService:
         self.planner = ExecutionPlanner(ActionService(repository))
 
     def build(self, on_date: date | None = None, *, next_limit: int = 3) -> DailyBrief:
-        """Build a deterministic brief for the requested date."""
         target = on_date or date.today()
         plan = self.planner.plan(target)
         next_actions = self.planner.next(target, limit=next_limit)

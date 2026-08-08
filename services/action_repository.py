@@ -135,4 +135,6 @@ class ActionRepository:
             data["channel"] = action.channel
         if action.depends_on:
             data["depends_on"] = list(action.depends_on)
+        if action.milestone is not None:
+            data["milestone"] = action.milestone
         return data

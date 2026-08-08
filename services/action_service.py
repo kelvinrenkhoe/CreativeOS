@@ -36,15 +36,15 @@ class ActionService:
         self.repository = repository
 
     def create(self, action: Action) -> Action:
-        """Create a new action after validating dependencies and uniqueness."""
+        """Create a new action after validating dependencies, milestone, and uniqueness."""
         if self._exists(action.action_id):
             raise ActionServiceError(f"action {action.action_id!r} already exists")
+        self._validate_milestone(action)
         self._validate_dependencies(action, include_candidate=True)
         self.repository.save(action)
         return action
 
     def complete(self, action_id: str) -> Action:
-        """Mark a ready action completed."""
         action = self._load(action_id)
         if action.status == "completed":
             return action
@@ -61,7 +61,6 @@ class ActionService:
         return self._save_status(action, "completed")
 
     def block(self, action_id: str) -> Action:
-        """Mark a pending or in-progress action blocked."""
         action = self._load(action_id)
         if action.status == "blocked":
             return action
@@ -72,14 +71,12 @@ class ActionService:
         return self._save_status(action, "blocked")
 
     def unblock(self, action_id: str) -> Action:
-        """Return a blocked action to pending."""
         action = self._load(action_id)
         if action.status != "blocked":
             raise ActionServiceError(f"action {action.action_id!r} is not blocked")
         return self._save_status(action, "pending")
 
     def cancel(self, action_id: str) -> Action:
-        """Cancel any unfinished action."""
         action = self._load(action_id)
         if action.status == "cancelled":
             return action
@@ -88,7 +85,6 @@ class ActionService:
         return self._save_status(action, "cancelled")
 
     def reopen(self, action_id: str) -> Action:
-        """Explicitly reopen a completed or cancelled action."""
         action = self._load(action_id)
         if action.status not in {"completed", "cancelled"}:
             raise ActionServiceError(
@@ -97,7 +93,6 @@ class ActionService:
         return self._save_status(action, "pending")
 
     def ready(self) -> tuple[Action, ...]:
-        """Return actionable work with all dependencies completed."""
         return tuple(
             action
             for action in self.repository.list()
@@ -105,7 +100,6 @@ class ActionService:
         )
 
     def today(self, on_date: date | None = None) -> tuple[Action, ...]:
-        """Return unfinished actions due on the requested date."""
         target = on_date or date.today()
         return tuple(
             action
@@ -114,7 +108,6 @@ class ActionService:
         )
 
     def overdue(self, on_date: date | None = None) -> tuple[Action, ...]:
-        """Return unfinished actions whose due date has passed."""
         target = on_date or date.today()
         return tuple(
             action
@@ -125,22 +118,31 @@ class ActionService:
         )
 
     def progress(self) -> ActionProgress:
-        """Return completion progress derived from stored campaign actions."""
         actions = self.repository.list()
         completed = sum(action.completed for action in actions)
         return ActionProgress(total=len(actions), completed=completed)
 
     def validate(self) -> None:
-        """Validate dependency existence and reject dependency cycles."""
         actions = self.repository.list()
         by_id = {action.action_id: action for action in actions}
         for action in actions:
+            self._validate_milestone(action)
             missing = [dependency for dependency in action.depends_on if dependency not in by_id]
             if missing:
                 raise ActionServiceError(
                     f"action {action.action_id!r} has unknown dependencies: {', '.join(missing)}"
                 )
         self._reject_cycles(by_id)
+
+    def _validate_milestone(self, action: Action) -> None:
+        if action.milestone is None:
+            return
+        campaign_milestones = {name for name, _ in self.repository.campaign.milestones}
+        if action.milestone not in campaign_milestones:
+            raise ActionServiceError(
+                f"action {action.action_id!r} references unknown campaign milestone "
+                f"{action.milestone!r}"
+            )
 
     def _validate_dependencies(self, action: Action, *, include_candidate: bool) -> None:
         actions = list(self.repository.list())
