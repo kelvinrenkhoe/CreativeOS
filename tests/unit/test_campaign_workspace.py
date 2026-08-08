@@ -12,13 +12,7 @@ from services.content_inventory import ContentInventoryRepository
 
 def make_campaign(tmp_path: Path) -> None:
     campaign_root = (
-        tmp_path
-        / "organizations"
-        / "acme"
-        / "projects"
-        / "launch"
-        / "campaigns"
-        / "autumn-launch"
+        tmp_path / "organizations" / "acme" / "projects" / "launch" / "campaigns" / "autumn-launch"
     )
     campaign_root.mkdir(parents=True)
     (campaign_root / "campaign.yaml").write_text(
