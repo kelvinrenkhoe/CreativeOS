@@ -67,9 +67,7 @@ class PlanningProfile:
             raise PlanningProfileError("planning.anchor is required")
         if not isinstance(raw_milestones, dict):
             raise PlanningProfileError("planning.milestones must be a mapping")
-        milestones = tuple(
-            MilestoneOffset(name, offset) for name, offset in raw_milestones.items()
-        )
+        milestones = tuple(MilestoneOffset(name, offset) for name, offset in raw_milestones.items())
         return cls(anchor_name, start_offset, end_offset, milestones)
 
     def resolve(self, anchor_date: date) -> tuple[date, date, tuple[tuple[str, date], ...]]:
