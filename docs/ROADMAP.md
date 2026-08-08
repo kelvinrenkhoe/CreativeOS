@@ -123,9 +123,9 @@ CreativeOS can identify milestone progress, health, attention conditions, adviso
 
 ## Phase 4 — Campaign Start and Orchestration
 
-**Status: in progress, core flow established**
+**Status: complete enough for the current product phase**
 
-The campaign start workflow now supports a safer creator-facing path:
+The campaign start workflow supports a safer creator-facing path:
 
 ```text
 campaign start
@@ -143,13 +143,13 @@ preview recommended execution plan
 persist campaign actions
 ```
 
-The current implementation proves this through a music-release campaign while preserving generic core behaviour.
+The implementation was initially proven through a music-release campaign while preserving generic core behaviour.
 
 ## Phase 5 — Structured Content Planning
 
-**Status: current phase**
+**Status: complete enough for the current product phase**
 
-CreativeOS is moving from generic publishing tasks toward structured content intent.
+CreativeOS now models structured content intent rather than treating campaign work as generic publishing tasks.
 
 The content model separates two concerns:
 
@@ -162,31 +162,17 @@ Examples of roles include story, teaser, performance, social proof, release-day,
 
 Examples of formats include short-video, static-image, carousel, interview, article, sermon-clip, product-demo, or other domain-defined formats.
 
-Both roles and formats are template-defined rather than universal hard-coded enums.
+Roles and formats remain template-defined rather than universal hard-coded enums.
 
-### Next: Creative Brief Model
-
-The next product capability should introduce a reusable creative brief so a content action can carry structured production intent such as:
-
-- objective;
-- audience;
-- key message or angle;
-- content role;
-- content format;
-- channel;
-- call to action;
-- production notes;
-- approval expectations.
-
-This should remain generic across industries.
+Delivered capabilities include reusable creative briefs that can carry structured production intent such as objective, audience, message or angle, role, format, channel, call to action, production notes, and approval expectations.
 
 ## Phase 6 — Content Inventory and Sequencing
 
-**Status: planned**
+**Status: substantially complete**
 
-CreativeOS should be able to build and inspect the full content inventory for a campaign rather than treating each publishing action independently.
+CreativeOS can build and inspect campaign content as a structured inventory rather than treating publishing actions independently.
 
-The sequencing layer should support variation across:
+The sequencing model supports intentional variation across dimensions such as:
 
 - role;
 - format;
@@ -196,15 +182,15 @@ The sequencing layer should support variation across:
 - call to action;
 - timing.
 
-The goal is to reduce repetitive campaigns and create intentional content progression over time.
+The goal remains to reduce repetitive campaigns and create intentional content progression over time.
 
 ## Phase 7 — Domain Packs
 
-**Status: planned**
+**Status: core capability established**
 
-CreativeOS should support reusable domain packs built on the generic core.
+CreativeOS supports the architectural pattern for reusable domain-specific campaign configuration on top of the generic core.
 
-Candidate domain packs include:
+Candidate and supported directions include:
 
 - music release;
 - book launch;
@@ -218,11 +204,13 @@ Candidate domain packs include:
 
 A domain pack may define recommended milestones, content roles, content formats, relative scheduling, actions, brief defaults, and expected analytics signals.
 
+Domain-pack expansion should continue incrementally without moving industry vocabulary into the generic core.
+
 ## Phase 8 — Asset and Deliverable Tracking
 
-**Status: planned**
+**Status: substantially complete**
 
-CreativeOS should track the actual deliverables produced by campaign work.
+CreativeOS tracks campaign deliverables and their production readiness.
 
 Examples include:
 
@@ -237,9 +225,9 @@ Examples include:
 - playlist pitch;
 - client approval asset.
 
-Assets should support lifecycle states such as planned, draft, review, approved, and published.
+Assets support lifecycle concepts including planned, draft, review, approved, and published, along with linkage and location/readiness checks.
 
-The intended relationship is:
+The relationship remains:
 
 ```text
 Action → Creative Brief → Asset / Deliverable
@@ -247,19 +235,41 @@ Action → Creative Brief → Asset / Deliverable
 
 ## Phase 9 — Operational Campaign Workspace
 
-**Status: planned**
+**Status: substantially complete**
 
-The daily operating experience should consolidate campaign state, priority work, blocked items, milestone risk, and content due into one useful workspace.
+CreativeOS now has a consolidated read-only operating layer for campaign state.
 
-The CLI remains the current interface, but the underlying services must stay reusable for future web, API, automation, and other interfaces.
+Delivered capabilities include:
+
+- a campaign workspace read model combining content inventory, asset readiness, and execution state;
+- a CLI workspace view;
+- deterministic operational attention prioritisation;
+- a single explainable next-focus recommendation;
+- a stable, versioned machine-readable operational snapshot for future API, dashboard, reporting, integration, and agentic consumers.
+
+The underlying services remain interface-independent so CLI, REST API, web, automation, and future agents can reuse the same application logic.
+
+The operational flow now includes:
+
+```text
+Campaign Workspace
+        ↓
+Attention Items
+        ↓
+Deterministic Priority
+        ↓
+Next Operational Focus
+        ↓
+Versioned Operational Snapshot
+```
 
 ## Phase 10 — Analytics and Outcomes
 
-**Status: planned**
+**Status: NEXT**
 
-CreativeOS should connect execution with measurable outcomes.
+CreativeOS should now connect execution with measurable outcomes.
 
-The analytics model should remain generic while allowing domain packs to define relevant metrics.
+The analytics model must remain generic while allowing domain packs to define relevant metrics.
 
 Possible signals include:
 
@@ -280,6 +290,8 @@ Possible signals include:
 The key question becomes:
 
 > What did we execute, when did we execute it, and what happened afterwards?
+
+The first implementation slices should establish a deterministic, structured outcome model and read services before introducing provider integrations or AI interpretation.
 
 ## Phase 11 — Campaign Memory
 
@@ -360,12 +372,15 @@ The CLI is the current engineering interface, not the final product boundary.
 Core services should remain reusable so CreativeOS can later support:
 
 - web application interfaces;
-- APIs;
+- REST APIs;
 - scheduled automation;
 - integrations;
 - dashboards;
 - external client experiences;
-- plugin or extension systems.
+- plugin or extension systems;
+- cloud-native deployment and infrastructure as code.
+
+The wider cloud, API, infrastructure, security, and scale-out direction is documented in `docs/PLATFORM_SCALE_OUT.md`.
 
 ## Continuous Engineering Tracks
 
@@ -407,22 +422,23 @@ Every production slice should maintain:
 
 ## Current Product Position
 
-At the current stage, CreativeOS has moved beyond a simple productivity CLI.
-
-It now has the beginnings of a generic campaign operating platform with deterministic execution, milestone intelligence, campaign orchestration, and structured content metadata.
+CreativeOS has moved beyond a simple productivity CLI into a generic campaign operating platform with deterministic execution, structured content planning, asset readiness, operational attention, and a reusable campaign workspace contract.
 
 The immediate roadmap is:
 
 ```text
 Template-defined Content Roles          ✅
 Template-defined Content Formats        ✅
-Creative Brief Model                    NEXT
-Content Inventory
-Content Sequencing / Variation
-Domain Packs
-Asset / Deliverable Tracking
-Operational Campaign Workspace
-Analytics / Outcomes
+Creative Brief Model                    ✅
+Content Inventory                       ✅
+Content Sequencing / Variation          ✅
+Domain Pack Foundation                  ✅
+Asset / Deliverable Tracking            ✅
+Operational Campaign Workspace          ✅
+Operational Attention Prioritisation    ✅
+Next Operational Focus                  ✅
+Operational Snapshot / Export           ✅
+Analytics / Outcomes                    NEXT
 Campaign Memory
 Cross-Campaign Learning
 AI-assisted Strategy
