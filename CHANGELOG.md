@@ -50,6 +50,7 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Campaign-level decision summaries that consolidate milestone health, attention, and intervention signals without changing execution order.
 - Preview-first `campaign start` workflow for milestone-ready music-release campaigns scoped to an organization project.
 - Recommended milestone-aware execution-plan preview after creating a music-release campaign, without writing actions.
+- Explicit `--apply-execution` handoff for deliberately persisting the reviewed recommended campaign actions.
 
 ### Changed
 

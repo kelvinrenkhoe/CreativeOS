@@ -75,8 +75,17 @@ def campaign_start_command(
         "--apply",
         help="Create the campaign after previewing the deterministic plan.",
     ),
+    apply_execution: bool = typer.Option(
+        False,
+        "--apply-execution",
+        help="Explicitly create the recommended actions after campaign creation and preview.",
+    ),
 ) -> None:
     """Preview or create a milestone-ready music-release campaign."""
+    if apply_execution and not apply:
+        console.print("[bold red]Error:[/bold red] --apply-execution requires --apply")
+        raise typer.Exit(code=1)
+
     try:
         service = _service(organization_id, project_id)
         plan = service.plan(
@@ -140,3 +149,20 @@ def campaign_start_command(
 
     console.print(f"[bold]Recommended template[/bold] {execution_plan.template.name}")
     _render_execution_preview(execution_plan)
+
+    if not apply_execution:
+        console.print(
+            "Execution remains unapplied. Re-run campaign start with --apply --apply-execution "
+            "to create the proposed actions."
+        )
+        return
+
+    try:
+        created_actions = service.apply_execution(plan)
+    except CampaignStartError as exc:
+        console.print(f"[bold red]Execution apply failed:[/bold red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    console.print(
+        f"[bold green]Applied execution plan:[/bold green] {len(created_actions)} actions created"
+    )

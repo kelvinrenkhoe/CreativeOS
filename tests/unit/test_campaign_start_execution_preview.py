@@ -130,3 +130,99 @@ def test_campaign_start_apply_renders_execution_preview(tmp_path: Path, monkeypa
     assert "publish-launch" in result.stdout
     assert "instagram" in result.stdout
     assert "No execution actions written" in result.stdout
+
+
+def test_apply_execution_persists_recommended_actions(tmp_path: Path) -> None:
+    make_workspace(tmp_path)
+    service = CampaignStartService(tmp_path, "kre", "no-lose-guard")
+    plan = service.plan(
+        "launch",
+        "No Lose Guard Launch",
+        date(2026, 9, 1),
+        objective="Build release awareness.",
+        channels=("instagram", "spotify"),
+    )
+    service.apply(plan)
+    service.preview_execution(plan)
+
+    created = service.apply_execution(plan)
+
+    assert [action.action_id for action in created] == [
+        "finalize-assets",
+        "publish-launch",
+        "review-performance",
+    ]
+    assert len(tuple((plan.destination / "actions").glob("*.yaml"))) == 3
+
+
+def test_campaign_start_apply_execution_requires_campaign_apply(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    make_workspace(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(
+        app,
+        [
+            "campaign",
+            "start",
+            "launch",
+            "--name",
+            "No Lose Guard Launch",
+            "--release",
+            "2026-09-01",
+            "--org",
+            "kre",
+            "--project",
+            "no-lose-guard",
+            "--channel",
+            "instagram",
+            "--apply-execution",
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "--apply-execution requires --apply" in result.stdout
+
+
+def test_campaign_start_explicitly_applies_execution_actions(tmp_path: Path, monkeypatch) -> None:
+    make_workspace(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(
+        app,
+        [
+            "campaign",
+            "start",
+            "launch",
+            "--name",
+            "No Lose Guard Launch",
+            "--release",
+            "2026-09-01",
+            "--org",
+            "kre",
+            "--project",
+            "no-lose-guard",
+            "--channel",
+            "instagram",
+            "--apply",
+            "--apply-execution",
+        ],
+    )
+
+    actions_root = (
+        tmp_path
+        / "organizations"
+        / "kre"
+        / "projects"
+        / "no-lose-guard"
+        / "campaigns"
+        / "launch"
+        / "actions"
+    )
+    assert result.exit_code == 0
+    assert "Recommended Execution Plan Preview" in result.stdout
+    assert "Applied execution plan" in result.stdout
+    assert "3 actions created" in result.stdout
+    assert len(tuple(actions_root.glob("*.yaml"))) == 3
