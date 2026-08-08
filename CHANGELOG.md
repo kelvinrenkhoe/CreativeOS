@@ -47,6 +47,7 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Deterministic milestone health indicators combining deadline proximity and linked-work progress without changing execution order.
 - Milestone attention summaries explaining at-risk and watch conditions, exception counts, and progress without changing action priority.
 - Deterministic milestone intervention suggestions for attention-worthy work, kept advisory and separate from execution priority.
+- Campaign-level decision summaries that consolidate milestone health, attention, and intervention signals without changing execution order.
 
 ### Changed
 
