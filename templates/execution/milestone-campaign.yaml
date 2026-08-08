@@ -24,6 +24,8 @@ actions:
     priority: high
     due_date: "{{ content_freeze - 5d }}"
     milestone: content_freeze
+    depends_on:
+      - define-rollout-brief
 
   - id: produce-release-assets
     title: Produce release campaign assets
