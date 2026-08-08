@@ -34,9 +34,7 @@ def make_project(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     (templates_root / "milestone-campaign.yaml").write_text(
-        "id: milestone-campaign\n"
-        "name: Milestone Campaign\n"
-        "actions: []\n",
+        "id: milestone-campaign\nname: Milestone Campaign\nactions: []\n",
         encoding="utf-8",
     )
 
