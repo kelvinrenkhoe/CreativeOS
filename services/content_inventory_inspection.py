@@ -37,6 +37,10 @@ def inspect_content_items(items: tuple[ContentItem, ...]) -> ContentInventoryRep
         )
         repeated[signature].append(item.content_id)
 
+    sorted_groups = sorted(
+        repeated.items(),
+        key=lambda entry: tuple(value or "" for value in entry[0]),
+    )
     repeated_groups = tuple(
         ContentVariationGroup(
             content_ids=tuple(content_ids),
@@ -45,7 +49,7 @@ def inspect_content_items(items: tuple[ContentItem, ...]) -> ContentInventoryRep
             channel=signature[2],
             call_to_action=signature[3],
         )
-        for signature, content_ids in sorted(repeated.items())
+        for signature, content_ids in sorted_groups
         if len(content_ids) > 1
     )
 
