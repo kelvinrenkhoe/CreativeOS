@@ -89,9 +89,7 @@ def test_daily_brief_summarises_progress_for_each_milestone(tmp_path: Path) -> N
         Action("done", "Approved Artwork", status="completed", milestone="content_freeze")
     )
     repository.save(Action("ready", "Approve Caption", milestone="content_freeze"))
-    repository.save(
-        Action("blocked", "Fix Artwork", status="blocked", milestone="content_freeze")
-    )
+    repository.save(Action("blocked", "Fix Artwork", status="blocked", milestone="content_freeze"))
     repository.save(
         Action("waiting", "Package Assets", milestone="content_freeze", depends_on=("done-later",))
     )
