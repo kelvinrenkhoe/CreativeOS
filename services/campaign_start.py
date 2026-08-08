@@ -123,10 +123,14 @@ class CampaignStartService:
 
     def preview_execution(self, plan: CampaignStartPlan) -> ExecutionTemplatePlan:
         """Preview the recommended execution template for a persisted campaign."""
-        return self._execution_service(plan).plan(
-            plan.recommended_template_id,
-            dict(plan.template_variables),
-        )
+        try:
+            return self._execution_service(plan).plan(
+                plan.recommended_template_id,
+                dict(plan.template_variables),
+            )
+        except ExecutionTemplateServiceError as exc:
+            message = f"unable to preview recommended execution plan: {exc}"
+            raise CampaignStartError(message) from exc
 
     def apply_execution(self, plan: CampaignStartPlan) -> tuple[Action, ...]:
         """Explicitly persist the previously recommended execution template."""
