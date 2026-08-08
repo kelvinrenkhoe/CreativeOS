@@ -45,6 +45,7 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Milestone-aware execution plan preview output showing each generated action's target milestone before apply.
 - Milestone progress summaries showing completed, ready, pending, blocked, total, and completion percentage for linked campaign work.
 - Deterministic milestone health indicators combining deadline proximity and linked-work progress without changing execution order.
+- Milestone attention summaries explaining at-risk and watch conditions, exception counts, and progress without changing action priority.
 
 ### Changed
 
