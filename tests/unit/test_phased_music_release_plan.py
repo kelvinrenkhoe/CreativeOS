@@ -1,10 +1,9 @@
-from pathlib import Path
 from datetime import date
+from pathlib import Path
 
 from services.action_repository import ActionRepository
 from services.action_service import ActionService
 from services.execution_template import ExecutionTemplateService
-
 
 CAMPAIGN = """id: launch
 name: No Lose Guard Launch
