@@ -2,9 +2,9 @@
 
 from dataclasses import dataclass
 
-from services.campaign_attention import CampaignAttentionService
-from services.campaign_next_focus import CampaignNextFocusService
-from services.campaign_workspace import CampaignWorkspaceReport
+from .campaign_attention import CampaignAttentionService
+from .campaign_next_focus import CampaignNextFocusService
+from .campaign_workspace import CampaignWorkspaceReport
 
 
 SNAPSHOT_SCHEMA_VERSION = "1"
