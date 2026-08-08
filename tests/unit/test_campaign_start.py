@@ -116,13 +116,7 @@ def test_campaign_start_cli_previews_without_writing(tmp_path: Path, monkeypatch
     assert "2026-09-01" in result.stdout
     assert "No changes written" in result.stdout
     assert not (
-        tmp_path
-        / "organizations"
-        / "kre"
-        / "projects"
-        / "no-lose-guard"
-        / "campaigns"
-        / "launch"
+        tmp_path / "organizations" / "kre" / "projects" / "no-lose-guard" / "campaigns" / "launch"
     ).exists()
 
 
