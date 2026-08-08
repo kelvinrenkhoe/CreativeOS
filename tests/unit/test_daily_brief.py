@@ -66,11 +66,7 @@ def test_daily_brief_composes_execution_state(tmp_path: Path) -> None:
 def test_daily_brief_orders_and_classifies_campaign_milestones(tmp_path: Path) -> None:
     make_campaign(
         tmp_path,
-        milestones=(
-            "  launch: 2026-08-14\n"
-            "  content_freeze: 2026-08-08\n"
-            "  briefing: 2026-08-06\n"
-        ),
+        milestones=("  launch: 2026-08-14\n  content_freeze: 2026-08-08\n  briefing: 2026-08-06\n"),
     )
 
     brief = DailyBriefService(tmp_path, "kre", "no-lose-guard", "launch").build(date(2026, 8, 8))
