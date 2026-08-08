@@ -35,7 +35,11 @@ class CampaignWorkspaceReport:
         """Return stable identifiers currently requiring operator attention."""
         return tuple(
             dict.fromkeys(
-                (*self.blocked_action_ids, *self.content_gap_ids, *self.asset_readiness.missing_location)
+                (
+                    *self.blocked_action_ids,
+                    *self.content_gap_ids,
+                    *self.asset_readiness.missing_location,
+                )
             )
         )
 
