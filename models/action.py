@@ -9,6 +9,9 @@ _ACTION_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 _MILESTONE_ID = re.compile(r"^[a-z][a-z0-9_]*$")
 _ALLOWED_STATUSES = frozenset({"pending", "in-progress", "blocked", "completed", "cancelled"})
 _ALLOWED_PRIORITIES = frozenset({"low", "normal", "high", "critical"})
+_ALLOWED_CONTENT_ROLES = frozenset(
+    {"teaser", "story", "performance", "social-proof", "release-day", "follow-up"}
+)
 
 
 class ActionError(ValueError):
@@ -28,6 +31,7 @@ class Action:
     channel: str | None = None
     depends_on: tuple[str, ...] = ()
     milestone: str | None = None
+    content_role: str | None = None
 
     def __post_init__(self) -> None:
         action_id = _normalize_identifier(self.action_id, "action_id")
@@ -40,6 +44,11 @@ class Action:
             dict.fromkeys(_normalize_identifier(item, "depends_on") for item in self.depends_on)
         )
         milestone = None if self.milestone is None else _normalize_milestone(self.milestone)
+        content_role = (
+            None
+            if self.content_role is None
+            else self.content_role.strip().casefold().replace("_", "-").replace(" ", "-")
+        )
 
         if not title:
             raise ActionError("title must be a non-empty string")
@@ -49,6 +58,9 @@ class Action:
         if priority not in _ALLOWED_PRIORITIES:
             allowed = ", ".join(sorted(_ALLOWED_PRIORITIES))
             raise ActionError(f"priority must be one of: {allowed}")
+        if content_role is not None and content_role not in _ALLOWED_CONTENT_ROLES:
+            allowed = ", ".join(sorted(_ALLOWED_CONTENT_ROLES))
+            raise ActionError(f"content_role must be one of: {allowed}")
         if action_id in depends_on:
             raise ActionError("action cannot depend on itself")
 
@@ -60,6 +72,7 @@ class Action:
         object.__setattr__(self, "channel", channel)
         object.__setattr__(self, "depends_on", depends_on)
         object.__setattr__(self, "milestone", milestone)
+        object.__setattr__(self, "content_role", content_role)
 
     @property
     def completed(self) -> bool:
@@ -80,6 +93,7 @@ class Action:
         channel = data.get("channel")
         depends_on = data.get("depends_on", [])
         milestone = data.get("milestone")
+        content_role = data.get("content_role")
 
         if not isinstance(action_id, str):
             raise ActionError("action.id is required")
@@ -95,6 +109,8 @@ class Action:
             raise ActionError("action.channel must be a string")
         if milestone is not None and not isinstance(milestone, str):
             raise ActionError("action.milestone must be a string")
+        if content_role is not None and not isinstance(content_role, str):
+            raise ActionError("action.content_role must be a string")
         valid_dependencies = isinstance(depends_on, list) and all(
             isinstance(item, str) for item in depends_on
         )
@@ -111,6 +127,7 @@ class Action:
             channel=channel,
             depends_on=tuple(depends_on),
             milestone=milestone,
+            content_role=content_role,
         )
 
 
