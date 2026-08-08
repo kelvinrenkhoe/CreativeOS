@@ -51,7 +51,10 @@ def _render_plan(title: str, actions, *, show_milestone: bool = False) -> None:
     table.add_column("Channel")
     table.add_column("Milestone" if show_milestone else "Depends On")
     for action in actions:
-        final_value = action.milestone or "-" if show_milestone else ", ".join(action.depends_on) or "-"
+        if show_milestone:
+            final_value = action.milestone or "-"
+        else:
+            final_value = ", ".join(action.depends_on) or "-"
         table.add_row(
             action.action_id,
             action.title,
