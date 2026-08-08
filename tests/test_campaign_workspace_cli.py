@@ -72,9 +72,14 @@ def test_workspace_command_renders_operational_summary(monkeypatch) -> None:
     assert "Autumn Launch" in result.stdout
     assert "product-launch" in result.stdout
     assert "100%" in result.stdout
+    assert "Prioritised Attention" in result.stdout
+    assert "P1" in result.stdout
+    assert "P2" in result.stdout
+    assert "P3" in result.stdout
     assert "publish-video" in result.stdout
     assert "customer-proof" in result.stdout
     assert "launch-video-master" in result.stdout
+    assert "Execution is blocked" in result.stdout
     assert "Pending work: prepare-proof" in result.stdout
 
 
@@ -100,5 +105,5 @@ def test_workspace_command_renders_ready_attention_state(monkeypatch) -> None:
     )
 
     assert result.exit_code == 0
-    assert "Needs Attention" in result.stdout
+    assert "Prioritised Attention" in result.stdout
     assert "No current attention items" in result.stdout
