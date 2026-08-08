@@ -143,7 +143,8 @@ class CampaignStartService:
                 dict(plan.template_variables),
             )
         except ExecutionTemplateServiceError as exc:
-            raise CampaignStartError(f"unable to preview recommended execution plan: {exc}") from exc
+            message = f"unable to preview recommended execution plan: {exc}"
+            raise CampaignStartError(message) from exc
 
     @staticmethod
     def _to_dict(campaign: CampaignContext) -> dict[str, object]:
