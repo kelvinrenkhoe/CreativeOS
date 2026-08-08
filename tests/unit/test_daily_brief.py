@@ -39,6 +39,7 @@ def test_daily_brief_is_empty_for_campaign_without_actions(tmp_path: Path) -> No
     assert brief.blocked == ()
     assert brief.next_actions == ()
     assert brief.milestones == ()
+    assert brief.milestone_progress == ()
     assert brief.focus_milestone is None
     assert brief.focus_milestone_actions == ()
     assert brief.recommended_next is None
@@ -78,6 +79,36 @@ def test_daily_brief_orders_and_classifies_campaign_milestones(tmp_path: Path) -
     ]
     assert brief.focus_milestone is not None
     assert brief.focus_milestone.name == "content_freeze"
+
+
+def test_daily_brief_summarises_progress_for_each_milestone(tmp_path: Path) -> None:
+    repository = make_campaign(
+        tmp_path, milestones="  content_freeze: 2026-08-10\n  launch: 2026-08-15\n"
+    )
+    repository.save(Action("done", "Approved Artwork", status="completed", milestone="content_freeze"))
+    repository.save(Action("ready", "Approve Caption", milestone="content_freeze"))
+    repository.save(
+        Action("blocked", "Fix Artwork", status="blocked", milestone="content_freeze")
+    )
+    repository.save(
+        Action("waiting", "Package Assets", milestone="content_freeze", depends_on=("done-later",))
+    )
+    repository.save(Action("done-later", "Prepare Masters", milestone="launch"))
+    repository.save(Action("cancelled", "Old Asset", status="cancelled", milestone="content_freeze"))
+
+    brief = DailyBriefService(tmp_path, "kre", "no-lose-guard", "launch").build(date(2026, 8, 8))
+
+    content_freeze, launch = brief.milestone_progress
+    assert content_freeze.name == "content_freeze"
+    assert content_freeze.total == 4
+    assert content_freeze.completed == 1
+    assert content_freeze.ready == 1
+    assert content_freeze.pending == 1
+    assert content_freeze.blocked == 1
+    assert content_freeze.percent == 25.0
+    assert launch.name == "launch"
+    assert launch.total == 1
+    assert launch.ready == 1
 
 
 def test_daily_brief_surfaces_ready_work_for_focus_milestone(tmp_path: Path) -> None:
@@ -122,6 +153,7 @@ def test_today_command_renders_daily_brief(tmp_path: Path, monkeypatch) -> None:
     assert "CreativeOS Daily Brief" in result.stdout
     assert "Milestone Focus" in result.stdout
     assert "Focus Milestone Work" in result.stdout
+    assert "Milestone Progress" in result.stdout
     assert "Finalise Artwork" in result.stdout
     assert "Content Freeze" in result.stdout
     assert "Publish Reel" in result.stdout
