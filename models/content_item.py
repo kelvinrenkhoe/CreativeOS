@@ -36,7 +36,11 @@ class ContentItem:
 
         object.__setattr__(self, "content_id", content_id)
         object.__setattr__(self, "title", title)
-        object.__setattr__(self, "content_role", _optional_metadata(self.content_role, "content_role"))
+        object.__setattr__(
+            self,
+            "content_role",
+            _optional_metadata(self.content_role, "content_role"),
+        )
         object.__setattr__(
             self,
             "content_format",
