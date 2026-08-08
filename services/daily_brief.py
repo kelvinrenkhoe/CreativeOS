@@ -328,12 +328,18 @@ class DailyBriefService:
             elif item.blocked:
                 suggestion = "Resolve blocked milestone work before the deadline becomes critical."
             elif item.pending:
-                suggestion = "Review dependency-waiting actions and unblock the earliest prerequisite."
+                suggestion = (
+                    "Review dependency-waiting actions and unblock the earliest prerequisite."
+                )
             elif item.days_from_brief < 0:
-                suggestion = "Review incomplete overdue work and decide what must be completed or deferred."
+                suggestion = (
+                    "Review incomplete overdue work and decide what must be completed or deferred."
+                )
             elif item.days_from_brief <= 3:
                 suggestion = "Prioritise remaining milestone work before the imminent deadline."
             else:
-                suggestion = "Review remaining milestone work while there is still scheduling flexibility."
+                suggestion = (
+                    "Review remaining milestone work while there is still scheduling flexibility."
+                )
             interventions.append(MilestoneIntervention(item.name, item.status, suggestion))
         return tuple(interventions)
