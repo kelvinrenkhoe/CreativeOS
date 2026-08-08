@@ -4,8 +4,9 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from services.campaign_attention import CampaignAttentionService
-from services.campaign_next_focus import CampaignNextFocusService
 from services.campaign_workspace import CampaignWorkspaceReport
+
+from .campaign_next_focus import CampaignNextFocusService
 
 
 SNAPSHOT_SCHEMA_VERSION = "1"
