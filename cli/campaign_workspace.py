@@ -10,6 +10,7 @@ from services.action_repository import ActionRepositoryError
 from services.campaign_asset_repository import CampaignAssetRepositoryError
 from services.campaign_attention import CampaignAttentionService
 from services.campaign_context import CampaignContextLoadError
+from services.campaign_next_focus import CampaignNextFocusService
 from services.campaign_workspace import CampaignWorkspaceReport, CampaignWorkspaceService
 from services.content_inventory import ContentInventoryError
 from services.organization import OrganizationLoadError, OrganizationService
@@ -81,6 +82,27 @@ def _attention_table(report: CampaignWorkspaceReport) -> Table:
     return table
 
 
+def _next_focus_table(report: CampaignWorkspaceReport) -> Table:
+    recommendation = CampaignNextFocusService().recommend(report)
+    table = Table(title="Next Operational Focus")
+    table.add_column("Area")
+    table.add_column("Value")
+
+    if recommendation.item is None:
+        table.add_row("Status", "No attention item requires immediate focus")
+    else:
+        item = recommendation.item
+        table.add_row("Priority", f"P{item.priority}")
+        table.add_row("Type", item.kind)
+        table.add_row("ID", item.item_id)
+        table.add_row("Reason", item.reason)
+
+    if recommendation.pending_action_ids:
+        table.add_row("Pending work", ", ".join(recommendation.pending_action_ids))
+
+    return table
+
+
 def campaign_workspace_command(
     campaign_id: str = typer.Argument(..., help="Campaign identifier."),
     organization_id: str = typer.Option(..., "--org", help="Organization identifier."),
@@ -95,6 +117,4 @@ def campaign_workspace_command(
 
     console.print(_summary_table(report))
     console.print(_attention_table(report))
-
-    if report.pending_action_ids:
-        console.print(f"Pending work: {', '.join(report.pending_action_ids)}")
+    console.print(_next_focus_table(report))

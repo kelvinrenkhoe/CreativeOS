@@ -80,7 +80,8 @@ def test_workspace_command_renders_operational_summary(monkeypatch) -> None:
     assert "customer-proof" in result.stdout
     assert "launch-video-master" in result.stdout
     assert "Execution is blocked" in result.stdout
-    assert "Pending work: prepare-proof" in result.stdout
+    assert "Next Operational Focus" in result.stdout
+    assert "prepare-proof" in result.stdout
 
 
 def test_workspace_command_renders_ready_attention_state(monkeypatch) -> None:
@@ -107,3 +108,6 @@ def test_workspace_command_renders_ready_attention_state(monkeypatch) -> None:
     assert result.exit_code == 0
     assert "Prioritised Attention" in result.stdout
     assert "No current attention items" in result.stdout
+    assert "Next Operational Focus" in result.stdout
+    assert "No attention item requires immediate focus" in result.stdout
+    assert "prepare-proof" in result.stdout
