@@ -49,6 +49,7 @@ def _render_plan(title: str, actions) -> None:
     table.add_column("Priority")
     table.add_column("Due")
     table.add_column("Channel")
+    table.add_column("Milestone")
     table.add_column("Depends On")
     for action in actions:
         table.add_row(
@@ -57,6 +58,7 @@ def _render_plan(title: str, actions) -> None:
             action.priority,
             action.due_date.isoformat() if action.due_date else "-",
             action.channel or "-",
+            action.milestone or "-",
             ", ".join(action.depends_on) or "-",
         )
     console.print(table)
