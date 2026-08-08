@@ -22,7 +22,9 @@ class ContentInventoryInspectionService:
 def inspect_content_items(items: tuple[ContentItem, ...]) -> ContentInventoryReport:
     """Inspect already-loaded content items for coverage and repeated signatures."""
     role_counts = Counter(item.content_role for item in items if item.content_role is not None)
-    format_counts = Counter(item.content_format for item in items if item.content_format is not None)
+    format_counts = Counter(
+        item.content_format for item in items if item.content_format is not None
+    )
     channel_counts = Counter(item.channel for item in items if item.channel is not None)
 
     repeated: dict[
