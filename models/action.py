@@ -6,6 +6,7 @@ from datetime import date
 from typing import Any
 
 _ACTION_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
+_MILESTONE_ID = re.compile(r"^[a-z][a-z0-9_]*$")
 _ALLOWED_STATUSES = frozenset({"pending", "in-progress", "blocked", "completed", "cancelled"})
 _ALLOWED_PRIORITIES = frozenset({"low", "normal", "high", "critical"})
 
@@ -26,6 +27,7 @@ class Action:
     due_date: date | None = None
     channel: str | None = None
     depends_on: tuple[str, ...] = ()
+    milestone: str | None = None
 
     def __post_init__(self) -> None:
         action_id = _normalize_identifier(self.action_id, "action_id")
@@ -37,6 +39,7 @@ class Action:
         depends_on = tuple(
             dict.fromkeys(_normalize_identifier(item, "depends_on") for item in self.depends_on)
         )
+        milestone = None if self.milestone is None else _normalize_milestone(self.milestone)
 
         if not title:
             raise ActionError("title must be a non-empty string")
@@ -56,6 +59,7 @@ class Action:
         object.__setattr__(self, "priority", priority)
         object.__setattr__(self, "channel", channel)
         object.__setattr__(self, "depends_on", depends_on)
+        object.__setattr__(self, "milestone", milestone)
 
     @property
     def completed(self) -> bool:
@@ -75,6 +79,7 @@ class Action:
         priority = data.get("priority", "normal")
         channel = data.get("channel")
         depends_on = data.get("depends_on", [])
+        milestone = data.get("milestone")
 
         if not isinstance(action_id, str):
             raise ActionError("action.id is required")
@@ -88,6 +93,8 @@ class Action:
             raise ActionError("action.priority must be a string")
         if channel is not None and not isinstance(channel, str):
             raise ActionError("action.channel must be a string")
+        if milestone is not None and not isinstance(milestone, str):
+            raise ActionError("action.milestone must be a string")
         valid_dependencies = isinstance(depends_on, list) and all(
             isinstance(item, str) for item in depends_on
         )
@@ -103,6 +110,7 @@ class Action:
             due_date=_parse_optional_date(data.get("due_date")),
             channel=channel,
             depends_on=tuple(depends_on),
+            milestone=milestone,
         )
 
 
@@ -112,6 +120,13 @@ def _normalize_identifier(value: str, field_name: str) -> str:
     normalized = value.strip().casefold().replace(" ", "-")
     if not _ACTION_ID.fullmatch(normalized):
         raise ActionError(f"{field_name} must be a path-safe identifier")
+    return normalized
+
+
+def _normalize_milestone(value: str) -> str:
+    normalized = value.strip().casefold()
+    if not _MILESTONE_ID.fullmatch(normalized):
+        raise ActionError("milestone must be a safe campaign milestone identifier")
     return normalized
 
 
