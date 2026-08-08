@@ -8,6 +8,7 @@ from rich.table import Table
 
 from services.action_repository import ActionRepositoryError
 from services.campaign_asset_repository import CampaignAssetRepositoryError
+from services.campaign_attention import CampaignAttentionService
 from services.campaign_context import CampaignContextLoadError
 from services.campaign_workspace import CampaignWorkspaceReport, CampaignWorkspaceService
 from services.content_inventory import ContentInventoryError
@@ -59,19 +60,23 @@ def _summary_table(report: CampaignWorkspaceReport) -> Table:
 
 
 def _attention_table(report: CampaignWorkspaceReport) -> Table:
-    table = Table(title="Needs Attention")
+    table = Table(title="Prioritised Attention")
+    table.add_column("Priority")
     table.add_column("Type")
     table.add_column("ID")
+    table.add_column("Reason")
 
-    for action_id in report.blocked_action_ids:
-        table.add_row("Blocked action", action_id)
-    for content_id in report.content_gap_ids:
-        table.add_row("Content metadata", content_id)
-    for asset_id in report.asset_readiness.missing_location:
-        table.add_row("Asset location", asset_id)
+    items = CampaignAttentionService().prioritise(report)
+    for item in items:
+        table.add_row(
+            f"P{item.priority}",
+            item.kind,
+            item.item_id,
+            item.reason,
+        )
 
-    if not report.attention_ids:
-        table.add_row("Ready", "No current attention items")
+    if not items:
+        table.add_row("-", "Ready", "-", "No current attention items")
 
     return table
 
