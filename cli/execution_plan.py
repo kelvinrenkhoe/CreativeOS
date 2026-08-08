@@ -46,23 +46,32 @@ def _render_plan(title: str, actions, *, show_milestone: bool = False) -> None:
     table = Table(title=title)
     table.add_column("ID")
     table.add_column("Action")
-    table.add_column("Priority")
-    table.add_column("Due")
-    table.add_column("Channel")
-    table.add_column("Milestone" if show_milestone else "Depends On")
-    for action in actions:
-        if show_milestone:
-            final_value = action.milestone or "-"
-        else:
-            final_value = ", ".join(action.depends_on) or "-"
-        table.add_row(
-            action.action_id,
-            action.title,
-            action.priority,
-            action.due_date.isoformat() if action.due_date else "-",
-            action.channel or "-",
-            final_value,
-        )
+    if show_milestone:
+        table.add_column("Due")
+        table.add_column("Channel")
+        table.add_column("Milestone")
+        for action in actions:
+            table.add_row(
+                action.action_id,
+                action.title,
+                action.due_date.isoformat() if action.due_date else "-",
+                action.channel or "-",
+                action.milestone or "-",
+            )
+    else:
+        table.add_column("Priority")
+        table.add_column("Due")
+        table.add_column("Channel")
+        table.add_column("Depends On")
+        for action in actions:
+            table.add_row(
+                action.action_id,
+                action.title,
+                action.priority,
+                action.due_date.isoformat() if action.due_date else "-",
+                action.channel or "-",
+                ", ".join(action.depends_on) or "-",
+            )
     console.print(table)
 
 
