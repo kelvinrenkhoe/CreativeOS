@@ -30,7 +30,16 @@ def make_project(tmp_path: Path) -> None:
         "name: Music Release\n"
         "templates:\n"
         "  - milestone-campaign\n"
-        "default_template: milestone-campaign\n",
+        "default_template: milestone-campaign\n"
+        "planning:\n"
+        "  anchor: release_date\n"
+        "  start_offset_days: -21\n"
+        "  end_offset_days: 7\n"
+        "  milestones:\n"
+        "    campaign_start: -21\n"
+        "    content_freeze: -7\n"
+        "    launch: 0\n"
+        "    performance_review: 7\n",
         encoding="utf-8",
     )
     (templates_root / "milestone-campaign.yaml").write_text(
