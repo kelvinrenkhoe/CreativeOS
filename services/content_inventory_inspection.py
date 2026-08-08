@@ -27,9 +27,7 @@ def inspect_content_items(items: tuple[ContentItem, ...]) -> ContentInventoryRep
     )
     channel_counts = Counter(item.channel for item in items if item.channel is not None)
 
-    repeated: dict[
-        tuple[str | None, str | None, str | None, str], list[str]
-    ] = defaultdict(list)
+    repeated: dict[tuple[str | None, str | None, str | None, str], list[str]] = defaultdict(list)
     for item in items:
         signature = (
             item.content_role,
