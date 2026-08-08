@@ -58,10 +58,7 @@ class DailyBriefRenderer:
             timing = f"in {days} day{'s' if days != 1 else ''}"
         health_label = health.status if health is not None else "untracked"
 
-        return Text(
-            f"Milestone Focus: {label} — {timing} "
-            f"[{milestone.urgency} | {health_label}]"
-        )
+        return Text(f"Milestone Focus: {label} — {timing} [{milestone.urgency} | {health_label}]")
 
     @staticmethod
     def _milestone_progress_table(
