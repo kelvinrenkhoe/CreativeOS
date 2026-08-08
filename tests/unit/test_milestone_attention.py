@@ -6,7 +6,12 @@ from typer.testing import CliRunner
 from cli.main import app
 from models.action import Action
 from services.action_repository import ActionRepository
-from services.daily_brief import DailyBriefService, MilestoneHealth, MilestoneProgress, MilestoneStatus
+from services.daily_brief import (
+    DailyBriefService,
+    MilestoneHealth,
+    MilestoneProgress,
+    MilestoneStatus,
+)
 
 runner = CliRunner()
 
@@ -48,8 +53,16 @@ def test_milestone_attention_includes_only_watch_and_at_risk() -> None:
     )
     health = (
         MilestoneHealth("watch", "watch", "deadline is within seven days with incomplete work"),
-        MilestoneHealth("risk", "at-risk", "deadline is near with blocked or dependency-waiting work"),
-        MilestoneHealth("healthy", "on-track", "remaining work is not currently deadline-constrained"),
+        MilestoneHealth(
+            "risk",
+            "at-risk",
+            "deadline is near with blocked or dependency-waiting work",
+        ),
+        MilestoneHealth(
+            "healthy",
+            "on-track",
+            "remaining work is not currently deadline-constrained",
+        ),
     )
 
     attention = DailyBriefService._milestone_attention(milestones, progress, health)
@@ -64,7 +77,9 @@ def test_milestone_attention_includes_only_watch_and_at_risk() -> None:
 
 def test_daily_brief_exposes_attention_from_existing_health(tmp_path: Path) -> None:
     repository = make_campaign(tmp_path)
-    repository.save(Action("done", "Approve Artwork", status="completed", milestone="content_freeze"))
+    repository.save(
+        Action("done", "Approve Artwork", status="completed", milestone="content_freeze")
+    )
     repository.save(Action("blocked", "Fix Artwork", status="blocked", milestone="content_freeze"))
     repository.save(
         Action("waiting", "Package Assets", milestone="content_freeze", depends_on=("later",))
