@@ -51,6 +51,7 @@ The format follows Keep a Changelog, and this project uses Semantic Versioning.
 - Preview-first `campaign start` workflow for milestone-ready music-release campaigns scoped to an organization project.
 - Recommended milestone-aware execution-plan preview after creating a music-release campaign, without writing actions.
 - Explicit `--apply-execution` handoff for deliberately persisting the reviewed recommended campaign actions.
+- Phased music-release execution plan spanning rollout definition, content production, pre-release teaser, launch, post-release follow-up, and performance review.
 
 ### Changed
 
