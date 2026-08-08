@@ -19,6 +19,7 @@ class DailyBriefRenderer:
                 f"{brief.brief_date.isoformat()}  •  status: {brief.campaign.status}"
             ),
             self._milestone_focus(brief.focus_milestone),
+            self._action_table("Focus Milestone Work", brief.focus_milestone_actions),
             self._milestone_table(brief.milestones),
             self._action_table("Today's Focus", brief.next_actions),
             self._action_table("Due Today", brief.today),
