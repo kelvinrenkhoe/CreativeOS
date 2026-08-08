@@ -11,13 +11,14 @@ from models.campaign_context import CampaignContext
 from services.action_repository import ActionRepository
 from services.action_service import ActionService
 from services.campaign_context import CAMPAIGN_FILENAME, CampaignContextService
+from services.domain_pack_registry import DomainPackRegistry, DomainPackRegistryError
 from services.execution_template import (
     ExecutionTemplatePlan,
     ExecutionTemplateService,
     ExecutionTemplateServiceError,
 )
 
-MUSIC_RELEASE_EXECUTION_TEMPLATE = "milestone-campaign"
+DEFAULT_DOMAIN_PACK = "music-release"
 
 
 class CampaignStartError(ValueError):
@@ -31,12 +32,13 @@ class CampaignStartPlan:
     campaign: CampaignContext
     release_date: date
     destination: Path
+    domain_pack_id: str
     recommended_template_id: str
     template_variables: tuple[tuple[str, str], ...]
 
 
 class CampaignStartService:
-    """Prepare and safely create a music-release campaign context."""
+    """Prepare and safely create a campaign context through a domain pack."""
 
     def __init__(
         self,
@@ -52,6 +54,7 @@ class CampaignStartService:
             organization_id,
             project_id,
         )
+        self.domain_packs = DomainPackRegistry(self.repository_root)
 
     def plan(
         self,
@@ -61,15 +64,22 @@ class CampaignStartService:
         *,
         objective: str,
         channels: tuple[str, ...],
+        domain_pack_id: str = DEFAULT_DOMAIN_PACK,
     ) -> CampaignStartPlan:
-        """Return a deterministic music-release campaign plan without writing files."""
+        """Return a deterministic campaign plan without writing files."""
         if not channels:
             raise CampaignStartError("at least one campaign channel is required")
+
+        try:
+            pack = self.domain_packs.load(domain_pack_id)
+            template_id = self.domain_packs.default_template_id(pack.pack_id)
+        except DomainPackRegistryError as exc:
+            raise CampaignStartError(f"unable to resolve domain pack: {exc}") from exc
 
         campaign = CampaignContext(
             campaign_id=campaign_id,
             name=name,
-            campaign_type="music-release",
+            campaign_type=pack.pack_id,
             status="draft",
             objective=objective,
             start_date=release_date - timedelta(days=21),
@@ -90,7 +100,8 @@ class CampaignStartService:
             campaign=campaign,
             release_date=release_date,
             destination=destination,
-            recommended_template_id=MUSIC_RELEASE_EXECUTION_TEMPLATE,
+            domain_pack_id=pack.pack_id,
+            recommended_template_id=template_id,
             template_variables=(("primary_channel", campaign.channels[0]),),
         )
 
@@ -122,7 +133,7 @@ class CampaignStartService:
         return self.context_service.load(plan.campaign.campaign_id)
 
     def preview_execution(self, plan: CampaignStartPlan) -> ExecutionTemplatePlan:
-        """Preview the recommended execution template for a persisted campaign."""
+        """Preview the domain pack's recommended execution template."""
         try:
             return self._execution_service(plan).plan(
                 plan.recommended_template_id,
@@ -133,7 +144,7 @@ class CampaignStartService:
             raise CampaignStartError(message) from exc
 
     def apply_execution(self, plan: CampaignStartPlan) -> tuple[Action, ...]:
-        """Explicitly persist the previously recommended execution template."""
+        """Explicitly persist the domain pack's recommended execution template."""
         try:
             return self._execution_service(plan).apply(
                 plan.recommended_template_id,
